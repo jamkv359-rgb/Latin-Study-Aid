@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Beta Archives Homepage</title>
+<link rel="stylesheet" href="../theme.css">
+<style>
+  .side, .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .container {
+    width: min(1000px, 100%);
+  }
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  h1 { margin: 0; }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .category-card {
+    padding: 24px;
+  }
+
+  .category-card h2 {
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-button:hover {
+    transform: translateX(5px);
+  }
+
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+  }
+</style>
+<script src="../interact.js"></script>
+</head>
+<body data-page-type="archive">
+   
+
+<div class="container" >
+  <div class="header">
+    <img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+    <h1 style="margin-top: 10vh;">Beta Archives</h1>
+    <p style="color:var(--muted);"><span id="username-greet"></span>This is directory for all unpolished pages, scrapped in this website's beta version.</p>
+    <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="category-card">
+      <h2>Nouns</h2>
+      <div class="link-group">
+        <a href="../nouns/decl1.html" class="nav-button">1st Declension <span>→</span></a>
+        <a href="../nouns/decl2.html" class="nav-button">2nd Declension <span>→</span></a>
+        <a href="../nouns/decl3.html" class="nav-button">3rd Declension <span>→</span></a>
+        <a href="../nouns/decl4.html" class="nav-button">4th Declension <span>→</span></a>
+        <a href="../nouns/decl5.html" class="nav-button">5th Declension <span>→</span></a>
+      </div>
+    </section>
+    <section class="category-card">
+      <h2>Verbs</h2>
+      <div class="link-group">
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 5px;">Indicative Active</div>
+        <a href="../verbs/indAct1Conj.html" class="nav-button">1st Conj. <span>→</span></a>
+        <a href="../verbs/indAct2Conj.html" class="nav-button">2nd Conj. <span>→</span></a>
+        <a href="../verbs/indAct3Conj.html" class="nav-button">3rd Conj. <span>→</span></a>
+        <a href="../verbs/indAct4Conj.html" class="nav-button">4th Conj. <span>→</span></a>
+        <div style="font-size: 12px; color: var(--muted); margin: 10px 0 5px 0;">Subjunctive Active</div>
+        <a href="../verbs/subAct1Conj.html" class="nav-button">1st Conj. <span>→</span></a>
+        <a href="../verbs/subAct2Conj.html" class="nav-button">2nd Conj. <span>→</span></a>
+        <a href="../verbs/subAct3Conj.html" class="nav-button">3rd Conj. <span>→</span></a>
+        <a href="../verbs/subAct4Conj.html" class="nav-button">4th Conj. <span>→</span></a>
+        
+      </div>
+    </section>
+
+    <section class="category-card">
+      <h2>Pronouns</h2>
+      <div class="link-group">
+        
+        <a href="../pronouns/hic.html" class="nav-button">Hic, Haec, Hoc <span>→</span></a>
+        <a href="../pronouns/ille.html" class="nav-button">Ille, Illa, Illud <span>→</span></a>
+        <a href="../pronouns/is.html" class="nav-button">Is, Ea, Id <span>→</span></a>
+        <a href="../pronouns/ipse.html" class="nav-button">Ipse, Ipsa, Ipsum <span>→</span></a>
+        <a href="../pronouns/qui.html" class="nav-button">Qui, Quae, Quod <span>→</span></a>
+        
+      </div>
+    </section>
+    <section class="category-card">
+      <h2>Vocab</h2>
+      <div class="link-group">
+        <a href="../vocab/oldVocab2.html" class="nav-button">Cambridge Course; Up to Stage 15<span>→</span></a>
+        <a href="../vocab/oldVocab.html" class="nav-button">Cambridge Course; Up to Stage 28<span>→</span></a>
+        <a href="../vocab/oldVocab3.html" class="nav-button">Cambridge Course; Up to Stage 40<span>→</span></a>
+      </div>
+    </section>
+    <section class="category-card">
+      <h2>Other</h2>
+      <div class="link-group">
+        <a href="../archives/racketing&labelling.html" class="nav-button">Legacy Course Study Aid<span>→</span></a>
+      </div>
+    </section>
+
+    
+   
+    
+  </div>
+
+</div>
+
+
+
+<script src="../achievementData.js"></script>
+</body>
+</html>

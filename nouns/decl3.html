@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Latin Noun Tables: Third Declension</title>
+<link rel="stylesheet" type="text/css" href="./nounStyle.css" />
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h2>Latin Noun Tables: Third Declension</h2>
+   <div class="stem">
+    Masc: <strong>mercator, mercatoris</strong> • Fem:
+    <strong>urbs, urbis</strong>  • Neut:
+    <strong>nomen, nominis</strong>
+  </div>
+
+  </header>
+<div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+  <div id="table-wrapper"></div>
+
+  <div class="controls">
+    <button onclick="checkAnswers()">Check Answers</button>
+    <button onclick="resetAll()">Reset</button>
+  </div>
+</div>
+
+<script>
+/**
+ * DATA SECTION
+ * Add, remove, or edit nouns here.
+ */
+const rowLabels = ["Nominative", "Accusative", "Genitive", "Dative", "Ablative"];
+
+const nounData = [
+  {
+    title: "Third Declension: Masc/Fem (mercator, mercatoris)",
+    stem: "mercator-",
+    answers: [
+      ["mercator",   "mercatores"],   // Nom
+      ["mercatorem", "mercatores"],   // Acc
+      ["mercatoris", "mercatorum"],   // Gen
+      ["mercatori",  "mercatoribus"], // Dat
+      ["mercatore",  "mercatoribus"]  // Abl
+    ]
+  },
+  {
+    title: "Third Declension: I-Stem (urbs, urbis)",
+    stem: "urb-",
+    answers: [
+      ["urbs",   "urbes"],   // Nom
+      ["urbem",  "urbes"],   // Acc
+      ["urbis",  "urbium"],  // Gen
+      ["urbi",   "urbibus"], // Dat
+      ["urbe",   "urbibus"]  // Abl
+    ]
+  },
+  {
+    title: "Third Declension: Neuter (nomen, nominis)",
+    stem: "nomin-",
+    answers: [
+      ["nomen",   "nomina"],   // Nom
+      ["nomen",   "nomina"],   // Acc
+      ["nominis", "nominum"],  // Gen
+      ["nomini",  "nominibus"],// Dat
+      ["nomine",  "nominibus"] // Abl
+    ]
+  }
+];
+
+/**
+ * ENGINE CODE
+ */
+const wrapper = document.getElementById("table-wrapper");
+
+// Generate tables dynamically
+nounData.forEach((noun, tableIdx) => {
+  const sectionHeader = document.createElement("div");
+  sectionHeader.style.marginTop = "40px";
+  sectionHeader.innerHTML = `<h3>${noun.title}</h3><div class="stem">Stem: ${noun.stem}</div>`;
+  wrapper.appendChild(sectionHeader);
+
+  const table = document.createElement("table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Case</th>
+        <th>Singular</th>
+        <th>Plural</th>
+      </tr>
+    </thead>
+    <tbody id="grid-${tableIdx}"></tbody>
+  `;
+  wrapper.appendChild(table);
+
+  const tbody = document.getElementById(`grid-${tableIdx}`);
+
+  for (let r = 0; r < rowLabels.length; r++) {
+    let row = document.createElement("tr");
+
+    // Case Label Column
+    let labelCell = document.createElement("td");
+    labelCell.className = "case-label";
+    labelCell.textContent = rowLabels[r];
+    row.appendChild(labelCell);
+
+    // Singular and Plural Columns
+    for (let c = 0; c < 2; c++) {
+      let cell = document.createElement("td");
+      
+      let input = document.createElement("input");
+      input.dataset.table = tableIdx;
+      input.dataset.row = r;
+      input.dataset.col = c;
+      input.autocomplete = "off";
+      input.addEventListener("keydown", handleNavigation);
+
+      let feedback = document.createElement("div");
+      feedback.className = "feedback";
+
+      cell.appendChild(input);
+      cell.appendChild(feedback);
+      row.appendChild(cell);
+    }
+    tbody.appendChild(row);
+  }
+});
+
+function handleNavigation(e) {
+  let t = parseInt(this.dataset.table);
+  let r = parseInt(this.dataset.row);
+  let c = parseInt(this.dataset.col);
+
+  if (e.key === "Enter" || e.key === "Tab") {
+    e.preventDefault();
+    
+    if (c === 0) {
+      moveTo(t, r, 1); // Move to Plural
+    } else if (r < rowLabels.length - 1) {
+      moveTo(t, r + 1, 0); // Move to next row Singular
+    } else {
+      moveTo(t + 1, 0, 0); // Move to next table Singular
+    }
+  }
+}
+
+function moveTo(t, r, c) {
+  if (t >= nounData.length) t = 0;
+  if (r >= rowLabels.length) r = 0;
+
+  let next = document.querySelector(`input[data-table="${t}"][data-row="${r}"][data-col="${c}"]`);
+  if (next) next.focus();
+}
+
+function checkAnswers() {
+  document.querySelectorAll("input").forEach(input => {
+    let t = input.dataset.table;
+    let r = input.dataset.row;
+    let c = input.dataset.col;
+    
+    let correct = nounData[t].answers[r][c];
+    let val = input.value.trim().toLowerCase();
+
+    let feedback = input.parentElement.querySelector(".feedback");
+
+    if (val === correct) {
+      feedback.textContent = "✓";
+      feedback.className = "feedback correct";
+    } else {
+      feedback.textContent = "✗ " + correct;
+      feedback.className = "feedback wrong";
+    }
+  });
+}
+
+function resetAll() {
+  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.querySelectorAll(".feedback").forEach(f => {
+    f.textContent = "";
+    f.className = "feedback";
+  });
+  const firstInput = document.querySelector("input");
+  if (firstInput) firstInput.focus();
+}
+</script>
+
+</body>
+</html>

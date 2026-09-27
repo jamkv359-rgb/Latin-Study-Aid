@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noun Endings Condensed</title>
+    <link rel="stylesheet" href="../theme.css">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: min(1000px, 92vw);
+            margin: 40px 0;
+        }
+
+        header {
+            padding: 20px 24px;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            margin-bottom: 20px;
+        }
+
+        .stem {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+        }
+
+        #settingsPanel,
+        #modePanel,
+        #wordPanel {
+            padding: 20px;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        #settingsPanel h2,
+        #modePanel h2,
+        #wordPanel h2 {
+            margin-bottom: 15px;
+        }
+
+        .filterGrid,
+        .settings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .filterGroup {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: calc(50% - 10px);
+            box-sizing: border-box;
+        }
+
+        .filterGroup h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .filterGroup label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+            text-align: left;
+        }
+
+        .filterGroup input,
+        .check {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        button {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            font-weight: 600;
+            font-family: inherit;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        td input {
+            width: 100%;
+            padding: 8px;
+            outline: none;
+            transition: 0.15s ease;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 700px) {
+            .filterGroup {
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+        .adContainer {
+            margin: 20px 0;
+            width: min(1000px, 100%);
+        }
+
+        .ads {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ad {
+            padding: 10px;
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: calc(20% - 10px);
+        }
+        .bottom {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            }
+    </style>
+    <script src="../interact.js"></script>
+</head>
+<body data-page-type="noun">
+    <img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0;   z-index: 9999;" >
+        <div class="container" style="margin-top:15vh;">
+
+            <header>
+                <h2>Latin Noun Ending Drill</h2>
+                <div style="color:var(--muted); margin: 10px 0px 2px 0px"><span id="username-greet"></span>Select what noun endings you want, then test youself~</div>
+                <div style="display:flex; gap:10px;">
+                    <div class='interact' style= "background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px; margin-top: 10px;"></div>
+                </div>
+                <div class="stem"><strong>Declensions</strong> • Cases • Numbers</div>
+                <div class="stem"><strong>Tab</strong> → Next input in row</div>
+                <div class="stem"><strong>Enter</strong> → Next input in column</div>
+            </header>
+
+            <section id="modePanel">
+                <h2>Test Mode</h2>
+                <div class="filterGroup" style="width: 100%; box-sizing: border-box;">
+                    <label><input type="radio" name="testMode" class="check" value="general" checked> General endings <span style="color:var(--muted); font-weight:400;">— the non-word-specific declension pattern</span></label>
+                    <label><input type="radio" name="testMode" class="check" value="specific"> Word-specific <span style="color:var(--muted); font-weight:400;">— decline one randomly chosen real noun</span></label>
+                </div>
+            </section>
+
+            <section id="settingsPanel">
+                <h2>Select Forms To Test</h2>
+
+                <div class="filterGrid">
+                    <div class="filterGroup">
+                        <h3>Declensions</h3>
+                        <label><input type="checkbox" class="check" data-group="declension" value="1st" checked> 1st</label>
+                        <label><input type="checkbox" class="check" data-group="declension" value="2ndM" checked> 2nd Masculine</label>
+                        <label><input type="checkbox" class="check" data-group="declension" value="2ndN" checked> 2nd Neuter</label>
+                        <label><input type="checkbox" class="check" data-group="declension" value="3rdMF" checked> 3rd Masculine/Feminine</label>
+                        <label><input type="checkbox" class="check" data-group="declension" value="3rdN" checked> 3rd Neuter</label>
+                        <label><input type="checkbox" class="check" data-group="declension" value="4thMF" checked> 4th Masculine/Feminine</label>
+                        <label><input type="checkbox" class="check" data-group="declension" value="4thN" checked> 4th Neuter</label>
+                        <label><input type="checkbox" class="check" data-group="declension" value="5th" checked> 5th</label>
+                    </div>
+
+                    <div class="filterGroup">
+                        <h3>Cases</h3>
+                        <label><input type="checkbox" class="check" data-group="case" value="nom" checked> Nominative</label>
+                        <label><input type="checkbox" class="check" data-group="case" value="acc" checked> Accusative</label>
+                        <label><input type="checkbox" class="check" data-group="case" value="gen" checked> Genitive</label>
+                        <label><input type="checkbox" class="check" data-group="case" value="dat" checked> Dative</label>
+                        <label><input type="checkbox" class="check" data-group="case" value="abl" checked> Ablative</label>
+                    </div>
+
+                    <div class="filterGroup">
+                        <h3>Numbers</h3>
+                        <label><input type="checkbox" class="check" data-group="number" value="singular" checked> Singular</label>
+                        <label><input type="checkbox" class="check" data-group="number" value="plural" checked> Plural</label>
+                    </div>
+
+                    <div class="filterGroup">
+                        <h3>Row Order</h3>
+                        <label>
+                            <input type="radio" name="rowOrder" class="check" value="number-first" checked>
+                            Singular then plural
+                        </label>
+                        <label>
+                            <input type="radio" name="rowOrder" class="check" value="case-first">
+                            Case first
+                        </label>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="submit-btn" onclick="checkAnswers()">Submit Answers</button>
+                    <button id="reset-btn" onclick="resetTable()">Reset</button>
+                </div>
+            </section>
+
+            <section id="wordPanel" class="hidden">
+                <h2>Decline This Word</h2>
+                <div id="wordPrompt" style="margin-bottom: 15px; color: var(--muted);">Press "New Word" to begin.</div>
+                <div class="controls">
+                    <button id="newWord-btn" onclick="pickRandomNoun()">New Word</button>
+                    <button id="specific-submit-btn" onclick="checkSpecificAnswers()">Submit Answers</button>
+                </div>
+            </section>
+
+            <section class="result hidden" style="width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: calc(16px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(16px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(16px * var(--radius-mult-br, var(--radius-mult, 1))) calc(16px * var(--radius-mult-bl, var(--radius-mult, 1))); padding: 20px; box-shadow: var(--shadow); box-sizing: border-box;margin-bottom:15px;">
+
+                <div><strong>Finished!</strong></div>
+                <div class="results" style="display: flex; flex-wrap: wrap; width: 100%; flex-direction: row;">
+
+                </div>
+
+                <style>.hidden{display:none;}</style>
+            </section>
+            <div class="table-wrapper" id="generalTableWrapper">
+                <table id="latinTable">
+                    <thead></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="table-wrapper hidden" id="specificTableWrapper">
+                <table id="specificTable">
+                    <thead></thead>
+                    <tbody id="specificTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        <script src="../vocab/vocabDataLSA.js"></script>
+        <script src="../vocab/vocabData.js"></script>
+        <script src="../achievementData.js"></script>
+    <script>
+        const caseOptions = [
+            { key: "nom", label: "Nom" },
+            { key: "acc", label: "Acc" },
+            { key: "gen", label: "Gen" },
+            { key: "dat", label: "Dat" },
+            { key: "abl", label: "Abl" }
+        ];
+
+        const numberOptions = [
+            { key: "singular", label: "Singular" },
+            { key: "plural", label: "Plural" }
+        ];
+
+        const declensionOptions = [
+            { key: "1st", label: "1st", colIndex: 0, group: "1st" },
+            { key: "2ndM", label: "2nd (M)", colIndex: 1, group: "2nd" },
+            { key: "2ndN", label: "2nd (N)", colIndex: 2, group: "2nd" },
+            { key: "3rdMF", label: "3rd (M/F)", colIndex: 3, group: "3rd" },
+            { key: "3rdN", label: "3rd (N)", colIndex: 4, group: "3rd" },
+            { key: "4thMF", label: "4th (M/F)", colIndex: 5, group: "4th" },
+            { key: "4thN", label: "4th (N)", colIndex: 6, group: "4th" },
+            { key: "5th", label: "5th", colIndex: 7, group: "5th" }
+        ];
+
+        const answers = [
+            ["a", "us", "um", "-", "-", "us", "u", "es"],
+            ["am", "um", "um", "em", "-", "um", "u", "em"],
+            ["ae", "i", "i", "is", "is", "us", "us", "ei"],
+            ["ae", "o", "o", "i", "i", "ui", "u", "ei"],
+            ["a", "o", "o", "e", "e", "u", "u", "e"],
+            ["ae", "i", "a", "es", "a", "us", "ua", "es"],
+            ["as", "os", "a", "es", "a", "us", "ua", "es"],
+            ["arum", "orum", "orum", "um", "um", "uum", "uum", "erum"],
+            ["is", "is", "is", "ibus", "ibus", "ibus", "ibus", "ebus"],
+            ["is", "is", "is", "ibus", "ibus", "ibus", "ibus", "ebus"]
+        ];
+
+        // Row labels in the same order as answers[], for the "you entered a
+        // different case/number's ending" hint in checkAnswers().
+        const rowLabels = [];
+        numberOptions.forEach(numberObj => {
+            caseOptions.forEach(caseObj => {
+                rowLabels.push(`${caseObj.label} ${numberObj.label}`);
+            });
+        });
+
+        /* ============================================================
+           WORD-SPECIFIC NOUN PARSER
+           Rule-based form generator, not a database. Every noun in
+           vocab/vocabData.js is stored dictionary-style as
+           latin: [nominative, genitive], with gender in `info` and the
+           declension text in `subtype`. Declension is derived purely from the
+           genitive singular's ending (the standard method - it's the
+           one form that actually reveals the declension), a stem is
+           cut from that genitive, and every OTHER form is generated
+           from the stem using the same endings as the `answers` table
+           above. Nominative and genitive singular are never generated
+           - they're the given dictionary prompt.
+
+           A word is only usable here if its genitive matches one of
+           the 5 real singular-genitive endings below. That alone
+           already excludes plural-only entries like "litterae" (its
+           stored "genitive" - litterarum - is a genitive PLURAL
+           ending, which doesn't match any singular pattern), on top
+           of an explicit "plural" check in the gender/subtype text as
+           a second safety net.
+        ============================================================ */
+
+        const DECLENSION_LABELS = { 1: "1st declension", 2: "2nd declension", 3: "3rd declension", 4: "4th declension", 5: "5th declension" };
+
+        const MACRON_MAP = { "ā": "a", "ē": "e", "ī": "i", "ō": "o", "ū": "u" };
+        function stripMacrons(s) {
+            return s.replace(/[āēīōū]/g, c => MACRON_MAP[c]);
+        }
+
+        function analyzeNoun(nom, gen, genderRaw, subtypeRaw) {
+            if (!nom || !gen) return null;
+
+            // Macron-stripped for suffix matching only - the vocab data has a
+            // handful of entries with an inconsistently-missing macron on the
+            // genitive (e.g. "gladii" instead of "gladiī"), and this shouldn't
+            // exclude an otherwise perfectly regular noun. The stem itself is
+            // always sliced from the ORIGINAL (macron-preserving) genitive.
+            const genN = stripMacrons(gen);
+            const nomN = stripMacrons(nom);
+
+            let declension, stem;
+            // 2nd declension "e-stem" nouns (deus, deī) are genuinely
+            // ambiguous against 5th declension by genitive suffix alone -
+            // "deī" ends in "eī" just like a real 5th declension genitive.
+            // 5th declension nominatives always end in "-ēs", 2nd declension
+            // ones never do, so that's the tie-breaker.
+            if (nomN.endsWith("es") && genN.endsWith("ei")) { declension = 5; stem = gen.slice(0, -2); }
+            else if (genN.endsWith("ae")) { declension = 1; stem = gen.slice(0, -2); }
+            else if (genN.endsWith("us")) { declension = 4; stem = gen.slice(0, -2); }
+            else if (genN.endsWith("is")) { declension = 3; stem = gen.slice(0, -2); }
+            else if (genN.endsWith("i")) { declension = 2; stem = gen.slice(0, -1); }
+            else return null;
+
+            if (!stem) return null;
+
+            const genderLower = (genderRaw || "").toLowerCase();
+            if (genderLower.includes("plural")) return null;
+
+            const isNeuter = genderLower.includes("neuter");
+            let genderLabel = "masculine";
+            if (genderLower.includes("masculine") && genderLower.includes("feminine")) genderLabel = "masculine/feminine";
+            else if (genderLower.includes("feminine")) genderLabel = "feminine";
+            else if (genderLower.includes("neuter")) genderLabel = "neuter";
+
+            // Extra safety net: the vocab data labels declension directly in
+            // `subtype` (e.g. "2nd declension") - if that disagrees with
+            // what the genitive ending implies, treat the entry as an anomaly
+            // rather than trust either blindly.
+            const subtypeMatch = /^(\d)(?:st|nd|rd|th) declension$/i.exec((subtypeRaw || "").trim());
+            if (subtypeMatch && parseInt(subtypeMatch[1], 10) !== declension) return null;
+
+            return { nom, gen, declension, isNeuter, genderLabel, stem };
+        }
+
+        function generateNounForms(analysis) {
+            const { declension, isNeuter, stem, nom } = analysis;
+
+            if (declension === 1) {
+                return {
+                    accS: [stem + "am"], datS: [stem + "ae"], ablS: [stem + "ā"],
+                    nomP: [stem + "ae"], accP: [stem + "ās"], genP: [stem + "ārum"],
+                    datP: [stem + "īs"], ablP: [stem + "īs"]
+                };
+            }
+            if (declension === 2) {
+                return isNeuter ? {
+                    accS: [nom], datS: [stem + "ō"], ablS: [stem + "ō"],
+                    nomP: [stem + "a"], accP: [stem + "a"], genP: [stem + "ōrum"],
+                    datP: [stem + "īs"], ablP: [stem + "īs"]
+                } : {
+                    accS: [stem + "um"], datS: [stem + "ō"], ablS: [stem + "ō"],
+                    nomP: [stem + "ī"], accP: [stem + "ōs"], genP: [stem + "ōrum"],
+                    datP: [stem + "īs"], ablP: [stem + "īs"]
+                };
+            }
+            if (declension === 3) {
+                // 3rd declension genitive plural is the one cell where CLC
+                // itself teaches two possible endings (-um / i-stem -ium) -
+                // both are accepted rather than guessing which this word is.
+                return isNeuter ? {
+                    accS: [nom], datS: [stem + "ī"], ablS: [stem + "e"],
+                    nomP: [stem + "a"], accP: [stem + "a"], genP: [stem + "um", stem + "ium"],
+                    datP: [stem + "ibus"], ablP: [stem + "ibus"]
+                } : {
+                    accS: [stem + "em"], datS: [stem + "ī"], ablS: [stem + "e"],
+                    nomP: [stem + "ēs"], accP: [stem + "ēs"], genP: [stem + "um", stem + "ium"],
+                    datP: [stem + "ibus"], ablP: [stem + "ibus"]
+                };
+            }
+            if (declension === 4) {
+                return isNeuter ? {
+                    accS: [nom], datS: [stem + "ū"], ablS: [stem + "ū"],
+                    nomP: [stem + "ua"], accP: [stem + "ua"], genP: [stem + "uum"],
+                    datP: [stem + "ibus"], ablP: [stem + "ibus"]
+                } : {
+                    accS: [stem + "um"], datS: [stem + "uī"], ablS: [stem + "ū"],
+                    nomP: [stem + "ūs"], accP: [stem + "ūs"], genP: [stem + "uum"],
+                    datP: [stem + "ibus"], ablP: [stem + "ibus"]
+                };
+            }
+            // declension 5 - dative singular is identical to the genitive
+            // singular (both "-eī"/"-ēī") for every 5th declension noun, so
+            // it's reused directly rather than re-derived: whether the e is
+            // short (reī) or long (diēī) depends on the preceding sound, and
+            // the given genitive already encodes that correctly.
+            return {
+                accS: [stem + "em"], datS: [analysis.gen], ablS: [stem + "ē"],
+                nomP: [stem + "ēs"], accP: [stem + "ēs"], genP: [stem + "ērum"],
+                datP: [stem + "ēbus"], ablP: [stem + "ēbus"]
+            };
+        }
+
+        // Readable labels for the "you entered a different form" hint in
+        // checkSpecificAnswers() - covers every key that can appear in a
+        // word's `forms` object, not just the gated/testable ones.
+        const FORM_LABELS = {
+            nomS: "Nominative Singular", accS: "Accusative Singular",
+            genS: "Genitive Singular", datS: "Dative Singular", ablS: "Ablative Singular",
+            nomP: "Nominative Plural", accP: "Accusative Plural",
+            genP: "Genitive Plural", datP: "Dative Plural", ablP: "Ablative Plural"
+        };
+
+        function getEligibleNouns() {
+            const cappedList = filterVocabUpToChapter(vocabData);
+
+            const eligible = [];
+            cappedList.forEach(word => {
+                if (word.type !== "noun") return;
+                if (!Array.isArray(word.latin) || word.latin.length < 2 || !word.latin[0] || !word.latin[1]) return;
+
+                const analysis = analyzeNoun(word.latin[0], word.latin[1], word.info, word.subtype);
+                if (!analysis) return;
+
+                eligible.push({ word, analysis });
+            });
+            return eligible;
+        }
+
+        let currentNoun = null;
+
+        function pickRandomNoun() {
+            const eligible = getEligibleNouns();
+            if (eligible.length === 0) {
+                alert("No usable nouns found for the current word selection.");
+                return;
+            }
+
+            const chosen = eligible[Math.floor(Math.random() * eligible.length)];
+            currentNoun = {
+                word: chosen.word,
+                analysis: chosen.analysis,
+                forms: generateNounForms(chosen.analysis)
+            };
+
+            renderWordPrompt();
+            renderSpecificTable();
+            document.querySelector(".result").classList.add("hidden");
+        }
+
+        function renderWordPrompt() {
+            const { word, analysis } = currentNoun;
+            document.getElementById("wordPrompt").innerHTML = `
+                <div style="font-size:22px; font-weight:700; color:var(--text);">${analysis.nom}, ${analysis.gen}</div>
+                <div style="color:var(--muted); margin-top:4px;">${DECLENSION_LABELS[analysis.declension]} • ${analysis.genderLabel} • "${(word.english || []).join(", ")}"</div>
+            `;
+        }
+
+        function renderSpecificTable() {
+            const thead = document.querySelector("#specificTable thead");
+            const tbody = document.getElementById("specificTableBody");
+
+            thead.innerHTML = `<tr><th class="border-right-thick">Case</th><th class="border-right-thick">Singular</th><th>Plural</th></tr>`;
+
+            const rows = [
+                { label: "Nominative", key: "nom" },
+                { label: "Accusative", key: "acc" },
+                { label: "Genitive", key: "gen" },
+                { label: "Dative", key: "dat" },
+                { label: "Ablative", key: "abl" }
+            ];
+
+            const { analysis } = currentNoun;
+
+            function testableCell(formKey) {
+                return `<input type="text" data-form="${formKey}" autocomplete="off">`;
+            }
+
+            tbody.innerHTML = rows.map(row => {
+                const sgKey = row.key + "S";
+                const plKey = row.key + "P";
+
+                const sgCell = sgKey === "nomS"
+                    ? `<span style="font-weight:700;">${analysis.nom}</span>`
+                    : sgKey === "genS"
+                        ? `<span style="font-weight:700;">${analysis.gen}</span>`
+                        : testableCell(sgKey);
+
+                return `<tr>
+                    <td class="border-right-thick"><strong>${row.label}</strong></td>
+                    <td class="border-right-thick">${sgCell}</td>
+                    <td>${testableCell(plKey)}</td>
+                </tr>`;
+            }).join("");
+        }
+
+        function checkSpecificAnswers() {
+            if (!currentNoun) return;
+
+            const { forms } = currentNoun;
+            let score = 0;
+            let total = 0;
+
+            document.querySelectorAll("#specificTableBody input[data-form]").forEach(input => {
+                const accepted = forms[input.dataset.form];
+                if (!accepted) return;
+
+                const val = input.value.trim().toLowerCase();
+                const acceptedLower = accepted.map(a => a.toLowerCase());
+                const td = input.parentElement;
+
+                total += 1;
+                if (val !== "" && acceptedLower.includes(val)) {
+                    td.innerHTML = `<span class="correct" style="color:var(--greenpop);">${input.value.trim()}</span>`;
+                    score += 1;
+                } else {
+                    let hint = "";
+                    if (val !== "") {
+                        const matchKey = Object.keys(forms).find(key =>
+                            key !== input.dataset.form &&
+                            forms[key] && forms[key].map(a => a.toLowerCase()).includes(val)
+                        );
+                        if (matchKey && FORM_LABELS[matchKey]) {
+                            hint = ` <span style="color:var(--muted); font-style:italic;">(that's ${FORM_LABELS[matchKey]})</span>`;
+                        }
+                    }
+                    td.innerHTML = `<span class="incorrect-text" style="color:var(--redpop);">${val}</span><span class="correction-text">${accepted.join(" / ")}</span>${hint}`;
+                }
+            });
+
+            document.getElementById("specific-submit-btn").disabled = true;
+            document.querySelector(".result").classList.remove("hidden");
+            document.querySelector(".results").innerHTML += `
+                <div style="width: calc(((100% - 40px) * 0.25) - 24px); border: 1px solid var(--border); background-color: var(--bg); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); margin:5px; padding: 10px;">
+                    <div id="score">${score}/${total} → ${Math.floor((score/total)*100)}%</div>
+                    <div id="quotes" style="color: var(--text);">${calcScore(score, total)}</div>
+                </div>`;
+
+            const result = {
+                date: new Date().toISOString(),
+
+                testType: "Grammar",
+                page: document.title,
+
+                score,
+                total,
+                percent: Math.round(score / total * 100),
+
+                quote: calcScore(score, total),
+
+                settings: {
+                    mode: "word-specific",
+                    course: getActiveCourse(),
+                    word: currentNoun.analysis.nom,
+                    genitive: currentNoun.analysis.gen,
+                    declension: DECLENSION_LABELS[currentNoun.analysis.declension],
+                    gender: currentNoun.analysis.genderLabel
+                }
+            };
+            let history = JSON.parse(localStorage.getItem("latinHistory")) || [];
+            history.unshift(result);
+            localStorage.setItem("latinHistory", JSON.stringify(history));
+        }
+
+        function applyTestMode() {
+            const mode = getSelectedRadio("testMode");
+            const isSpecific = mode === "specific";
+
+            document.getElementById("settingsPanel").classList.toggle("hidden", isSpecific);
+            document.getElementById("wordPanel").classList.toggle("hidden", !isSpecific);
+            document.getElementById("generalTableWrapper").classList.toggle("hidden", isSpecific);
+            document.getElementById("specificTableWrapper").classList.toggle("hidden", !isSpecific);
+            document.querySelector(".result").classList.add("hidden");
+            document.getElementById("submit-btn").disabled = false;
+            document.getElementById("specific-submit-btn").disabled = false;
+
+            if (isSpecific && !currentNoun) pickRandomNoun();
+        }
+
+        function getSelectedValues(groupName) {
+            return [
+                ...document.querySelectorAll(`[data-group="${groupName}"]:checked`)
+            ].map(cb => cb.value);
+        }
+
+        function getSelectedRadio(name) {
+            const checked = document.querySelector(`input[name="${name}"]:checked`);
+            return checked ? checked.value : null;
+        }
+
+        function getAnswerRowIndex(numberKey, caseKey) {
+            const caseIndex =
+                caseOptions.findIndex(c => c.key === caseKey);
+
+            const numberIndex =
+                numberOptions.findIndex(n => n.key === numberKey);
+
+            return numberIndex * caseOptions.length + caseIndex;
+        }
+
+        function getVisibleRows() {
+            const selectedCases =
+                getSelectedValues("case");
+
+            const selectedNumbers =
+                getSelectedValues("number");
+
+            const rowOrder =
+                getSelectedRadio("rowOrder");
+
+            const visibleCases =
+                caseOptions.filter(c => selectedCases.includes(c.key));
+
+            const visibleNumbers =
+                numberOptions.filter(n => selectedNumbers.includes(n.key));
+
+            let rows = [];
+
+            if (rowOrder === "case-first") {
+                visibleCases.forEach(caseObj => {
+                    visibleNumbers.forEach(numberObj => {
+                        rows.push({
+                            caseKey: caseObj.key,
+                            caseLabel: caseObj.label,
+                            numberKey: numberObj.key,
+                            numberLabel: numberObj.label,
+                            answerRowIndex: getAnswerRowIndex(numberObj.key, caseObj.key)
+                        });
+                    });
+                });
+            } else {
+                visibleNumbers.forEach(numberObj => {
+                    visibleCases.forEach(caseObj => {
+                        rows.push({
+                            caseKey: caseObj.key,
+                            caseLabel: caseObj.label,
+                            numberKey: numberObj.key,
+                            numberLabel: numberObj.label,
+                            answerRowIndex: getAnswerRowIndex(numberObj.key, caseObj.key)
+                        });
+                    });
+                });
+            }
+
+            return rows;
+        }
+
+        function getVisibleDeclensions() {
+            const selectedDeclensions =
+                getSelectedValues("declension");
+
+            return declensionOptions.filter(d =>
+                selectedDeclensions.includes(d.key)
+            );
+        }
+
+        function isEndOfVisibleDeclensionGroup(visibleDeclensions, index) {
+            const current =
+                visibleDeclensions[index];
+
+            const next =
+                visibleDeclensions[index + 1];
+
+            if (!next) return true;
+
+            return current.group !== next.group;
+        }
+
+        function isEndOfVisibleRowGroup(rows, index) {
+            const rowOrder =
+                getSelectedRadio("rowOrder");
+
+            const current =
+                rows[index];
+
+            const next =
+                rows[index + 1];
+
+            if (!next) return false;
+
+            if (rowOrder === "case-first") {
+                return current.caseKey !== next.caseKey;
+            }
+
+            return current.numberKey !== next.numberKey;
+        }
+
+        function createTable() {
+            const thead =
+                document.querySelector("#latinTable thead");
+
+            const tbody =
+                document.getElementById("tableBody");
+
+            const visibleDeclensions =
+                getVisibleDeclensions();
+
+            const rows =
+                getVisibleRows();
+
+            thead.innerHTML = "";
+            tbody.innerHTML = "";
+
+            if (visibleDeclensions.length === 0) {
+                alert("Please select at least one declension.");
+                return;
+            }
+
+            if (rows.length === 0) {
+                alert("Please select at least one case and one number.");
+                return;
+            }
+
+            let headerHtml = `
+                <tr>
+                    <th class="border-right-thick">Num.</th>
+                    <th class="border-right-thick">Case</th>
+            `;
+
+            visibleDeclensions.forEach((declension, index) => {
+                const rightBorder =
+                    isEndOfVisibleDeclensionGroup(visibleDeclensions, index)
+                        ? "border-right-thick"
+                        : "";
+
+                headerHtml += `
+                    <th class="${rightBorder}">
+                        ${declension.label}
+                    </th>
+                `;
+            });
+
+            headerHtml += `</tr>`;
+            thead.innerHTML = headerHtml;
+
+            rows.forEach((rowData, rowIndex) => {
+                const bottomBorder =
+                    isEndOfVisibleRowGroup(rows, rowIndex)
+                        ? "border-bottom-thick"
+                        : "";
+
+                let rowHtml = `<tr>`;
+
+                rowHtml += `
+                    <td class="border-right-thick ${bottomBorder}">
+                        <strong>${rowData.numberLabel}</strong>
+                    </td>
+                `;
+
+                rowHtml += `
+                    <td class="border-right-thick ${bottomBorder}">
+                        <strong>${rowData.caseLabel}</strong>
+                    </td>
+                `;
+
+                visibleDeclensions.forEach((declension, colIndex) => {
+                    const rightBorder =
+                        isEndOfVisibleDeclensionGroup(visibleDeclensions, colIndex)
+                            ? "border-right-thick"
+                            : "";
+
+                    const correctAnswer =
+                        answers[rowData.answerRowIndex][declension.colIndex];
+
+                    rowHtml += `
+                        <td class="${rightBorder} ${bottomBorder}">
+                            <input
+                                type="text"
+                                data-row="${rowData.answerRowIndex}"
+                                data-col="${declension.colIndex}"
+                                data-answer="${correctAnswer}"
+                                autocomplete="off"
+                            >
+                        </td>
+                    `;
+                });
+
+                rowHtml += `</tr>`;
+                tbody.innerHTML += rowHtml;
+            });
+        }
+
+        function checkAnswers() {
+            let score = 0;
+            let total = 0;
+            document.querySelectorAll("input[data-answer]").forEach(input => {
+                    const val = input.value.trim().toLowerCase();
+
+                    const correctVal = input.dataset.answer.toLowerCase();
+
+                    const td = input.parentElement;
+                    if (correctVal === "-") {
+                        td.innerHTML = `<span class="blank-text" style='color:var(--yellowpop);'>${correctVal}</span>`;
+                    } else if (val === correctVal) {
+                        td.innerHTML = `<span class="correct" style='color:var(--greenpop);'>${val}</span>`;
+                        score+=1;
+                        total+=1;
+                    } else {
+                        let hint = "";
+                        if (val !== "") {
+                            const col = parseInt(input.dataset.col, 10);
+                            const row = parseInt(input.dataset.row, 10);
+                            const matchRow = answers.findIndex((rowArr, rIdx) =>
+                                rIdx !== row && rowArr[col].toLowerCase() === val
+                            );
+                            if (matchRow !== -1) {
+                                hint = ` <span style="color:var(--muted); font-style:italic;">(that's ${rowLabels[matchRow]})</span>`;
+                            }
+                        }
+                        td.innerHTML = `<span class="incorrect-text" style='color:var(--redpop);'>${val}</span><span class="correction-text">${correctVal}</span>${hint}`;
+                        total+=1;
+                    }
+                });
+            document.getElementById("submit-btn").disabled = true;
+            document.querySelector(".result").classList.remove("hidden");
+            document.querySelector(".results").innerHTML+=`
+                <div style="width: calc(((100% - 40px) * 0.25) - 24px); border: 1px solid var(--border); background-color: var(--bg); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); margin:5px; padding: 10px;">
+                    <div id="score">${score}/${total} → ${Math.floor((score/total)*100)}%</div>
+                    <div id="quotes" style="color: var(--text);">${calcScore(score, total)}</div>
+                </div>`;
+            const result = {
+                date: new Date().toISOString(),
+
+                testType: "Grammar",
+                page: document.title,
+
+                score,
+                total,
+                percent: Math.round(score/total*100),
+
+                quote: calcScore(score,total),
+
+                settings: {
+                    
+                    declensions: ["1st", "2ndM", "2ndN", "3rdMF", "3rdN", "4thMF", "4thN", "5th"],
+                    cases: ["nom", "acc", "gen", "dat", "abl"],
+                    numbers: ["singular", "plural"],
+                }
+            };
+            let history =JSON.parse(localStorage.getItem("latinHistory")) || [];
+                history.unshift(result);
+                localStorage.setItem("latinHistory",JSON.stringify(history));
+            console.log(localStorage.getItem('latinHistory'));     
+            
+        }
+
+        function resetTable() {
+            createTable();
+            document.getElementById("submit-btn").disabled = false;
+        }
+        function enableEnterColumnNavigation(tableId) {
+
+            const table =
+                document.getElementById(tableId);
+
+            table.addEventListener("keydown", function (e) {
+
+                if (e.key !== "Enter") return;
+
+                const currentInput = e.target;
+
+                if (currentInput.tagName !== "INPUT") return;
+
+                e.preventDefault();
+
+                const currentCell =
+                    currentInput.closest("td");
+
+                const currentRow =
+                    currentInput.closest("tr");
+
+                const rows =
+                    [...table.querySelectorAll("tbody tr")];
+
+                const currentRowIndex =
+                    rows.indexOf(currentRow);
+
+                const currentColIndex =
+                    [...currentRow.children].indexOf(currentCell);
+
+                // 1. Move down in the same visible column
+                for (let r = currentRowIndex + 1; r < rows.length; r++) {
+
+                    const nextCell =
+                        rows[r].children[currentColIndex];
+
+                    if (!nextCell) continue;
+
+                    const nextInput =
+                        nextCell.querySelector("input");
+
+                    if (nextInput) {
+                        nextInput.focus();
+                        return;
+                    }
+                }
+
+                // 2. If at bottom, move to top of next visible input column
+                const totalColumns =
+                    currentRow.children.length;
+
+                for (let c = currentColIndex + 1; c < totalColumns; c++) {
+
+                    for (let r = 0; r < rows.length; r++) {
+
+                        const nextCell =
+                            rows[r].children[c];
+
+                        if (!nextCell) continue;
+
+                        const nextInput =
+                            nextCell.querySelector("input");
+
+                        if (nextInput) {
+                            nextInput.focus();
+                            return;
+                        }
+                    }
+                }
+
+                // 3. If at the very end, wrap back to the first input
+                const firstInput =
+                    table.querySelector("tbody input");
+
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            });
+        }
+
+        document
+            .querySelectorAll(
+                '[data-group="declension"], [data-group="case"], [data-group="number"], input[name="rowOrder"]'
+            )
+            .forEach(control => {
+                control.addEventListener("change", resetTable);
+            });
+
+        document
+            .querySelectorAll('input[name="testMode"]')
+            .forEach(control => {
+                control.addEventListener("change", applyTestMode);
+            });
+
+        createTable();
+        enableEnterColumnNavigation("latinTable");
+        enableEnterColumnNavigation("specificTable");
+    </script>
+</body>
+</html>
+
+
+

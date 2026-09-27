@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Latin Pronoun Tables — Is, Ea, Id</title>
+<link rel="stylesheet" type="text/css" href="./pronounStyle.css" />
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<header>
+  <h2>Latin Pronoun Tables: Is, Ea, Id</h2>
+</header>
+
+<div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+<table>
+  <thead>
+    <tr>
+      <th>Case & Number</th>
+      <th>Is (m)</th>
+      <th>Ea (f)</th>
+      <th>Id (n)</th>
+    </tr>
+  </thead>
+
+
+  <tbody id="grid"></tbody>
+</table>
+
+
+<div class="controls">
+  <button onclick="checkAnswers()">Check Answers</button>
+  <button onclick="resetAll()">Reset</button>
+</div>
+
+
+</div>
+
+
+<script>
+
+
+const labels = [
+  "Nominative Singular","Accusative Singular","Genitive Singular","Dative Singular","Ablative Singular",
+  "Nominative Plural","Accusative Plural","Genitive Plural","Dative Plural","Ablative Plural"
+];
+
+
+const is = [
+  "is","eum","eius","ei","eo",
+  "ei","eos","eorum","eis","eis"
+];
+
+
+const ea = [
+  "ea","eam","eius","ei","ea",
+  "eae","eas","earum","eis","eis"
+];
+
+
+const id = [
+  "id","id","eius","ei","eo",
+  "ea","ea","eorum","eis","eis"
+];
+
+
+const grid = document.getElementById("grid");
+
+
+for (let r = 0; r < 10; r++) {
+  let row = document.createElement("tr");
+
+
+  let label = document.createElement("td");
+  label.textContent = labels[r];
+  row.appendChild(label);
+
+
+  row.appendChild(makeCell(r,0,is[r]));
+  row.appendChild(makeCell(r,1,ea[r]));
+  row.appendChild(makeCell(r,2,id[r]));
+
+
+  grid.appendChild(row);
+}
+
+
+function makeCell(r,c,answer){
+  let cell = document.createElement("td");
+
+
+  let input = document.createElement("input");
+  input.dataset.row = r;
+  input.dataset.col = c;
+  input.dataset.answer = answer;
+
+
+  input.addEventListener("keydown", handleNav);
+
+
+  let fb = document.createElement("div");
+  fb.className = "feedback";
+
+
+  cell.appendChild(input);
+  cell.appendChild(fb);
+
+
+  return cell;
+}
+
+
+function handleNav(e){
+  let r = +this.dataset.row;
+  let c = +this.dataset.col;
+
+
+  if(e.key==="Tab"){
+    e.preventDefault();
+    move(r,c+1);
+  }
+
+
+  if(e.key==="Enter"){
+    e.preventDefault();
+    move(r+1,c);
+  }
+}
+
+
+function move(r,c){
+  if(c>2){c=0;r++;}
+  if(r>9) r=0;
+
+
+  let next = document.querySelector(
+    `input[data-row="${r}"][data-col="${c}"]`
+  );
+
+
+  if(next) next.focus();
+}
+
+
+function checkAnswers(){
+  document.querySelectorAll("input").forEach(input=>{
+    let correct = input.dataset.answer;
+    let val = input.value.trim().toLowerCase();
+
+
+    let fb = input.parentElement.querySelector(".feedback");
+
+
+    if(val===correct){
+      fb.textContent="Correct";
+      fb.className="feedback correct";
+    } else {
+      fb.textContent="Incorrect → "+correct;
+      fb.className="feedback wrong";
+    }
+  });
+}
+
+
+function resetAll(){
+  document.querySelectorAll("input").forEach(i=>i.value="");
+  document.querySelectorAll(".feedback").forEach(f=>{
+    f.textContent="";
+    f.className="feedback";
+  });
+
+
+  document.querySelector("input").focus();
+}
+
+
+</script>
+
+
+</body>
+</html>

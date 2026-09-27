@@ -1,0 +1,3077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legacy Vocab & Grammar Tester</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --background: #ecf0f1;
+            --text: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .ad {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20%-10px);
+    margin: 10px 0px 10px 0px;
+    position: fixed;
+                left: 16px;
+                top: 16px;
+                z-index: 10000;
+
+}
+.ad:hover{
+    background: var(--bg);
+}
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            max-width: 850px;
+            width: 100%;
+            min-height: 540px;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        h1 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+            max-width: 350px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .btn-nav {
+            background-color: #95a5a6;
+            width: auto;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .btn-nav:hover {
+            background-color: #7f8c8d;
+        }
+        select, input[type="text"] {
+            padding: 12px;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 80%;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .invisible {
+            visibility: hidden !important;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+            min-height: 110px;
+        }
+        .option-btn {
+            background-color: #ecf0f1;
+            color: var(--text);
+            border: 2px solid var(--secondary);
+            width: 100%;
+            max-width: none;
+        }
+        .option-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+        #feedback {
+            margin: 10px 0;
+            font-size: 16px;
+            min-height: 95px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .correct { color: var(--success); font-weight: bold; font-size: 18px; }
+        .incorrect { color: var(--danger); font-weight: bold; font-size: 18px; }
+        .hint {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            min-height: 24px;
+        }
+        
+        .grammar-select-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px auto;
+            max-width: 420px;
+        }
+
+        .chapter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            text-align: left;
+            max-width: 420px;
+        }
+        .chapter-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .chapter-label input {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Auto-stages Notice */
+        .auto-stage-box {
+            background: #e8f8f5;
+            border: 1px solid #27ae60;
+            color: #1e8449;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 10px auto;
+            max-width: 420px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* Bracketing & Labeling Styles */
+        .label-key-box {
+            background: #eef2f5;
+            border: 1px solid #dcdde1;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 10px 0 20px 0;
+            text-align: left;
+            font-size: 13px;
+        }
+        .label-key-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .label-key-item {
+            background: #fff;
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .sentence-words-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .word-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+            border: 1px solid #dcdde1;
+            border-radius: 8px;
+            padding: 8px;
+            min-width: 90px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .word-card input.label-box {
+            width: 100%;
+            padding: 4px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            margin: 0 0 6px 0;
+            font-weight: bold;
+        }
+        .word-card .latin-word {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 4px 0;
+            position: relative;
+        }
+        .bracket-controls {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .bracket-btn {
+            background-color: #e0e0e0;
+            color: #333;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            width: auto;
+        }
+        .bracket-btn.active {
+            background-color: var(--secondary);
+            color: white;
+            border-color: #2980b9;
+        }
+        .live-bracket-preview {
+            background: #e1f5fe;
+            border: 1px solid #b3e5fc;
+            color: #0277bd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .preview-search {
+            width: 100% !important;
+            max-width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+        }
+        .preview-table-wrapper {
+            max-height: 320px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: left;
+        }
+        .preview-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .preview-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .preview-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .badge {
+            display: inline-block;
+            background: #e1f5fe;
+            color: #0288d1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* Visual Indicators for Syntax Analysis */
+        .underline-ending {
+            text-decoration: underline;
+            text-decoration-color: #e74c3c;
+            text-decoration-thickness: 2px;
+        }
+        .prep-underlink {
+            position: absolute;
+            bottom: -6px;
+            left: 5%;
+            width: 90%;
+            height: 3px;
+            background-color: #8e44ad;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+<div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+<div class="container">
+    <h1>Legacy Vocab & Grammar Tester</h1>
+
+    <div id="mode-section">
+        <h2>Step 1: Choose Activity</h2>
+        <button onclick="selectMode('mc')">Multiple Choice (Latin to English)</button><br>
+        <button onclick="selectMode('type')">Type-In (Latin to English)</button><br>
+        <button onclick="selectMode('grammar')">Grammar Quiz</button><br>
+        <button onclick="selectMode('bracketing')" style="background-color: #27ae60;">🏷️ Bracketing & Labeling Mode</button><br>
+        <button onclick="selectMode('preview')" style="background-color: #8e44ad;">📖 Preview Vocabulary List</button>
+    </div>
+
+    <div id="chapter-section" class="hidden">
+        <h2 id="selected-mode-display" style="color: var(--primary); margin-bottom: 5px;"></h2>
+        <p style="color: #7f8c8d; margin-top: 0;">Step 2: Select Chapters</p>
+        
+        <div id="grammar-mode-box" class="grammar-select-box hidden">
+            <label for="grammar-submode" style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary);">
+                Select Grammar Focus:
+            </label>
+            <select id="grammar-submode" style="width: 100%; margin: 5px 0;">
+                <option value="pos">1. Conjugation / Declension & Part of Speech</option>
+                <option value="properties">2. Grammatical Properties (Declension, Conjugation, Preposition Case)</option>
+            </select>
+        </div>
+
+        <div id="auto-stages-notice" class="hidden"></div>
+
+        <button class="btn-nav" id="toggle-all-btn" onclick="toggleAllChapters()">Select / Deselect All</button>
+        <div id="chapter-checkboxes" class="chapter-grid"></div>
+        
+        <button onclick="confirmChapters()" style="background-color: var(--success); font-weight: bold;">Continue</button><br>
+        <button class="btn-nav" onclick="goToModeSelection()">Back to Activities</button>
+        <p id="chapter-error" class="incorrect hidden">Please select at least one chapter.</p>
+    </div>
+
+    <div id="quiz-section" class="hidden">
+        <h2 id="question-text" style="min-height: 40px; margin-bottom: 5px;"></h2>
+        <div id="hint-text" class="hint invisible"></div>
+        
+        <div id="mc-area" class="options-grid hidden"></div>
+        
+        <div id="type-area" class="hidden" style="min-height: 110px;">
+            <input type="text" id="type-input" placeholder="Type your answer here..." onkeypress="handleEnter(event)" autocomplete="off">
+            <br>
+            <button onclick="checkTypeIn()" style="width: 150px;">Submit</button>
+        </div>
+
+        <div id="bracketing-area" class="hidden">
+            <div class="label-key-box">
+                <strong>Label Key Reference:</strong>
+                <div class="label-key-grid">
+                    <div class="label-key-item"><strong>S</strong> = Subject</div>
+                    <div class="label-key-item"><strong>O</strong> = Object</div>
+                    <div class="label-key-item"><strong>dat</strong> = Dative</div>
+                    <div class="label-key-item"><strong>gen</strong> = Genitive</div>
+                    <div class="label-key-item"><strong>abl</strong> = Ablative</div>
+                    <div class="label-key-item"><strong>V</strong> = Verb</div>
+                    <div class="label-key-item"><strong>V^(simp)</strong> = Subj. Imperfect</div>
+                    <div class="label-key-item"><strong>V^(splup)</strong> = Subj. Pluperfect</div>
+                    <div class="label-key-item"><strong>V^(imp)</strong> = Imperative</div>
+                    <div class="label-key-item"><strong>rel</strong> = Relative pronoun</div>
+                    <div class="label-key-item"><strong>prep</strong> = Preposition</div>
+                    <div class="label-key-item"><strong>adv</strong> = Adverb</div>
+                    <div class="label-key-item"><strong>adj</strong> = Adjective</div>
+                    <div class="label-key-item"><strong>inf</strong> = Infinitive</div>
+                    <div class="label-key-item"><strong>conj</strong> = Conjunction</div>
+                </div>
+            </div>
+
+            <datalist id="label-suggestions">
+                <option value="S"></option>
+                <option value="O"></option>
+                <option value="dat"></option>
+                <option value="gen"></option>
+                <option value="abl"></option>
+                <option value="V"></option>
+                <option value="V^(simp)"></option>
+                <option value="V^(splup)"></option>
+                <option value="V^(imp)"></option>
+                <option value="rel"></option>
+                <option value="prep"></option>
+                <option value="adv"></option>
+                <option value="adj"></option>
+                <option value="inf"></option>
+                <option value="conj"></option>
+            </datalist>
+
+            <div id="sentence-cards-container" class="sentence-words-container"></div>
+            
+            <div class="live-bracket-preview">
+                Preview: <span id="bracket-preview-text">...</span>
+            </div>
+
+            <div style="margin: 15px 0;">
+                <label for="clause-type-select" style="font-weight: bold; display: block; margin-bottom: 5px;">
+                    Select Clause Type:
+                </label>
+                <select id="clause-type-select" style="width: 80%; max-width: 380px;">
+                    <option value="">-- Select Clause Type --</option>
+                    <option value="Relative Clause">Relative Clause (quī, quae, quod...)</option>
+                    <option value="Temporal Clause">Temporal Clause (postquam, ubi, antequam...)</option>
+                    <option value="Subjunctive Clause">Subjunctive Clause (cum + subjunctive)</option>
+                </select>
+            </div>
+
+            <button onclick="checkBracketing()" style="width: 180px; background-color: var(--success);">Check Sentence</button>
+        </div>
+
+        <div id="feedback"></div>
+        <button id="next-btn" class="invisible" onclick="nextQuestion()" style="background-color: var(--success); margin-top: 5px;">Next Question</button>
+        
+        <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 15px 0;">
+        <button class="btn-nav" onclick="returnToChapterSelection()">Change Chapters / Options</button>
+        <button class="btn-nav" onclick="goToModeSelection()">Change Activity</button>
+    </div>
+
+    <div id="preview-section" class="hidden">
+        <h2>Vocabulary Preview</h2>
+        <p id="preview-count" style="font-weight: bold; color: var(--primary); margin-bottom: 10px;"></p>
+        
+        <input type="text" id="preview-search" class="preview-search" placeholder="🔍 Search Latin, English, POS..." oninput="renderPreview()">
+        
+        <div class="preview-table-wrapper">
+            <table class="preview-table">
+                <thead>
+                    <tr>
+                        <th>Latin Entry</th>
+                        <th>POS</th>
+                        <th>English</th>
+                        <th>Ch</th>
+                    </tr>
+                </thead>
+                <tbody id="preview-tbody"></tbody>
+            </table>
+        </div>
+        
+        <button class="btn-nav" onclick="returnToChapterSelection()">Change Chapters</button>
+        <button class="btn-nav" onclick="goToModeSelection()">Change Activity</button>
+    </div>
+</div>
+
+<script>
+    // RAW VOCABULARY DATA
+    const rawData = `amō 
+amāre, amāvī, amātum
+verb 1
+love, like
+1
+dea 
+deae, f
+noun 1
+goddess
+1
+deus 
+deī, m
+noun 2
+god
+1
+et 
+ 
+conjunction
+and, even
+1
+etiam 
+ 
+adverb
+also, even
+1
+fēmina 
+fēminae, f
+noun 1
+woman
+1
+fīlia
+fīliae, f
+noun 1
+daughter
+1
+fīlius 
+fīliī, m
+noun 2
+son
+1
+homō
+hominis, m
+noun 3
+man, human being
+1
+īrātus 
+īrāta, īrātum
+adjective 2-1-2
+angry
+1
+lacrimō
+lacrimāre, lacrimāvī, lacrimāvtum
+verb 1
+weep, cry
+1
+laetus 
+laeta, laetum
+adjective 2-1-2
+happy
+1
+laudō 
+laudāre, laudāvī, laudātum
+verb 1
+praise
+1
+līberī 
+līberōrum, m pl
+noun 2
+children
+1
+māter 
+mātris, f
+noun 3
+mother
+1
+multus 
+multa, multum
+adjective 2-1-2
+much, many
+1
+pater 
+patris, m
+noun 3
+father
+1
+pulcher 
+pulchra, pulchrum
+adjective 2-1-2
+beautiful, handsome
+1
+pūniō
+pūnīre, pūnīvī, pūnītum
+verb 4
+punish
+1
+rēgīna 
+rēgīnae, f
+noun 1
+queen
+1
+regō 
+regere, rēxī, rēctum
+verb 3
+rule
+1
+rēx 
+rēgis, m
+noun 3
+king
+1
+Rōmānus 
+Rōmāna, Rōmānum
+adjective 2-1-2
+Roman
+1
+saepe 
+ 
+adverb
+often
+1
+saevus 
+saeva, saevum
+adjective 2-1-2
+savage, cruel
+1
+sed 
+ 
+conjunction
+but
+1
+sum 
+esse, fuī
+verb irregular
+be
+1
+terreō 
+terrēre, terruī, territum
+verb 2
+frighten, terrify
+1
+tum 
+ 
+adverb
+then
+1
+uxor 
+uxōris, f
+noun 3
+wife
+1
+ad 
++ accusative 
+preposition
+to, towards, at
+2
+arma 
+armōrum, n pl
+noun 2n
+arms, weapons
+2
+audāx 
+audācis
+adjective 3 
+bold, daring
+2
+bellum 
+bellī, n
+noun 2n
+war
+2
+capiō 
+capere, cēpī, captum
+verb 3/4
+take, catch, capture, make (a plan)
+2
+contrā
++ accusative
+preposition
+against
+2
+corpus 
+corporis, n
+noun 3n
+body
+2
+currō 
+currere, cucurrī, cursum
+verb 3
+run
+2
+eō 
+īre, iī / īvī, itum
+verb irregular
+go
+2
+flūmen 
+flūminis, n
+noun 3n
+river
+2
+fortis 
+forte
+adjective 3 
+brave, strong
+2
+fortiter
+ 
+adverb
+bravely, strongly
+2
+gladius 
+gladiī, m
+noun 2
+sword
+2
+Graecus
+Graeca, Graecum
+adjective 2-1-2
+Greek
+2
+hasta
+hastae, f
+noun 1
+spear
+2
+iaciō 
+iacere, iēcī, iactum
+verb 3/4
+throw
+2
+in 
++ accusative 
+preposition
+into, onto
+2
+ingēns 
+ingentis
+adjective 3 
+huge
+2
+inquit 
+inquiunt
+verb irregular
+he / she says / said,  they say / said
+2
+interficiō
+interficere, interfēcī, interfectum
+verb 3/4
+kill
+2
+maneō 
+manēre, mānsī, mānsum
+verb 2
+remain, stay
+2
+nōn 
+ 
+adverb
+not
+2
+per 
++ accusative
+preposition
+through, along
+2
+perīculum 
+perīculī, n
+noun 2n
+danger
+2
+prope
++ accusative
+preposition
+near
+2
+sagitta
+sagittae, f
+noun 1
+arrow
+2
+silva 
+silvae, f
+noun 1
+wood
+2
+timeō 
+timēre, timuī, timitum
+verb 2
+fear, be afraid
+2
+trāns 
++ accusative 
+preposition
+across
+2
+vincō 
+vincere, vīcī, victum
+verb 3
+conquer, win, be victorious, defeat
+2
+ā, ab 
++ ablative 
+preposition
+from, away from, by 
+3
+ascendō 
+ascendere, ascendī, ascēnsum
+verb 3
+climb
+3
+audiō 
+audīre, audīvī, audītum
+verb 4
+hear, listen to
+3
+auxilium 
+auxiliī, n
+noun 2n
+help
+3
+bonus 
+bona, bonum
+adjective 2-1-2
+good
+3
+caelum 
+caelī, n
+noun 2n
+sky, heaven
+3
+celeriter
+ 
+adverb
+quickly
+3
+cōnspiciō 
+cōnspicere, cōnspexī, cōnspectum
+verb 3/4
+catch sight of, notice
+3
+cum 
++ ablative
+preposition
+with
+3
+dē
++ ablative
+preposition
+from, down from, about
+3
+dēscendō
+dēscendere, dēscendī, dēscēnsum
+verb 3
+go down, come down
+3
+difficilis 
+difficile
+adjective 3 
+difficult
+3
+diū
+ 
+adverb
+for a long time
+3
+ē, ex 
++ ablative 
+preposition
+from, out of, out from
+3
+equus 
+equī, m
+noun 2
+horse
+3
+facilis 
+facile
+adjective 3 
+easy
+3
+fēlīx 
+fēlīcis
+adjective 3 
+fortunate, happy, lucky
+3
+in 
++ ablative 
+preposition
+in, on
+3
+iubeō 
+iubēre, iūssī, iūssum
+verb 2
+order
+3
+magnus 
+magna, magnum
+adjective 2-1-2
+big, large, great
+3
+malus 
+mala, malum
+adjective 2-1-2
+evil, bad
+3
+mare 
+maris, n
+noun 3n
+sea
+3
+mōns 
+montis, m
+noun 3
+mountain
+3
+ōlim 
+ 
+adverb
+once, some time ago
+3
+petō 
+petere, petīvī, petītum
+verb 3
+make for, seek, beg/ask for
+3
+possum 
+posse, potuī
+verb irregular
+can, be able
+3
+pugnō 
+pugnāre, pugnāvī, pugnātum
+verb 1
+fight
+3
+subitō
+ 
+adverb
+suddenly
+3
+tandem 
+ 
+adverb
+at last, finally
+3
+terra 
+terrae, f
+noun 1
+ground, land, country
+3
+-ne
+ 
+question word
+(introduces question)
+4
+aedificō 
+aedificāre, aedificāvī, aedificātum
+verb 1
+build
+4
+ager 
+agrī, m
+noun 2
+field
+4
+aurum
+aurī, n
+noun 2n
+gold
+4
+crēdō 
+crēdere, crēdidī, crēditum + dative
+verb 3
+believe, trust
+4
+crūdēlis 
+crūdēle
+adjective 3 
+cruel
+4
+cūr?
+ 
+question word
+why?
+4
+dō 
+dare, dedī, datum
+verb 1
+give
+4
+dōnum 
+dōnī, n
+noun 2n
+gift, present
+4
+faciō 
+facere, fēcī, factum
+verb 3/4
+make, do
+4
+ferō
+ferre, tulī, lātum
+verb irregular
+bring, carry, bear
+4
+habeō 
+habēre, habuī, habitum
+verb 2
+have, hold
+4
+īra 
+īrae, f
+noun 1
+anger
+4
+miser 
+misera, miserum
+adjective 2-1-2
+miserable, wretched, sad
+4
+nōlō
+nōlle, nōluī
+verb irregular
+not want, refuse
+4
+nōmen 
+nōminis, n
+noun 3n
+name
+4
+nōnne …? 
+ 
+question word
+surely ... ?
+4
+num ... ? 
+ 
+question word
+surely … not? 
+4
+pecūnia 
+pecūniae, f
+noun 1
+money
+4
+persuādeō 
+persuādēre, persuāsī, persuāsum + dative
+verb 2
+persuade
+4
+perterritus 
+perterrita, perterritum
+adjective 2-1-2
+terrified
+4
+pōnō 
+pōnere, posuī, positum
+verb 3
+put, place, set up
+4
+quandō?
+ 
+question word
+when?
+4
+quod 
+ 
+conjunction
+because
+4
+semper 
+ 
+adverb
+always
+4
+tamen 
+ 
+conjunction
+however
+4
+templum 
+templī, n
+noun 2n
+temple
+4
+trīstis 
+trīste
+adjective 3 
+sad
+4
+ubi?
+ 
+question word
+where?
+4
+volō
+velle, voluī
+verb irregular
+want, wish, be willing
+4
+absum 
+abesse, āfuī
+verb irregular
+be absent, be away, be distant from
+5
+adsum 
+adesse, adfuī
+verb irregular
+be here, be present
+5
+agricola
+agricolae, m
+noun 1
+farmer
+5
+ancilla
+ancillae, f
+noun 1
+female slave
+5
+aqua 
+aquae, f
+noun 1
+water
+5
+bibō
+bibere, bibī
+verb 3
+drink
+5
+cēna 
+cēnae, f
+noun 1
+dinner, meal
+5
+cēterī 
+cēterae, cētera
+adjective 2-1-2
+the rest, the others
+5
+cibus 
+cibī, m
+noun 2
+food
+5
+clāmō 
+clāmāre, clāmāvī, clāmātum
+verb 1
+shout
+5
+cōnsūmō 
+cōnsūmere, cōnsūmpsī, cōnsūmptum
+verb 3
+eat
+5
+fessus
+fessa, fessum
+adjective 2-1-2
+tired
+5
+festīnō 
+festīnāre, festīnāvī, festīnātum
+verb 1
+hurry
+5
+iterum 
+ 
+adverb
+again
+5
+lūdus
+lūdī, m
+noun 2
+school, game, public games / festival (pl)
+5
+magnopere
+ 
+adverb
+greatly, very much
+5
+mortuus
+mortua, mortuum
+adjective 2-1-2
+dead
+5
+mox 
+ 
+adverb
+soon
+5
+nunc 
+ 
+adverb
+now
+5
+parō 
+parāre, parāvī, parātum
+verb 1
+prepare, provide
+5
+rīdeō 
+rīdēre, rīsī, rīsum
+verb 2
+laugh, smile, laugh at
+5
+sacer 
+sacra, sacrum
+adjective 2-1-2
+sacred
+5
+servus 
+servī, m
+noun 2
+slave
+5
+spectō 
+spectāre, spectāvī, spectātum
+verb 1
+look at, watch
+5
+taberna 
+tabernae, f
+noun 1
+shop, inn
+5
+urbs 
+urbis, f
+noun 3
+city
+5
+veniō 
+venīre, vēnī, ventum
+verb 4
+come
+5
+vīlla 
+vīllae, f
+noun 1
+house, country villa
+5
+vīnum 
+vīnī, n
+noun 2n
+wine
+5
+vocō 
+vocāre, vocāvī, vocātum
+verb 1
+call
+5
+altus 
+alta, altum
+adjective 2-1-2
+high, deep
+6
+amīcus 
+amīcī, m
+noun 2
+friend
+6
+annus 
+annī, m
+noun 2
+year
+6
+dormiō 
+dormīre, dormīvī, dormītum
+verb 4
+sleep
+6
+emō 
+emere, ēmī, ēmptum
+verb 3
+buy
+6
+hīc 
+ 
+adverb
+here
+6
+hōra 
+hōrae, f
+noun 1
+hour
+6
+iam 
+ 
+adverb
+now, already
+6
+ibi 
+ 
+adverb
+there
+6
+itaque 
+ 
+conjunction
+and so, therefore
+6
+iuvenis 
+iuvenis, m
+noun 3
+young man
+6
+locus 
+locī, m
+noun 2
+place
+6
+meus 
+mea, meum
+adjective 2-1-2
+my
+6
+moneō 
+monēre, monuī, monitum
+verb 2
+warn, advise
+6
+nōlī / nōlīte 
++ infinitive
+verb irregular
+don't ...
+6
+noster 
+nostra, nostrum
+adjective 2-1-2
+our
+6
+novus 
+nova, novum
+adjective 2-1-2
+new
+6
+numquam 
+ 
+adverb
+never
+6
+ō
++ vocative
+particle
+O
+6
+ostendō 
+ostendere, ostendī, ostentum
+verb 3
+show
+6
+parvus 
+parva, parvum
+adjective 2-1-2
+small
+6
+puella 
+puellae, f
+noun 1
+girl
+6
+puer 
+puerī, m
+noun 2
+boy
+6
+respondeō 
+respondēre, respondī, respōnsum
+verb 2
+reply
+6
+rogō 
+rogāre, rogāvī, rogātum
+verb 1
+ask, ask for
+6
+sīc 
+ 
+adverb
+thus, in this way
+6
+suus 
+sua, suum
+adjective 2-1-2
+his / her / its / their (own)
+6
+tuus 
+tua, tuum
+adjective 2-1-2
+your (sg), yours
+6
+verbum 
+verbī, n 
+noun 2n
+word
+6
+vester 
+vestra, vestrum 
+adjective 2-1-2
+your (pl), yours
+6
+videō 
+vidēre, vīdī, vīsum
+verb 2
+see
+6
+ambulō 
+ambulāre, ambulāvī, ambulātum
+verb 1
+walk
+7
+antequam
+ 
+conjunction
+before
+7
+cīvis 
+cīvis, m / f
+noun 3
+citizen
+7
+clārus
+clāra, clārum
+adjective 2-1-2
+famous, clear
+7
+dīcō 
+dīcere, dīxī, dictum
+verb 3
+say, speak, tell
+7
+domina 
+dominae, f
+noun 1
+mistress
+7
+dominus 
+dominī, m
+noun 2
+master
+7
+et ... et 
+ 
+conjunction
+both ... and
+7
+forum 
+forī, n
+noun 2n
+forum, market place
+7
+habitō 
+habitāre, habitāvī, habitātum
+verb 1
+live
+7
+hic 
+haec, hoc
+pronoun
+this, these 
+7
+hortus 
+hortī, m
+noun 2
+garden
+7
+ille 
+ilIa, illud
+pronoun
+that, those, he, she, it
+7
+is 
+ea, id
+pronoun
+he, she, it, that, those
+7
+līberō 
+līberāre, līberāvī, līberātum
+verb 1
+set free
+7
+lībertus 
+lībertī, m
+noun 2
+freedman, ex-slave
+7
+mūrus 
+mūrī, m
+noun 2
+wall
+7
+nūntius 
+nūntiī, m
+noun 2
+messenger
+7
+omnis 
+omne
+adjective 3 
+all, every
+7
+paucī 
+paucae, pauca
+adjective 2-1-2
+few, a few
+7
+postquam 
+ 
+conjunction
+after, when
+7
+quamquam 
+ 
+conjunction
+although
+7
+quī
+quae, quod
+pronoun
+who, which
+7
+quis? 
+quis? quid?
+question word
+who? what? which?
+7
+quoque 
+ 
+adverb
+also, too
+7
+Rōma 
+Rōmae, f 
+noun 1
+Rome
+7
+Rōmae
+ 
+noun 1
+locative: at Rome
+7
+salūtō 
+salūtāre, salūtāvī, salūtātum
+verb 1
+greet
+7
+senātor 
+senātōris, m
+noun 3
+senator
+7
+ubi
+ 
+conjunction
+when, where
+7
+via 
+viae, f
+noun 1
+street, road, way
+7
+abeō
+abīre, abiī, abitum
+verb irregular
+go away
+8
+adeō
+adīre, adiī, aditum
+verb irregular
+go to, approach
+8
+appropinquō 
+appropinquāre, appropinquāvī, appropinquātum + dative
+verb 1
+approach, come near to
+8
+clāmor 
+clāmōris, m
+noun 3
+shout, shouting, noise
+8
+conveniō 
+convenīre, convēnī, conventum
+verb 4
+come together, gather, meet
+8
+cupiō 
+cupere, cupīvī, cupītum
+verb 3/4
+want, desire
+8
+ego 
+meī
+pronoun
+I, me
+8
+enim 
+ 
+conjunction
+for
+8
+epistula 
+epistulae, f
+noun 1
+letter
+8
+exeō
+exīre, exiī, exitum
+verb irregular
+go out from, go away
+8
+ferōx 
+ferōcis
+adjective 3 
+fierce, ferocious
+8
+frūstrā
+ 
+adverb
+in vain
+8
+ineō
+inīre, iniī, initum
+verb irregular
+go into, enter
+8
+labōrō 
+labōrāre, labōrāvī, labōrātum
+verb 1
+work, toil
+8
+legō 
+legere, lēgī, lēctum
+verb 3
+read, choose
+8
+liber 
+librī, m
+noun 2
+book
+8
+longus 
+longa, longum
+adjective 2-1-2
+long
+8
+magis  
+ 
+adverb
+more
+8
+magister
+magistrī, m
+noun 2
+teacher
+8
+maior
+maius
+adjective 3 
+bigger, larger, greater
+8
+maximē
+ 
+adverb
+very greatly
+8
+maximus
+maxima, maximum
+adjective 2-1-2
+greatest, largest, biggest
+8
+medius 
+media, medium
+adjective 2-1-2
+middle
+8
+melior
+melius
+adjective 3 
+better
+8
+minimus
+minima, minimum
+adjective 2-1-2
+smallest, least
+8
+minor
+minus
+adjective 3 
+smaller, less
+8
+nōbilis
+nōbile
+adjective 3 
+of noble birth, renowned
+8
+nōs 
+nostrum
+pronoun
+we, us
+8
+nōtus
+nōta, nōtum
+adjective 2-1-2
+famous, well-known
+8
+optimus
+optima, optimum
+adjective 2-1-2
+best
+8
+peior
+peius
+adjective 3 
+worse
+8
+pereō
+perīre, periī, peritum
+verb irregular
+die, perish
+8
+pessimus
+pessima, pessimum
+adjective 2-1-2
+worst
+8
+plūrēs
+plūra
+adjective 3 
+more
+8
+plūrimus
+plūrima, plūrimum
+adjective 2-1-2
+most, very many
+8
+plūs 
++ genitive
+adjective irregular
+more
+8
+quam
+ 
+adverb
+than, how
+8
+quam
++ superlative
+adverb
+as ... as possible
+8
+redeō 
+redīre, rediī, reditum
+verb irregular
+go back, come back, return
+8
+scrībō 
+scrībere, scrīpsī, scrīptum
+verb 3
+write
+8
+sē
+suī
+pronoun
+himself, herself, itself, themselves
+8
+senex 
+senis, m
+noun 3
+old man
+8
+stultus 
+stulta, stultum
+adjective 2-1-2
+stupid, foolish
+8
+trānseō
+trānsīre, trānsiī, trānsitum
+verb irregular
+go over, cross
+8
+tū
+tuī
+pronoun
+you (sg)
+8
+vir 
+virī, m
+noun 2
+man, husband
+8
+vōs 
+vestrum
+pronoun
+you (pl)
+8
+bene 
+ 
+adverb
+well
+9
+comes 
+comitis, m / f
+noun 3
+comrade, companion
+9
+cōpiae 
+cōpiārum, f pl
+noun 1
+forces, troops
+9
+custōdiō
+custōdīre, custōdīvī, custōdītum
+verb 4
+guard
+9
+dēfendō 
+dēfendere, dēfendī, dēfēnsum
+verb 3
+defend
+9
+deinde
+ 
+adverb
+then
+9
+dēleō
+dēlēre, dēlēvī, dēlētum
+verb 2
+destroy
+9
+dūcō 
+dūcere, dūxī, ductum
+verb 3
+lead, take
+9
+dux 
+ducis, m
+noun 3
+leader
+9
+gerō
+gerere, gessī, gestum
+verb 3
+wear (clothes), wage (war)
+9
+hostis 
+hostis, m
+noun 3
+enemy
+9
+incendō
+incendere, incendī, incēnsum
+verb 3
+burn, set on fire
+9
+incola
+incolae, m / f
+noun 1
+inhabitant
+9
+invītō
+invītāre, invītāvī, invītātum
+verb 1
+invite
+9
+mīles 
+mīlitis, m
+noun 3
+soldier
+9
+mittō 
+mittere, mīsī, missum
+verb 3
+send
+9
+mors 
+mortis, f
+noun 3
+death
+9
+moveō 
+movēre, mōvī, mōtum
+verb 2
+move
+9
+necō 
+necāre, necāvī, necātum
+verb 1
+kill
+9
+occīdō 
+occīdere, occīdī, occīsum
+verb 3
+kill
+9
+occupō
+occupāre, occupāvī, occupātum
+verb 1
+take possession of, occupy
+9
+oppidum
+oppidī, n
+noun 2n
+town
+9
+oppugnō 
+oppugnāre, oppugnāvī, oppugnātum
+verb 1
+attack
+9
+patria 
+patriae, f
+noun 1
+country, homeland
+9
+proelium 
+proeliī, n
+noun 2n
+battle
+9
+rapiō
+rapere, rapuī, raptum
+verb 3/4
+seize, grab
+9
+scūtum
+scūtī, n
+noun 2n
+shield
+9
+superō 
+superāre, superāvī, superātum
+verb 1
+overcome, overpower
+9
+trādō 
+trādere, trādidī, trāditum
+verb 3
+hand over, hand down
+9
+vulnerō
+vulnerāre, vulnerāvī, vulnerātum
+verb 1
+wound, injure
+9
+-que 
+ 
+conjunction
+and
+10
+aliī....aliī.....
+ 
+adjective 2-1-2
+some ... others
+10
+alius
+alia, aliud
+adjective 2-1-2
+other, another
+10
+amor 
+amōris, m
+noun 3
+love
+10
+circum 
++ accusative
+preposition
+around
+10
+coniūnx
+coniugis, m / f
+noun 3
+husband / wife
+10
+doceō
+docēre, docuī, doctum
+verb 2
+teach 
+10
+doctus 
+docta, doctum
+adjective 2-1-2
+educated
+10
+exspectō 
+exspectāre, exspectāvī, exspectātum
+verb 1
+wait for, expect
+10
+forte
+ 
+adverb
+by chance
+10
+fugiō 
+fugere, fūgī, fugitum
+verb 3/4
+run away, flee
+10
+inter 
++ accusative
+preposition
+among, between
+10
+inveniō 
+invenīre, invēnī, inventum
+verb 4
+find
+10
+iter 
+itineris, n
+noun 3n
+journey
+10
+lūx 
+lūcis, f
+noun 3
+light, daylight
+10
+marītus
+marītī, m
+noun 2
+husband
+10
+mīrābilis
+mīrābile
+adjective 3 
+wonderful, extraordinary
+10
+mulier
+mulieris, f
+noun 3
+woman, wife
+10
+nauta 
+nautae, m
+noun 1
+sailor
+10
+nāvigō 
+nāvigāre, nāvigāvī, nāvigātum
+verb 1
+sail
+10
+nāvis 
+nāvis, f
+noun 3
+ship
+10
+necesse
+ 
+adjective irregular
+necessary
+10
+nihil 
+ 
+pronoun 
+nothing
+10
+parēns
+parentis, m / f
+noun 3
+parent
+10
+pars 
+partis, f
+noun 3
+part
+10
+post 
++ accusative
+preposition
+after, behind
+10
+quaerō 
+quaerere, quaesīvī, quaesītum
+verb 3
+search for, look for, ask
+10
+satis
+ 
+adverb
+enough
+10
+statim 
+ 
+adverb
+at once, immediately
+10
+teneō 
+tenēre, tenuī, tentum
+verb 2
+hold
+10
+turba 
+turbae, f
+noun 1
+crowd
+10
+tūtus
+tūta, tūtum
+adjective 2-1-2
+safe
+10
+accipiō 
+accipere, accēpī, acceptum
+verb 3/4
+receive, accept, take in
+11
+adveniō 
+advenīre, advēnī, adventum
+verb 4
+arrive
+11
+autem
+ 
+conjunction
+but, however
+11
+cārus
+cāra, cārum
+adjective 2-1-2
+dear, beloved
+11
+cōnsilium 
+cōnsiliī, n
+noun 2n
+plan, idea, advice
+11
+dēbeō 
+dēbēre, dēbuī, dēbitum
+verb 2
+owe, ought, should, must
+11
+discēdō 
+discēdere, discessī, discessum
+verb 3
+depart, leave
+11
+ecce!
+ 
+particle
+look!
+11
+intellegō 
+intellegere, intellēxī, intellēctum
+verb 3
+understand, realise
+11
+intrō 
+intrāre, intrāvī, intrātum
+verb 1
+enter
+11
+neque, nec
+ 
+conjunction
+and not, nor, neither
+11
+nūntiō 
+nūntiāre, nūntiāvī, nūntiātum
+verb 1
+announce, report
+11
+pāx 
+pācis, f
+noun 3
+peace
+11
+poēta
+poētae, m
+noun 1
+poet
+11
+porta 
+portae, f
+noun 1
+gate
+11
+posteā
+ 
+adverb
+afterwards
+11
+prō
++ ablative
+preposition
+in front of, for, on behalf of
+11
+propter 
++ accusative
+preposition
+on account of, because of
+11
+putō
+putāre, putāvī, putātum
+verb 1
+think
+11
+quō? 
+ 
+question word
+to where?
+11
+redūcō
+redūcere, redūxī, reductum
+verb 3
+lead back, bring back
+11
+relinquō
+relinquere, relīquī, relictum
+verb 3
+leave, leave behind
+11
+servō 
+servāre, servāvī, servātum
+verb 1
+save, protect, keep
+11
+socius
+sociī, m
+noun 2
+ally
+11
+stō 
+stāre, stetī, statum
+verb 1
+stand
+11
+taceō 
+tacēre, tacuī, tacitum
+verb 2
+be silent, be quiet
+11
+tempus
+temporis, n
+noun 3n
+time
+11
+unda
+undae, f
+noun 1
+wave
+11
+unde? 
+ 
+question word
+from where?
+11
+validus 
+valida, validum
+adjective 2-1-2
+strong
+11
+cadō 
+cadere, cecidī, cāsum
+verb 3
+fall
+12
+caput 
+capitis, n
+noun 3n
+head
+12
+celer 
+celeris, celere
+adjective 3 
+quick, fast
+12
+colligō
+colligere, collēgī, collēctum
+verb 3
+gather together, collect
+12
+cōnstituō 
+cōnstituere, cōnstituī, cōnstitūtum
+verb 3
+decide
+12
+contendō
+contendere, contendī, contentum
+verb 3
+hasten, march, compete
+12
+crās
+ 
+adverb
+tomorrow
+12
+dēspērō
+dēspērāre, dēspērāvī, dēspērātum
+verb 1
+despair
+12
+effugiō 
+effugere, effūgī
+verb 3/4
+escape
+12
+errō
+errāre, errāvī, errātum
+verb 1
+stray, make a mistake
+12
+fortasse
+ 
+adverb
+perhaps
+12
+frāter
+frātris, m
+noun 3
+brother
+12
+gēns
+gentis, f
+noun 3
+family, tribe, people
+12
+gravis 
+grave
+adjective 3 
+heavy, serious
+12
+herī
+ 
+adverb
+yesterday
+12
+hodiē
+ 
+adverb
+today
+12
+igitur
+ 
+conjunction
+therefore, and so
+12
+īnsula 
+īnsulae, f
+noun 1
+island
+12
+nam 
+ 
+conjunction
+for
+12
+nārrō 
+nārrāre, nārrāvī, nārrātum
+verb 1
+tell, relate
+12
+nēmō
+nūllīus
+pronoun
+no one, nobody
+12
+nox 
+noctis, f
+noun 3
+night
+12
+nūllus
+nūlla, nūllum
+adjective irregular
+not any, no
+12
+portō 
+portāre, portāvī, portātum
+verb 1
+carry, bear, take
+12
+rēgnum
+rēgnī, n
+noun 2n
+kingdom
+12
+sedeō 
+sedēre, sēdī, sessum
+verb 2
+sit
+12
+soror
+sorōris, f
+noun 3
+sister
+12
+trahō 
+trahere, trāxī, tractum
+verb 3
+drag
+12
+vēndō 
+vēndere, vēndidī, vēnditum
+verb 3
+sell
+12
+ventus
+ventī, m
+noun 2
+wind
+12`;
+
+    // BRACKETING SENTENCE BANK
+    const sentenceData = [
+        {
+            chapter: "7",
+            words: ["puer,", "quī", "in", "viā", "currit,", "est", "laetus."],
+            labels: ["S", "rel", "prep", "abl", "V", "V", "adj"],
+            bracketStart: 1,
+            bracketEnd: 4,
+            clauseType: "Relative Clause",
+            translation: "The boy, who is running in the street, is happy."
+        },
+        {
+            chapter: "7",
+            words: ["puella,", "quae", "epistulam", "scrībit,", "laeta", "erat."],
+            labels: ["S", "rel", "O", "V", "adj", "V"],
+            bracketStart: 1,
+            bracketEnd: 3,
+            clauseType: "Relative Clause",
+            translation: "The girl, who is writing a letter, was happy."
+        },
+        {
+            chapter: "9",
+            words: ["mīlitēs,", "postquam", "oppidum", "oppugnāvērunt,", "ad", "castra", "rediērunt."],
+            labels: ["S", "adv", "O", "V", "prep", "O", "V"],
+            bracketStart: 1,
+            bracketEnd: 3,
+            clauseType: "Temporal Clause",
+            translation: "The soldiers, after they attacked the town, returned to camp."
+        },
+        {
+            chapter: "11",
+            words: ["nūntius,", "ubi", "ad", "urbem", "advēnit,", "rēgīnam", "salūtāvit."],
+            labels: ["S", "adv", "prep", "O", "V", "O", "V"],
+            bracketStart: 1,
+            bracketEnd: 4,
+            clauseType: "Temporal Clause",
+            translation: "The messenger, when he arrived at the city, greeted the queen."
+        },
+        {
+            chapter: "12",
+            words: ["rēx,", "cum", "urbem", "regeret,", "cīvēs", "servāvit."],
+            labels: ["S", "conj", "O", "V^(simp)", "O", "V"],
+            bracketStart: 1,
+            bracketEnd: 3,
+            clauseType: "Subjunctive Clause",
+            translation: "The king, since he was ruling the city, saved the citizens."
+        },
+        {
+            chapter: "12",
+            words: ["mīlitēs,", "cum", "hostēs", "vīcissent,", "domum", "rediērunt."],
+            labels: ["S", "conj", "O", "V^(splup)", "O", "V"],
+            bracketStart: 1,
+            bracketEnd: 3,
+            clauseType: "Subjunctive Clause",
+            translation: "The soldiers, when they had conquered the enemy, returned home."
+        },
+        {
+            chapter: "7",
+            words: ["servī,", "quōs", "dominus", "pūnīvit,", "ē", "vīllā", "fūgērunt."],
+            labels: ["S", "rel", "S", "V", "prep", "abl", "V"],
+            bracketStart: 1,
+            bracketEnd: 3,
+            clauseType: "Relative Clause",
+            translation: "The slaves, whom the master punished, fled from the house."
+        },
+        {
+            chapter: "10",
+            words: ["nautae,", "quī", "nāvem", "parāverant,", "ē", "portū", "nāvigāvērunt."],
+            labels: ["S", "rel", "O", "V", "prep", "abl", "V"],
+            bracketStart: 1,
+            bracketEnd: 3,
+            clauseType: "Relative Clause",
+            translation: "The sailors, who had prepared the ship, sailed out of the harbor."
+        },
+        {
+            chapter: "6",
+            words: ["puer", "curre", "celeriter", "ad", "vīllam!"],
+            labels: ["S", "V^(imp)", "adv", "prep", "O"],
+            bracketStart: -1,
+            bracketEnd: -1,
+            clauseType: "",
+            translation: "Boy, run quickly to the house!"
+        },
+        {
+            chapter: "4",
+            words: ["dominus", "servōs", "labōrāre", "iubet."],
+            labels: ["S", "O", "inf", "V"],
+            bracketStart: -1,
+            bracketEnd: -1,
+            clauseType: "",
+            translation: "The master orders the slaves to work."
+        }
+    ];
+
+    let allVocabData = [];
+    let filteredVocabData = [];
+    let filteredSentences = [];
+    let currentWord = {};
+    let currentSentence = null;
+    let selectedMode = '';
+    let grammarTargetAnswer = '';
+    let allChapters = new Set();
+    let isAllSelected = true;
+
+    // Bracketing selection state
+    let userBracketStart = -1;
+    let userBracketEnd = -1;
+
+    // Clean Chapter String (e.g., "6 - number" -> "6")
+    function cleanChapterString(chStr) {
+        if (!chStr) return '';
+        return chStr.split('-')[0].trim();
+    }
+
+    // Load Vocab Data
+    window.onload = function() {
+        const lines = rawData.split('\n');
+        for (let i = 0; i < lines.length; i += 5) {
+            if (i + 4 < lines.length) {
+                const chapterRaw = lines[i+4].trim();
+                const chapter = cleanChapterString(chapterRaw);
+                allVocabData.push({
+                    latin: lines[i].trim(),
+                    forms: lines[i+1].trim(),
+                    pos: lines[i+2].trim(),
+                    english: lines[i+3].trim(),
+                    chapter: chapter
+                });
+                if(chapter) allChapters.add(chapter);
+            }
+        }
+        populateChapterCheckboxes();
+    };
+
+    function populateChapterCheckboxes() {
+        const container = document.getElementById('chapter-checkboxes');
+        container.innerHTML = '';
+        
+        const sortedChapters = Array.from(allChapters).sort((a, b) => parseInt(a) - parseInt(b));
+
+        sortedChapters.forEach(ch => {
+            const label = document.createElement('label');
+            label.className = 'chapter-label';
+            label.innerHTML = `<input type="checkbox" value="${ch}" checked> Chapter ${ch}`;
+            container.appendChild(label);
+        });
+    }
+
+    function getFullDictionaryEntry(word) {
+        if (!word) return '';
+        if (word.forms && word.forms.trim() !== '') {
+            return `${word.latin}, ${word.forms.trim()}`;
+        }
+        return word.latin;
+    }
+
+    // Activity Selection
+    function selectMode(mode) {
+        selectedMode = mode;
+        const modeTitles = {
+            'mc': 'Multiple Choice Quiz',
+            'type': 'Type-In Quiz',
+            'grammar': 'Grammar Quiz Focus',
+            'bracketing': 'Bracketing & Labeling Mode',
+            'preview': 'Vocabulary Preview'
+        };
+        
+        document.getElementById('selected-mode-display').innerText = modeTitles[mode];
+        
+        const grammarBox = document.getElementById('grammar-mode-box');
+        if (mode === 'grammar') {
+            grammarBox.classList.remove('hidden');
+        } else {
+            grammarBox.classList.add('hidden');
+        }
+
+        renderChapterCheckboxes();
+
+        document.getElementById('mode-section').classList.add('hidden');
+        document.getElementById('chapter-section').classList.remove('hidden');
+    }
+
+    function goToModeSelection() {
+        document.getElementById('chapter-section').classList.add('hidden');
+        document.getElementById('quiz-section').classList.add('hidden');
+        document.getElementById('preview-section').classList.add('hidden');
+        document.getElementById('mode-section').classList.remove('hidden');
+    }
+
+    function toggleAllChapters() {
+        isAllSelected = !isAllSelected;
+        const checkboxes = document.querySelectorAll('#chapter-checkboxes input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.checked = isAllSelected;
+        });
+    }
+
+    // CHAPTER CHECKBOX RENDERER (Including B&L Stage 1-6 Override)
+    function renderChapterCheckboxes() {
+        const container = document.getElementById('chapter-checkboxes');
+        container.innerHTML = '';
+        
+        const autoNotice = document.getElementById('auto-stages-notice');
+
+        if (selectedMode === 'bracketing') {
+            autoNotice.className = 'auto-stage-box';
+            autoNotice.innerHTML = '✓ Stages 1–6 are included automatically.<br><span style="font-size:13px; font-weight:normal; color:#2c3e50;">Select additional stages below (7–12):</span>';
+            autoNotice.classList.remove('hidden');
+
+            const stages7To12 = ['7', '8', '9', '10', '11', '12'];
+            stages7To12.forEach(ch => {
+                const label = document.createElement('label');
+                label.className = 'chapter-label';
+                label.innerHTML = `<input type="checkbox" value="${ch}" checked> Chapter ${ch}`;
+                container.appendChild(label);
+            });
+            document.getElementById('toggle-all-btn').classList.add('hidden');
+        } else {
+            autoNotice.classList.add('hidden');
+            document.getElementById('toggle-all-btn').classList.remove('hidden');
+            
+            const sortedChapters = Array.from(allChapters).sort((a, b) => parseInt(a) - parseInt(b));
+            sortedChapters.forEach(ch => {
+                const label = document.createElement('label');
+                label.className = 'chapter-label';
+                label.innerHTML = `<input type="checkbox" value="${ch}" checked> Chapter ${ch}`;
+                container.appendChild(label);
+            });
+        }
+    }
+
+    function confirmChapters() {
+        selectedChapters = [];
+
+        if (selectedMode === 'bracketing') {
+            for (let i = 1; i <= 6; i++) {
+                selectedChapters.push(i.toString());
+            }
+            const checkboxes = document.querySelectorAll('#chapter-checkboxes input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => {
+                if (!selectedChapters.includes(cb.value)) {
+                    selectedChapters.push(cb.value);
+                }
+            });
+        } else {
+            const checkboxes = document.querySelectorAll('#chapter-checkboxes input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => selectedChapters.push(cb.value));
+
+            const errorMsg = document.getElementById('chapter-error');
+            if (selectedChapters.length === 0) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            errorMsg.classList.add('hidden');
+        }
+        
+        filteredVocabData = allVocabData.filter(word => selectedChapters.includes(word.chapter));
+        filteredSentences = sentenceData.filter(s => selectedChapters.includes(s.chapter));
+        
+        if (filteredSentences.length === 0) {
+            filteredSentences = sentenceData;
+        }
+
+        document.getElementById('chapter-section').classList.add('hidden');
+
+        if (selectedMode === 'preview') {
+            document.getElementById('preview-section').classList.remove('hidden');
+            document.getElementById('preview-search').value = '';
+            renderPreview();
+        } else {
+            document.getElementById('quiz-section').classList.remove('hidden');
+            startQuiz();
+        }
+    }
+
+    function returnToChapterSelection() {
+        document.getElementById('quiz-section').classList.add('hidden');
+        document.getElementById('preview-section').classList.add('hidden');
+        document.getElementById('chapter-section').classList.remove('hidden');
+        renderChapterCheckboxes();
+    }
+
+    function renderPreview() {
+        const searchVal = document.getElementById('preview-search').value.toLowerCase().trim();
+        const tbody = document.getElementById('preview-tbody');
+        tbody.innerHTML = '';
+
+        const list = filteredVocabData.filter(w => 
+            w.latin.toLowerCase().includes(searchVal) ||
+            w.english.toLowerCase().includes(searchVal) ||
+            w.forms.toLowerCase().includes(searchVal) ||
+            w.pos.toLowerCase().includes(searchVal)
+        );
+
+        document.getElementById('preview-count').innerText = `Showing ${list.length} of ${filteredVocabData.length} selected words`;
+
+        list.forEach(w => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${getFullDictionaryEntry(w)}</strong></td>
+                <td><span class="badge">${w.pos}</span></td>
+                <td>${w.english}</td>
+                <td>${w.chapter}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function startQuiz() {
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        resetFeedback();
+        currentWord = filteredVocabData[Math.floor(Math.random() * filteredVocabData.length)];
+        const questionText = document.getElementById('question-text');
+        const hintText = document.getElementById('hint-text');
+        
+        hintText.classList.add('invisible');
+        hintText.innerText = '';
+
+        document.getElementById('mc-area').classList.add('hidden');
+        document.getElementById('type-area').classList.add('hidden');
+        document.getElementById('bracketing-area').classList.add('hidden');
+
+        if (selectedMode === 'mc') {
+            document.getElementById('mc-area').classList.remove('hidden');
+            questionText.innerText = `What is the English meaning of: ${currentWord.latin}?`;
+            generateMCOptions();
+        } else if (selectedMode === 'type') {
+            document.getElementById('type-area').classList.remove('hidden');
+            questionText.innerText = `Translate to English: ${currentWord.latin}`;
+            grammarTargetAnswer = currentWord.english;
+            document.getElementById('type-input').value = '';
+            document.getElementById('type-input').focus();
+        } else if (selectedMode === 'grammar') {
+            document.getElementById('type-area').classList.remove('hidden');
+            setupGrammarQuestion(questionText, hintText);
+        } else if (selectedMode === 'bracketing') {
+            document.getElementById('bracketing-area').classList.remove('hidden');
+            setupBracketingQuestion(questionText);
+        }
+    }
+
+    function setupGrammarQuestion(questionText, hintText) {
+        const grammarSubmode = document.getElementById('grammar-submode').value;
+        const pos = currentWord.pos.toLowerCase();
+
+        if (grammarSubmode === 'pos') {
+            if (pos.startsWith('verb')) {
+                questionText.innerText = `Part of Speech / Conjugation group for verb: ${currentWord.latin}?`;
+            } else if (pos.startsWith('noun')) {
+                questionText.innerText = `Part of Speech / Declension for noun: ${currentWord.latin}?`;
+            } else {
+                questionText.innerText = `Part of Speech / Category for: ${currentWord.latin}?`;
+            }
+
+            hintText.innerText = `Full Entry: ${getFullDictionaryEntry(currentWord)} (e.g. 'verb 1', 'noun 2n', 'adverb')`;
+            hintText.classList.remove('invisible');
+            grammarTargetAnswer = currentWord.pos;
+        } else if (grammarSubmode === 'properties') {
+            setupGrammarPropertiesQuestion(questionText, hintText);
+        }
+        document.getElementById('type-input').value = '';
+        document.getElementById('type-input').focus();
+    }
+
+    function setupGrammarPropertiesQuestion(questionText, hintText) {
+        const fullEntry = getFullDictionaryEntry(currentWord);
+        hintText.innerText = `Full Entry: ${fullEntry}`;
+        hintText.classList.remove('invisible');
+
+        const pos = currentWord.pos.toLowerCase();
+        const forms = currentWord.forms.toLowerCase();
+
+        if (pos.startsWith('noun')) {
+            let decl = '1st';
+            if (pos.includes('2')) decl = '2nd';
+            if (pos.includes('3')) decl = '3rd';
+            questionText.innerText = `What is the Declension for the noun: ${currentWord.latin}?`;
+            grammarTargetAnswer = `${decl} Declension`;
+        } else if (pos.startsWith('verb')) {
+            questionText.innerText = `What is the Conjugation group for the verb: ${currentWord.latin}?`;
+            grammarTargetAnswer = currentWord.pos;
+        } else if (pos.startsWith('preposition')) {
+            questionText.innerText = `Which case does the preposition '${currentWord.latin}' take?`;
+            grammarTargetAnswer = forms.includes('ablative') ? 'Ablative' : 'Accusative';
+        } else {
+            questionText.innerText = `What is the Grammatical Category for: ${currentWord.latin}?`;
+            grammarTargetAnswer = currentWord.pos;
+        }
+    }
+
+    // Bracketing Setup
+    function setupBracketingQuestion(questionText) {
+        currentSentence = filteredSentences[Math.floor(Math.random() * filteredSentences.length)];
+        userBracketStart = -1;
+        userBracketEnd = -1;
+
+        questionText.innerText = `Label each word using the key above, bracket the subordinate clause (if present), and select the clause type:`;
+
+        const container = document.getElementById('sentence-cards-container');
+        container.innerHTML = '';
+
+        currentSentence.words.forEach((word, idx) => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.id = `word-card-${idx}`;
+            card.innerHTML = `
+                <input type="text" id="label-${idx}" class="label-box" placeholder="Label..." list="label-suggestions" autocomplete="off">
+                <div class="latin-word" id="latin-word-${idx}">${word}</div>
+                <div class="bracket-controls">
+                    <button id="btn-start-${idx}" class="bracket-btn" onclick="toggleBracket('start', ${idx})">[</button>
+                    <button id="btn-end-${idx}" class="bracket-btn" onclick="toggleBracket('end', ${idx})">]</button>
+                </div>
+                <div id="expected-label-${idx}" class="card-expected-label hidden"></div>
+            `;
+            container.appendChild(card);
+        });
+
+        document.getElementById('clause-type-select').value = '';
+        updateLiveBracketPreview();
+    }
+
+    function toggleBracket(type, idx) {
+        if (type === 'start') {
+            userBracketStart = (userBracketStart === idx) ? -1 : idx;
+        } else if (type === 'end') {
+            userBracketEnd = (userBracketEnd === idx) ? -1 : idx;
+        }
+        updateLiveBracketPreview();
+    }
+
+    function updateLiveBracketPreview() {
+        const preview = document.getElementById('bracket-preview-text');
+        
+        currentSentence.words.forEach((_, idx) => {
+            const btnS = document.getElementById(`btn-start-${idx}`);
+            const btnE = document.getElementById(`btn-end-${idx}`);
+            if (btnS) btnS.classList.toggle('active', userBracketStart === idx);
+            if (btnE) btnE.classList.toggle('active', userBracketEnd === idx);
+        });
+
+        let str = '';
+        currentSentence.words.forEach((w, idx) => {
+            if (idx === userBracketStart) str += ' <strong>[</strong> ';
+            str += w + ' ';
+            if (idx === userBracketEnd) str += ' <strong>]</strong> ';
+        });
+
+        preview.innerHTML = str.trim() || currentSentence.words.join(' ');
+    }
+
+    // LABEL MATCHER
+    function isLabelMatch(userVal, expectedVal) {
+        const u = userVal.trim().toLowerCase().replace(/[\s]/g, '');
+        const e = expectedVal.trim().toLowerCase().replace(/[\s]/g, '');
+        
+        if (u === e) return true;
+        
+        // Flexible handling for the superscript tags
+        if (e === 'v^(simp)' || e === 'v^simp') {
+            return ['v^(simp)', 'v^simp', 'v(simp)', 'vsimp', 'v^(sim)'].includes(u);
+        }
+        if (e === 'v^(splup)' || e === 'v^splup') {
+            return ['v^(splup)', 'v^splup', 'v(splup)', 'vsplup'].includes(u);
+        }
+        if (e === 'v^(imp)' || e === 'v^imp') {
+            return ['v^(imp)', 'v^imp', 'v(imp)', 'vimp'].includes(u);
+        }
+        if (e === 'conj') {
+            return ['conj', 'conjunction'].includes(u);
+        }
+        
+        return false;
+    }
+
+    // Check Bracketing
+    function checkBracketing() {
+        const feedback = document.getElementById('feedback');
+        const selectedClauseType = document.getElementById('clause-type-select').value;
+
+        const isBracketCorrect = (currentSentence.bracketStart === -1) 
+            ? (userBracketStart === -1 && userBracketEnd === -1)
+            : (userBracketStart === currentSentence.bracketStart && userBracketEnd === currentSentence.bracketEnd);
+            
+        const isClauseCorrect = (selectedClauseType === currentSentence.clauseType);
+
+        let correctLabelsCount = 0;
+        let wrongLabelsList = []; 
+
+        currentSentence.words.forEach((word, idx) => {
+            const inputVal = (document.getElementById(`label-${idx}`).value || '').trim();
+            const expectedLabel = currentSentence.labels[idx];
+            const card = document.getElementById(`word-card-${idx}`);
+            const wordSpan = document.getElementById(`latin-word-${idx}`);
+            const expectedDiv = document.getElementById(`expected-label-${idx}`);
+            const inputField = document.getElementById(`label-${idx}`);
+
+            const match = isLabelMatch(inputVal, expectedLabel);
+            
+            if (match) {
+                correctLabelsCount++;
+                card.classList.add('card-correct');
+            } else {
+                card.classList.add('card-incorrect');
+                expectedDiv.innerText = `Exp: ${expectedLabel}`;
+                expectedDiv.classList.remove('hidden');
+                wrongLabelsList.push(`<li><strong>${word}</strong> expected <strong>${expectedLabel}</strong> (you put '${inputVal}')</li>`); 
+            }
+
+            // Apply Visuals
+            if (expectedLabel === "adj") {
+                wordSpan.classList.add('underline-ending');
+            }
+            if (expectedLabel === "prep") {
+                const underlink = document.createElement('div');
+                underlink.className = 'prep-underlink';
+                card.appendChild(underlink);
+            }
+
+            inputField.disabled = true;
+        });
+
+        const allLabelsCorrect = (correctLabelsCount === currentSentence.words.length);
+
+        let resultHTML = '';
+        if (isBracketCorrect && isClauseCorrect && allLabelsCorrect) {
+            resultHTML += `<div class='correct'>✨ Excellent! Everything is correct!</div>`;
+        } else {
+            resultHTML += `<div class='incorrect'>Needs Review:</div>`;
+        }
+
+        resultHTML += `<div style='text-align: left; font-size:14px; margin-top:8px; line-height: 1.5;'>`;
+        resultHTML += `<strong>Translation:</strong> <em>"${currentSentence.translation}"</em><br>`;
+        if (currentSentence.bracketStart !== -1) {
+            let correctSentenceStr = '';
+            currentSentence.words.forEach((w, idx) => {
+                if (idx === currentSentence.bracketStart) correctSentenceStr += ' <strong>[</strong> ';
+                correctSentenceStr += w + ' ';
+                if (idx === currentSentence.bracketEnd) correctSentenceStr += ' <strong>]</strong> ';
+            });
+            resultHTML += `<strong>Target Bracketing:</strong> ${correctSentenceStr}<br>`;
+            resultHTML += `<strong>Target Clause Type:</strong> ${currentSentence.clauseType || 'None'} ${isClauseCorrect ? '✅' : '❌'}<br>`;
+        }
+        resultHTML += `<strong>Word Labels:</strong> ${correctLabelsCount} / ${currentSentence.words.length} correct<br>`;
+        
+        if (wrongLabelsList.length > 0) {
+            resultHTML += `<ul style="margin: 4px 0 0 20px; color: var(--danger); font-size: 14px;">${wrongLabelsList.join('')}</ul>`;
+        }
+        
+        resultHTML += `</div>`;
+
+        feedback.innerHTML = resultHTML;
+        document.getElementById('clause-type-select').disabled = true;
+        showNextButton();
+    }
+
+    function generateMCOptions() {
+        const mcArea = document.getElementById('mc-area');
+        mcArea.innerHTML = '';
+        
+        let options = [currentWord.english];
+        while (options.length < 4 && options.length < filteredVocabData.length) {
+            let randomWord = filteredVocabData[Math.floor(Math.random() * filteredVocabData.length)].english;
+            if (!options.includes(randomWord)) {
+                options.push(randomWord);
+            }
+        }
+        
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkMC(opt);
+            mcArea.appendChild(btn);
+        });
+    }
+
+    function checkMC(selected) {
+        const feedback = document.getElementById('feedback');
+        const fullEntry = getFullDictionaryEntry(currentWord);
+        if (selected === currentWord.english) {
+            feedback.innerHTML = `
+                <div class='correct'>Correct! Well done.</div>
+                <div style='font-size:14px; color:#555; margin-top:4px;'><strong>Entry:</strong> ${fullEntry} | <strong>POS:</strong> ${currentWord.pos}</div>
+            `;
+        } else {
+            feedback.innerHTML = `
+                <div class='incorrect'>Incorrect. Correct answer: <strong>${currentWord.english}</strong></div>
+                <div style='font-size:14px; color:#555; margin-top:4px;'><strong>Entry:</strong> ${fullEntry} | <strong>POS:</strong> ${currentWord.pos}</div>
+            `;
+        }
+        showNextButton();
+    }
+
+    function checkTypeIn() {
+        const input = document.getElementById('type-input').value.trim().toLowerCase();
+        const feedback = document.getElementById('feedback');
+        const fullEntry = getFullDictionaryEntry(currentWord);
+
+        const clean = str => str.replace(/^(to|a|an|the)\s+/, '').trim();
+        const answers = currentWord.english.toLowerCase().split(/[,/;\()]+/).map(s => s.trim()).filter(s => s.length > 0);
+        answers.push(currentWord.english.toLowerCase().trim());
+
+        const normInput = clean(input);
+        const correct = answers.some(ans => input === ans || normInput === clean(ans));
+
+        if (correct) {
+            feedback.innerHTML = `
+                <div class='correct'>Correct!</div>
+                <div style='font-size:14px; color:#333; margin-top:4px;'>
+                    <strong>Full Dictionary Entry:</strong> ${fullEntry}<br>
+                    <strong>POS / Category:</strong> ${currentWord.pos} | <strong>Meaning:</strong> ${currentWord.english}
+                </div>
+            `;
+        } else {
+            feedback.innerHTML = `
+                <div class='incorrect'>Incorrect. Target Answer: <strong>${grammarTargetAnswer}</strong></div>
+                <div style='font-size:14px; color:#333; margin-top:4px;'>
+                    <strong>Full Dictionary Entry:</strong> ${fullEntry}<br>
+                    <strong>POS / Category:</strong> ${currentWord.pos} | <strong>Meaning:</strong> ${currentWord.english}
+                </div>
+            `;
+        }
+        showNextButton();
+    }
+
+    function handleEnter(event) {
+        if (event.key === 'Enter') {
+            const nextBtn = document.getElementById('next-btn');
+            if (nextBtn.classList.contains('invisible')) {
+                if (selectedMode === 'type' || selectedMode === 'grammar') {
+                    checkTypeIn();
+                } else if (selectedMode === 'bracketing') {
+                    checkBracketing();
+                }
+            } else {
+                nextQuestion();
+            }
+        }
+    }
+
+    function showNextButton() {
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.classList.remove('invisible');
+        if (selectedMode === 'grammar' || selectedMode === 'type') {
+            document.getElementById('type-input').disabled = true;
+            nextBtn.focus();
+        } else if (selectedMode === 'mc') {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(btn => btn.disabled = true);
+            nextBtn.focus();
+        } else if (selectedMode === 'bracketing') {
+            nextBtn.focus();
+        }
+    }
+
+    function resetFeedback() {
+        document.getElementById('feedback').innerHTML = '';
+        document.getElementById('next-btn').classList.add('invisible');
+        document.getElementById('type-input').disabled = false;
+        
+        const clauseSelect = document.getElementById('clause-type-select');
+        if (clauseSelect) clauseSelect.disabled = false;
+        
+        grammarTargetAnswer = '';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Latin Noun Tables: First Declension</title>
+
+<link rel="stylesheet" type="text/css" href="./nounStyle.css" />
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h2 id="tableTitle">Latin Noun Tables: Fifth Declension</h2>
+    <div class="stem">
+    Masc: <strong>diēs, diēī</strong>
+  </div>
+  
+
+  </header>
+<div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Case</th>
+        <th>Singular</th>
+        <th>Plural</th>
+      </tr>
+    </thead>
+    <tbody id="grid"></tbody>
+  </table>
+
+  <div class="controls">
+    <button onclick="checkAnswers()">Check Answers</button>
+    <button onclick="resetAll()">Reset</button>
+  </div>
+</div>
+
+<script>
+/** * EDIT THESE TWO CONSTANTS TO CREATE NEW PAGES
+ */
+const rowLabels = ["Nominative", "Accusative", "Genitive", "Dative", "Ablative"];
+
+const answers = [
+  ["diēs",   "diēs"],   // Nom
+  ["diem",  "diēs"],   // Acc
+  ["diēī",  "diērum"], // Gen
+  ["diēī",  "diēbus"],    // Dat
+  ["diē",   "diēbus"]     // Abl
+];
+
+/**
+ * ENGINE CODE (No need to edit below this for basic pages)
+ */
+const grid = document.getElementById("grid");
+
+// Build the grid
+for (let r = 0; r < rowLabels.length; r++) {
+  let row = document.createElement("tr");
+
+  // Case Label Column
+  let labelCell = document.createElement("td");
+  labelCell.className = "case-label";
+  labelCell.textContent = rowLabels[r];
+  row.appendChild(labelCell);
+
+  // Singular and Plural Columns
+  for (let c = 0; c < 2; c++) {
+    let cell = document.createElement("td");
+    
+    let input = document.createElement("input");
+    input.dataset.row = r;
+    input.dataset.col = c;
+    input.autocomplete = "off";
+    input.addEventListener("keydown", handleNavigation);
+
+    let feedback = document.createElement("div");
+    feedback.className = "feedback";
+
+    cell.appendChild(input);
+    cell.appendChild(feedback);
+    row.appendChild(cell);
+  }
+  grid.appendChild(row);
+}
+
+function handleNavigation(e) {
+  let r = parseInt(this.dataset.row);
+  let c = parseInt(this.dataset.col);
+
+  if (e.key === "Enter" || e.key === "Tab") {
+    e.preventDefault();
+    // Move to next column, if last column, move to next row
+    if (c === 0) {
+      moveTo(r, 1);
+    } else {
+      moveTo(r + 1, 0);
+    }
+  }
+}
+
+function moveTo(r, c) {
+  if (r >= rowLabels.length) r = 0; // Wrap back to top
+  let next = document.querySelector(`input[data-row="${r}"][data-col="${c}"]`);
+  if (next) next.focus();
+}
+
+function checkAnswers() {
+  document.querySelectorAll("input").forEach(input => {
+    let r = input.dataset.row;
+    let c = input.dataset.col;
+    let correct = answers[r][c];
+    let val = input.value.trim().toLowerCase();
+
+    let feedback = input.parentElement.querySelector(".feedback");
+
+    if (val === correct) {
+      feedback.textContent = "✓";
+      feedback.className = "feedback correct";
+    } else {
+      feedback.textContent = "✗ " + correct;
+      feedback.className = "feedback wrong";
+    }
+  });
+}
+
+function resetAll() {
+  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.querySelectorAll(".feedback").forEach(f => {
+    f.textContent = "";
+    f.className = "feedback";
+  });
+  document.querySelector("input").focus();
+}
+</script>
+
+</body>
+</html>
