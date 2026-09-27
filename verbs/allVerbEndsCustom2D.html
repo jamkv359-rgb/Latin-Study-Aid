@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>2D Verb Tables</title>
+<link rel="stylesheet" href="../theme.css">
+<style>
+    body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+    }
+    .container {
+        width: min(1000px, 92vw);
+        margin: 40px 0;
+    }
+
+    header {
+        padding: 20px 24px;
+        border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+        margin-bottom: 20px;
+    }
+
+    .stem {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 10px;
+    }
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+        margin-bottom: 30px; /* Space between each mood table */
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    /* This sub-family shows a plain header row, not the yellow highlight
+       the pronouns/nouns/verbs family uses - deliberate, not drift. */
+    th {
+        background: var(--card);
+        color: var(--text);
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    input {
+        width: 100%;
+        padding: 8px;
+        outline: none;
+        transition: 0.15s ease;
+        box-sizing: border-box;
+    }
+
+    .feedback {
+        margin-top: 4px;
+        min-height: 18px; /* prevents row jumping when text appears */
+    }
+
+    .controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    button {
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    font-weight: 600;
+    font-family: inherit;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .filterGrid {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    /* This sub-family's filter cards sit on --card, not --bg like the other
+       grammar-drill pages - deliberate, not drift. */
+    .filterGroup {
+        background: var(--card);
+        padding: 15px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: calc(33% - 37px);
+        margin: 10px;
+    }
+
+    .filterGroup h3 {
+        margin-top: 0;
+        margin-bottom: 0px;
+    }
+
+    .filterGroup label {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .filterGroup input {
+        width:14px;
+    }
+    /* Ads/Footer */
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+  }
+  .bottom {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    }
+</style>
+<script src="../interact.js"></script>
+</head>
+
+<body data-page-type="verb">
+<img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+
+<div style="margin-top: 15vh;" class="container">
+    <header>
+        <h2>Latin Verb Tables: 2D Input</h2>
+        <div style="color:var(--muted); margin: 5px 0px 0px 0px"><span id="username-greet"></span>Select what verb endings you want, then start testing~</div>
+        <div style="display:flex; gap:10px;"><div class='interact' style= "background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px; margin-top:10px;"></div>
+        </div>
+        <div class="stem">Stem: <strong>porto</strong> • <strong>doceo</strong> • <strong>duco</strong> • <strong>audio</strong></div>
+        <div class="stem"><strong>Tab</strong> → Next input in row</div>
+        <div class="stem"><strong>Enter</strong> → Next input in column</div>
+    </header>
+
+    <section id="settingsPanel">
+        <h2 style="margin-bottom: 15px;">Select Forms To Test</h2>
+
+        <div class="filterGrid">
+            
+
+            <div class="filterGroup">
+                <h3>Mood</h3>
+                <label><input type="checkbox" data-group="mood" value="indicative" checked>Indicative</label>
+                <label><input type="checkbox" data-group="mood" value="subjunctive" checked>Subjunctive</label>
+                <label><input type="checkbox" data-group="mood" value="infinitive" checked>Infinitive</label>
+                <label><input type="checkbox" data-group="mood" value="imperative" checked>Imperative</label>
+                <label><input type="checkbox" data-group="mood" value="participle" checked>Participle</label>
+            </div>
+
+            <div class="filterGroup">
+                <h3>Tense</h3>
+                <label><input type="checkbox" data-group="tense" value="present" checked>Present</label>
+                <label><input type="checkbox" data-group="tense" value="imperfect" checked>Imperfect</label>
+                <label><input type="checkbox" data-group="tense" value="future" checked>Future</label>
+                <label><input type="checkbox" data-group="tense" value="perfect" checked>Perfect</label>
+                <label><input type="checkbox" data-group="tense" value="pluperfect" checked>Pluperfect</label>
+                <label><input type="checkbox" data-group="tense" value="future perfect" checked>Future-Perfect</label>
+            </div>
+
+            <div class="filterGroup">
+                <h3>Conjugation</h3>
+                <label><input type="checkbox" data-group="conjugation" value="1st" checked>1st</label>
+                <label><input type="checkbox" data-group="conjugation" value="2nd" checked>2nd</label>
+                <label><input type="checkbox" data-group="conjugation" value="3rd" checked>3rd</label>
+                <label><input type="checkbox" data-group="conjugation" value="4th" checked>4th</label>
+            </div>
+            <div class="filterGroup">
+                <h3>Person</h3>
+                <label><input type="checkbox" data-group="person" value="1st" checked>1st</label>
+                <label><input type="checkbox" data-group="person" value="2nd" checked>2nd</label>
+                <label><input type="checkbox" data-group="person" value="3rd" checked>3rd</label>
+                <label><input type="checkbox" data-group="person" value="-" checked>N/A (infinitives/participles)</label>
+            </div>
+            <div class="filterGroup">
+                <h3>Number</h3>
+                <label><input type="checkbox" data-group="number" value="singular" checked>Singular</label>
+                <label><input type="checkbox" data-group="number" value="plural" checked>Plural</label>
+                <label><input type="checkbox" data-group="number" value="-" checked>N/A (infinitives/participles)</label>
+            </div>
+
+          
+            <div class="filterGroup">
+                <h3>Voice</h3>
+                <label><input type="checkbox" data-group="voice" value="active" checked>Active</label>
+                <label><input type="checkbox" data-group="voice" value="passive" checked>Passive</label>
+            </div>
+        </div>
+
+        <button id="startBtn">Start Test</button>
+    </section>
+
+    <section id="testPanel" style="display:none">
+        
+        <div id="tablesContainer"></div>
+
+        <div class="controls">
+            <button id="showAnswersBtn">Show Answers</button>
+            <button id="restartBtn">Restart Test</button>
+            <button id="rerenderBtn">Re-render Table</button>
+        </div>
+    </section>
+    <section class="result hidden" style="width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: calc(16px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(16px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(16px * var(--radius-mult-br, var(--radius-mult, 1))) calc(16px * var(--radius-mult-bl, var(--radius-mult, 1))); padding: 20px; box-shadow: var(--shadow); box-sizing: border-box;margin-top:15px;">
+
+        <div><strong>Finished!</strong></div>
+        <div class="results" style="display: flex; flex-wrap: wrap; width: 100%; flex-direction: row;">
+
+        </div>
+        
+        <style>.hidden{display:none;}</style>
+    </section>
+</div>
+<script src="./grammarData.js"></script>
+<script src="../achievementData.js"></script>
+
+<script>
+    
+document.querySelector("body").classList.toggle("dark");
+
+let currentForms = [];
+
+
+/* =========================
+   HELPERS
+========================= */
+function getSelectedValues(groupName) {
+    return [
+        ...document.querySelectorAll(`[data-group="${groupName}"]:checked`)
+    ].map(cb => cb.value);
+}
+
+function capitalise(str) {
+    if (!str || str === "N/A" || str === "undefined") return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/* =========================
+   FILTER VISIBILITY
+   Hides checkboxes (and, if a whole group has none available, the group box
+   itself) for values that don't appear anywhere in grammarData.
+========================= */
+
+function updateAvailableFilters() {
+    const availableForms = grammarData;
+    const groups = ["voice", "mood", "tense", "conjugation", "person", "number"];
+
+    groups.forEach(groupName => {
+        const checkboxes = document.querySelectorAll(`[data-group="${groupName}"]`);
+        let anyVisible = false;
+
+        checkboxes.forEach(cb => {
+            const hasMatch = availableForms.some(form => {
+                if (groupName === "tense") {
+                    const fTense = form.tense ? form.tense.replace("-", " ") : null;
+                    return fTense === cb.value;
+                }
+                return form[groupName] === cb.value;
+            });
+            const label = cb.closest("label");
+            if (label) label.style.display = hasMatch ? "" : "none";
+            if (hasMatch) anyVisible = true;
+        });
+
+        const groupBox = checkboxes.length ? checkboxes[0].closest(".filterGroup") : null;
+        if (groupBox) groupBox.style.display = anyVisible ? "" : "none";
+    });
+}
+
+/* ========================= 
+   START TEST
+========================= */
+function startTest() {
+    const voices = getSelectedValues("voice");
+    const moods = getSelectedValues("mood");
+    const tenses = getSelectedValues("tense");
+    const conjugations = getSelectedValues("conjugation");
+    const persons = getSelectedValues("person"); 
+    const numbers = getSelectedValues("number");
+
+    currentForms = grammarData.filter(form => {
+        // We dynamically handle spacing/dash typos to be safe, and also
+        // treat missing data (like persons on an infinitive) as valid passes
+        const fTense = form.tense ? form.tense.replace("-", " ") : null;
+
+        const matchVoice = !form.voice || form.voice === "N/A" || voices.includes(form.voice);
+        const matchMood = !form.mood || form.mood === "N/A" || moods.includes(form.mood);
+        const matchTense = !fTense || fTense === "N/A" || tenses.includes(fTense);
+        const matchConj = !form.conjugation || form.conjugation === "N/A" || conjugations.includes(form.conjugation);
+        const matchPerson = !form.person || form.person === "N/A" || persons.includes(form.person);
+        const matchNumber = !form.number || form.number === "N/A" || numbers.includes(form.number);
+
+        return matchVoice && matchMood && matchTense && matchConj && matchPerson && matchNumber;
+    });
+
+    if (currentForms.length === 0) {
+        alert("No matching grammar forms found based on your selections.");
+        return;
+    }
+
+    buildTable();
+    document.getElementById("settingsPanel").style.display = "none";
+    document.getElementById("testPanel").style.display = "block";
+}
+
+/* =========================
+   BUILD TABLE
+========================= */
+function buildTable() {
+    const container = document.getElementById("tablesContainer");
+    container.innerHTML = ""; // Clear existing tables
+
+    const moods = [...new Set(currentForms.map(f => f.mood))];
+
+    // --- Custom Sorting Orders ---
+    const tenseOrder = {
+        "present": 1,
+        "imperfect": 2,
+        "perfect": 3,
+        "pluperfect": 4,
+        "future": 5,
+        "future perfect": 6,
+        "N/A": 99
+    };
+
+    const numberOrder = {
+        "singular": 1,
+        "plural": 2,
+        "N/A": 99
+    };
+
+    const personOrder = {
+        "1st": 1,
+        "2nd": 2,
+        "3rd": 3,
+        "N/A": 99
+    };
+
+    // Build a separate table for EACH mood
+    let colourz = ["bluepop", "greenpop", "redpop", "yellowpop", "purplepop"];
+    moods.forEach(mood => {
+        const moodForms = currentForms.filter(f => f.mood === mood);
+        if (moodForms.length === 0) return;
+
+        // Container wrapper
+        const tableWrapper = document.createElement("div");
+        tableWrapper.className = "table-wrapper";
+
+        // Section header injected BEFORE the table
+        const moodHeader = document.createElement("div");
+        moodHeader.innerHTML = `<h3 style="margin: 0; padding: 15px 20px; font-size: 18px; background: var(--${colourz[moods.indexOf(mood)]}); color: var(--consttext); border-bottom: 1px solid var(--border);">${capitalise(mood)}</h3>`;
+        tableWrapper.appendChild(moodHeader);
+
+        const table = document.createElement("table");
+
+        /* FIND EXISTING AXES */
+        const voices = [...new Set(moodForms.map(f => f.voice))];
+        const conjugations = [...new Set(moodForms.map(f => f.conjugation))];
+        let conjParts = ["porto", "doceo", "duco", "audio"]
+        // Find unique row labels
+        const rows = [...new Set(moodForms.map(f => 
+            `${f.person || 'N/A'}|${f.number || 'N/A'}|${f.tense || 'N/A'}`
+        ))];
+        
+        // --- Apply Custom Sort to Rows ---
+        rows.sort((a, b) => {
+            const [personA, numberA, tenseA] = a.split("|");
+            const [personB, numberB, tenseB] = b.split("|");
+
+            // 1. Sort by Tense
+            if (tenseOrder[tenseA] !== tenseOrder[tenseB]) {
+                return (tenseOrder[tenseA] || 99) - (tenseOrder[tenseB] || 99);
+            }
+            // 2. Sort by Number (Singular before Plural)
+            if (numberOrder[numberA] !== numberOrder[numberB]) {
+                return (numberOrder[numberA] || 99) - (numberOrder[numberB] || 99);
+            }
+            // 3. Sort by Person (1st, 2nd, 3rd)
+            return (personOrder[personA] || 99) - (personOrder[personB] || 99);
+        });
+
+        /* TABLE HEADER */
+        const header = document.createElement("thead");
+        let topRow = `<tr><th rowspan="2" style="width: 25%">Tense / Number / Person</th>`;
+
+        voices.forEach(voice => {
+            const count = conjugations.filter(conj =>
+                moodForms.some(f => f.voice === voice && f.conjugation === conj)
+            ).length;
+            
+            if (count > 0) {
+                topRow += `<th colspan="${count}">${capitalise(voice)}</th>`;
+            }
+        });
+        topRow += "</tr>";
+
+        let secondRow = "<tr>";
+        voices.forEach(voice => {
+            conjugations.forEach(conj => {
+                const colExists = moodForms.some(f => f.voice === voice && f.conjugation === conj);
+                if (!colExists) return; // Skip if no data for this voice+conj combination
+                secondRow += `<th>${conj} ${conjParts[parseInt(conj.slice(0,1))-1]}</th>`;
+            });
+        });
+        secondRow += "</tr>";
+
+        header.innerHTML = topRow + secondRow;
+        table.appendChild(header);
+
+        /* TABLE BODY */
+        const body = document.createElement("tbody");
+
+        rows.forEach(rowKey => {
+            const [person, number, tense] = rowKey.split("|");
+            const row = document.createElement("tr");
+
+            // Reordered visual label to match the new sort order
+            let labelParts = [];
+            if (tense !== "N/A") labelParts.push(capitalise(tense));
+            if (number !== "N/A") labelParts.push(capitalise(number));
+            if (person !== "N/A") labelParts.push(person);
+            
+            row.innerHTML = `<td style="font-weight: 600; color: var(--text);">${labelParts.join(" ") || "-"}</td>`;
+
+            voices.forEach(voice => {
+                conjugations.forEach(conj => {
+                    const colExists = moodForms.some(f => f.voice === voice && f.conjugation === conj);
+                    if (!colExists) return; 
+
+                    // Retrieve specific answer
+                    const form = moodForms.find(f =>
+                        String(f.person || 'N/A') === person &&
+                        String(f.number || 'N/A') === number &&
+                        String(f.tense || 'N/A') === tense &&
+                        f.voice === voice &&
+                        f.conjugation === conj
+                    );
+
+                    const cell = document.createElement("td");
+                    
+                    if (!form || !form.word || form.word === "-") {
+                        cell.innerHTML = `<span style="color: var(--text);">-</span>`;
+                    } else {
+                        cell.innerHTML = `
+                            <input type="text" data-answer="${form.word}" data-index="${form.index}" autocomplete="off" style="background-color: var(--bg); color: var(--text);">
+                            <div class="feedback"></div>
+                        `;
+                    }
+                    row.appendChild(cell);
+                });
+            });
+
+            body.appendChild(row);
+        });
+
+        table.appendChild(body);
+        tableWrapper.appendChild(table);
+        container.appendChild(tableWrapper);
+    });
+
+    // Auto-focus the very first text box
+    const firstInput = document.querySelector('input[data-answer]');
+    if (firstInput) firstInput.focus();
+}
+
+/* =========================
+   SHOW ANSWERS
+========================= */
+function showAnswers() {
+    let score = 0;
+    let total = 0;
+
+    // Get saved progress from localStorage
+    let savedGrammarProgress = localStorage.getItem("latinGrammarProgress");
+
+    if (savedGrammarProgress) {
+        savedGrammarProgress = JSON.parse(savedGrammarProgress);
+    } else {
+        savedGrammarProgress = {};
+    }
+
+    document.querySelectorAll("input[data-answer]").forEach(input => {
+        const correct = input.dataset.answer;
+        const grammarIndex = input.dataset.index;
+        const progressKey = "i" + grammarIndex;
+
+        const userAnswer = input.value.trim().toLowerCase();
+        const feedback = input.parentElement.querySelector(".feedback");
+
+        total += 1;
+
+        const progressEntry = normalizeGrammarProgressEntry(savedGrammarProgress[progressKey]);
+
+        if (userAnswer === correct.toLowerCase()) {
+            feedback.textContent = "✓ Correct";
+            feedback.className = "feedback correct";
+
+            score += 1;
+
+            // Mark this grammar form as answered correctly
+            progressEntry.correct += 1;
+
+        } else {
+            feedback.textContent = "✗ " + correct;
+            feedback.className = "feedback wrong";
+
+            // Mark this grammar form as answered incorrectly
+            progressEntry.incorrect += 1;
+        }
+
+        savedGrammarProgress[progressKey] = progressEntry;
+    });
+
+    // Save updated progress back to localStorage
+    localStorage.setItem(
+        "latinGrammarProgress",
+        JSON.stringify(savedGrammarProgress)
+    );
+    document.querySelector(".result").classList.remove("hidden");
+        document.querySelector(".results").innerHTML+=`
+            <div style="width: calc(((100% - 40px) * 0.25) - 24px); border: 1px solid var(--border); background-color: var(--bg); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); margin:5px; padding: 10px;">
+                <div id="score">${score}/${total} → ${Math.floor((score/total)*100)}%</div>
+                <div id="quotes" style="color: var(--text);">${calcScore(score, total)}</div>
+            </div>`;
+
+    const result = {
+        date: new Date().toISOString(),
+
+        testType: "Grammar",
+        page: document.title,
+
+        score,
+        total,
+        percent: Math.round(score/total*100),
+
+        quote: calcScore(score,total),
+
+        settings: {
+            voices: getSelectedValues("voice"),
+            moods: getSelectedValues("mood"),
+            tenses: getSelectedValues("tense"),
+            conjugations: getSelectedValues("conjugation"),
+            persons: getSelectedValues("person"),
+            numbers: getSelectedValues("number")
+        }
+    };
+    let history =JSON.parse(localStorage.getItem("latinHistory")) || [];
+        history.unshift(result);
+        localStorage.setItem("latinHistory",JSON.stringify(history));
+    console.log(localStorage.getItem('latinHistory'));
+    
+}
+
+/* =========================
+   RESTART TEST
+========================= */
+function restartTest() {
+    document.querySelectorAll("input[data-answer]").forEach(input => input.value = "");
+    document.querySelectorAll(".feedback").forEach(feedback => {
+        feedback.textContent = "";
+        feedback.className = "feedback";
+    });
+
+    const firstInput = document.querySelector('input[data-answer]');
+    if (firstInput) firstInput.focus();
+}
+
+/* =========================
+   RERENDER
+========================= */
+function rerenderTable() {
+    document.getElementById("testPanel").style.display = "none";
+    document.getElementById("settingsPanel").style.display = "block";
+    document.getElementById("tablesContainer").innerHTML = ""; // Now correctly clears dynamic container
+    currentForms = [];
+}
+
+function enableEnterColumnNavigation() {
+
+    const container =
+        document.getElementById("tablesContainer");
+
+    container.addEventListener("keydown", function (e) {
+
+        if (e.key !== "Enter") return;
+
+        const currentInput = e.target;
+
+        if (currentInput.tagName !== "INPUT") return;
+
+        e.preventDefault();
+
+        const currentTable =
+            currentInput.closest("table");
+
+        const currentCell =
+            currentInput.closest("td");
+
+        const currentRow =
+            currentInput.closest("tr");
+
+        const currentColIndex =
+            [...currentRow.children].indexOf(currentCell);
+
+        const rows =
+            [...currentTable.querySelectorAll("tbody tr")];
+
+        const currentRowIndex =
+            rows.indexOf(currentRow);
+
+        // 1. Move down in the same column
+        for (let r = currentRowIndex + 1; r < rows.length; r++) {
+
+            const nextCell =
+                rows[r].children[currentColIndex];
+
+            if (!nextCell) continue;
+
+            const nextInput =
+                nextCell.querySelector("input");
+
+            if (nextInput) {
+                nextInput.focus();
+                return;
+            }
+        }
+
+        // 2. If at bottom, move to top of next input column
+        const totalColumns =
+            currentRow.children.length;
+
+        for (let c = currentColIndex + 1; c < totalColumns; c++) {
+
+            for (let r = 0; r < rows.length; r++) {
+
+                const nextCell =
+                    rows[r].children[c];
+
+                if (!nextCell) continue;
+
+                const nextInput =
+                    nextCell.querySelector("input");
+
+                if (nextInput) {
+                    nextInput.focus();
+                    return;
+                }
+            }
+        }
+
+        // 3. If at the end of this table, move to first input of next table
+        const allTables =
+            [...container.querySelectorAll("table")];
+
+        const currentTableIndex =
+            allTables.indexOf(currentTable);
+
+        for (let t = currentTableIndex + 1; t < allTables.length; t++) {
+
+            const nextTableInput =
+                allTables[t].querySelector("tbody input");
+
+            if (nextTableInput) {
+                nextTableInput.focus();
+                return;
+            }
+        }
+
+        // 4. If at the very end, wrap back to first input overall
+        const firstInput =
+            container.querySelector("tbody input");
+
+        if (firstInput) {
+            firstInput.focus();
+        }
+    });
+}
+
+/* =========================
+   EVENTS
+========================= */
+document.getElementById("startBtn").addEventListener("click", startTest);
+document.getElementById("showAnswersBtn").addEventListener("click", showAnswers);
+document.getElementById("restartBtn").addEventListener("click", restartTest);
+document.getElementById("rerenderBtn").addEventListener("click", rerenderTable);
+enableEnterColumnNavigation();
+
+updateAvailableFilters();
+</script>
+
+</body>
+</html>

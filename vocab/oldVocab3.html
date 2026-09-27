@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+
+  <meta charset="UTF-8">
+  <title>Latin Vocab Tester</title>
+  <style>
+    body {
+    
+    background: rgb(0, 230, 230);
+    color: #222;
+    text-align: center;
+    }
+
+    .title{
+    text-align: center;
+    font-family: "Chewy", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 40px;
+    
+    }
+    .title2{
+    font-size: 30px;
+    }
+    .controls{
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+        font-family: "Chewy", system-ui;
+        font-weight: 100;
+        font-style: normal;
+    }
+    .side{
+        text-align: center;
+        width: 49%;
+        background-color: rgb(0, 200, 200);
+        border-radius: 10px;
+        margin: 0% 0.5%;
+    }
+    .bottom{
+        width: 99%;
+        text-align: center;
+        background-color: rgb(0, 200, 200);
+        border-radius: 10px;
+        margin: 0.5%
+
+    }
+    .checkBoxes{
+        width: 100%;
+        display:flex;
+        flex-wrap: wrap;
+    }
+    .allSelector{
+        width: 100%;
+        background-color: rgb(0, 180, 180);
+    }
+    .controls label {
+    text-align: center;
+    background-color: rgb(0, 180, 180);
+    width: 24%;
+    border-radius:10px;
+    font-size: 20px;
+    margin: 0.5%;
+    }
+
+    button {
+    margin-top: 10px;
+    padding: 6px 12px;
+    font-size: 30px;
+    }
+
+    .hidden {
+    display: none;
+    }
+
+    #question {
+    font-size: 30px;
+    margin: 20px 0;
+    }
+
+    #answerInput{
+        font-size:30px;
+    }
+
+    #feedback {
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    }
+
+    #score {
+    margin-top: 5px;
+    font-size: 20px;
+    }
+
+    /* 🌙 Dark mode */
+    body.dark {
+    background: rgb(0, 25, 50);
+    color: rgb(220,220,220);
+    }
+
+    body.dark input,
+    body.dark button {
+    background: #333;
+    color: #eee;
+    border: 1px solid #666;
+    }
+    body.dark input,
+    body.dark label {
+    background: rgb(0, 50, 50);
+    color: #eee;
+    }
+    body.dark input,
+    body.dark .side {
+    background: rgb(0, 25, 75);
+    color: #eee;
+    }
+    body.dark input,
+    body.dark .bottom {
+    background: rgb(0, 25, 75);
+    color: #eee;
+    }
+    .adContainer{
+        font-size: 30px;
+        font-family: "Chewy", system-ui;
+        font-weight: 100;
+        font-style: normal;
+
+    }
+    .ads{
+        display:flex;
+    }
+    .ad{
+        background-color: rgb(0, 180, 180);
+        font-size: 15px;
+        font-family: "Chewy", system-ui;
+        font-weight: 100;
+        font-style: normal;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class = "title">Latin Vocabulary Tester</div>
+  <div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+  <section class="controls">
+
+    <div class= "side side1">
+        <div class = "title2">Stages</div>
+        <div class="checkBoxes" id="stageCheckboxes">
+        </div>
+        <div class="allCheckboxSelector allSelector">
+            Select All
+        </div>
+    </div>
+
+    <div class= "side side2">
+        <div class = "title2">Word Types</div>
+        <div class="checkBoxes" id="typeCheckboxes">
+        </div>
+        <div class="allCheckboxSelector2 allSelector">
+            Select All
+        </div>
+    </div>
+
+    <div class="bottom">
+        <div class = "title2">Other</div>
+        <div class="checkBoxes">
+            <label>
+                <input type="checkbox" id="directionToggle">
+                English → Latin
+            </label>
+
+            <label>
+                <input type="checkbox" id="noRepeatToggle">
+                Remove words once correct
+            </label>
+            <label>
+                <input type="checkbox" id="darkModeToggle">
+                Dark mode
+            </label>
+
+            <label>
+                <input type="checkbox" id="timerToggle">
+                Enable timer
+            </label>
+            <label>
+                <input type="checkbox" id="formatToggle">
+                Phone format
+            </label>
+        </div>
+    </div>
+    
+  </section>
+ <section class="bottom adContainer">
+    Check out other vocab testers!
+    <div class="ads">
+        <div class = "ad side" onclick="window.location.href='../vocab/vocabTest.html'">Multi-Choice Quiz</div>
+        <div class = "ad side" onclick="window.location.href='../vocab/hangman.html'">Hangman</div>
+    </div>
+  </section>
+<button id="startBtn">Start Test</button>
+
+  <section class="tester hidden bottom">
+
+    <div id="timer"></div>
+
+    <div id="question">Press 'Start Test' to start!</div>
+
+    <input type="text" id="answerInput" class=answerInput autocomplete="off">
+    <button id="submitBtn">Submit</button>
+
+    <div id="feedback"></div>
+    <div id="score">Score: 0 / 0</div>
+
+  </section>
+ 
+
+</body>
+<script src="vocabDataOld.js"></script>
+<script>
+    let vocab = [];
+let pool = [];
+let current = null;
+let score = 0;
+let total = 0;
+let timerInterval = null;
+let timeLeft = 0;
+let allSelector = document.querySelector(".allCheckboxSelector");
+let allSelectorType = document.querySelector(".allCheckboxSelector2");
+
+/* LOAD VOCAB FROM JS FILE */
+vocab = vocabData;
+buildCheckboxes();
+console.log(vocabData.length)
+console.log(vocab[0])
+
+/* 🔹 BUILD STAGE + TYPE CHECKBOXES */
+function buildCheckboxes() {
+  const stages = [...new Set(vocab.map(v => v.stage))];
+const types = [...new Set(vocab.map(v => v.type))];
+
+
+  const stageDiv = document.getElementById("stageCheckboxes");
+  const typeDiv = document.getElementById("typeCheckboxes");
+
+  stages.forEach(s => {
+    if (stages[s]>0){
+        stageDiv.innerHTML += `<label><input class = "stageCheckboxes" type="checkbox" value="${s}" checked> Stage ${s}</label>`;
+    }
+  });
+  types.forEach(t => {
+    typeDiv.innerHTML += `<label><input class = "typeCheckboxes" type="checkbox" value="${t}" checked> ${t}s</label>`;
+  });
+}
+/* 🔹 START TEST */
+document.getElementById("startBtn").onclick = () => {
+  const selectedStages = [...document.querySelectorAll("#stageCheckboxes input:checked")].map(cb => cb.value);
+  const selectedTypes = [...document.querySelectorAll("#typeCheckboxes input:checked")].map(cb => cb.value);
+  pool = vocab.filter(v =>
+  selectedStages.includes(v.stage) &&
+  selectedTypes.includes(v.type)
+);
+  if (pool.length === 0) {
+    alert("No words selected!");
+    return;
+  }
+  score = 0;
+  total = 0;
+  document.querySelector(".tester").classList.remove("hidden");
+  nextQuestion();
+};
+/* 🔹 NEXT QUESTION */
+function nextQuestion() {
+  if (pool.length === 0) {
+    document.getElementById("question").textContent = "Finished!";
+    return;
+  }
+
+  current = pool[Math.floor(Math.random() * pool.length)];
+  total++;
+
+  const englishToLatin = document.getElementById("directionToggle").checked;
+  document.getElementById("question").textContent =
+  englishToLatin
+    ? current.english ?? current.English
+    : current.latin ?? current.Latin;
+
+  document.getElementById("answerInput").value = "";
+  document.getElementById("feedback").textContent = " - ";
+
+  if (document.getElementById("timerToggle").checked) {
+    startTimer();
+  }
+}
+
+/* 🔹 SUBMIT ANSWER */
+document.getElementById("submitBtn").onclick = () => {
+  const input =
+    document.getElementById("answerInput").value.trim().toLowerCase();
+
+  const englishToLatin =
+    document.getElementById("directionToggle").checked;
+
+  const latinAnswer =
+    current.latin ?? current.Latin;
+
+  const englishAnswer =
+    current.english ?? current.English;
+
+  const correctAnswer =
+    englishToLatin ? latinAnswer : englishAnswer;
+
+  const correctAnswers =
+    Array.isArray(correctAnswer)
+      ? correctAnswer
+      : [correctAnswer];
+
+  const cleanedCorrectAnswers =
+    correctAnswers.map(answer =>
+      String(answer).trim().toLowerCase()
+    );
+
+  if (cleanedCorrectAnswers.includes(input)) {
+    score++;
+
+    document.getElementById("feedback").textContent =
+      "✅ Correct!";
+
+    if (document.getElementById("noRepeatToggle").checked) {
+      pool = pool.filter(w => w !== current);
+    }
+
+  } else {
+    document.getElementById("feedback").textContent =
+      `❌ Correct answer: ${correctAnswers.join(", ")}`;
+  }
+
+  document.getElementById("score").textContent =
+    `Score: ${score} / ${total}`;
+
+  stopTimer();
+
+  setTimeout(nextQuestion, 700);
+};
+
+/* 🔹 ENTER KEY SUBMIT */
+document.getElementById("answerInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault(); // prevents form reloads if inside a <form>
+    document.getElementById("submitBtn").click();
+  }
+});
+
+
+/* 🔹 TIMER */
+function startTimer() {
+  stopTimer();
+  timeLeft = 10;
+  document.getElementById("timer").textContent = `Time: ${timeLeft}`;
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = `Time: ${timeLeft}`;
+    if (timeLeft <= 0) {
+      stopTimer();
+      nextQuestion();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+/* 🔹 DARK MODE */
+document.getElementById("darkModeToggle").onchange = e => {
+  document.body.classList.toggle("dark", e.target.checked);
+};
+let halfFormat = true;
+document.getElementById("formatToggle").onchange = () => {
+    halfFormat ? document.querySelectorAll(".side").forEach(el => el.style.width = "100%") : document.querySelectorAll(".side").forEach(el => el.style.width = "49%");;
+    halfFormat = !halfFormat;
+    //console.log("e");
+};
+let allSelectedStage = true;
+//SELECT ALL CHECKBOXES
+allSelector.onclick = () => {
+    allStages = document.querySelectorAll(".stageCheckboxes");
+    if (!allSelectedStage){
+        for (e of allStages){
+            e.checked = true;
+        }
+    }else if (allSelectedStage){
+        for (e of allStages){
+            e.checked = false;
+        }
+    }
+    allSelectedStage = !allSelectedStage;
+}
+
+let allSelectedType = true;
+//SELECT ALL CHECKBOXES
+allSelectorType.onclick = () => {
+    allTypes = document.querySelectorAll(".typeCheckboxes");
+    if (!allSelectedType){
+        for (e of allTypes){
+            e.checked = true;
+        }
+    }else if (allSelectedType){
+        for (e of allTypes){
+            e.checked = false;
+        }
+    }
+    allSelectedType = !allSelectedType;
+}
+
+</script>
+
+</html>

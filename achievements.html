@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Achievements</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .side, .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .container {
+    width: min(1000px, 100%);
+  }
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  h1 { margin: 0; }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .category-card {
+    padding: 24px;
+  }
+
+  .category-card h2 {
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-button:hover {
+    transform: translateX(5px);
+  }
+
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* =========================
+   ACHIEVEMENTS INTERFACE
+========================= */
+
+.achievement-toolbar {
+  margin: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 16px;
+}
+
+.achievement-toolbar input,
+.achievement-toolbar select {
+  flex: 1;
+  min-width: 180px;
+  padding: 11px 12px;
+  outline: none;
+}
+
+.achievement-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.achievement-stat {
+  flex: 1;
+  min-width: 180px;
+  padding: 16px;
+}
+
+.achievement-stat-value {
+  margin-top: 6px;
+}
+
+.achievement-group {
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.achievement-group summary {
+  cursor: pointer;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.achievement-group summary::after {
+  content: "⌄";
+  transition: transform 0.2s ease;
+}
+
+.achievement-group[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.achievement-list {
+  padding: 0 20px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.achievement-card {
+  padding: 15px;
+  transition: transform 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  position: relative;
+}
+
+.achievement-card:hover {
+  transform: translateY(-3px);
+}
+
+.achievement-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.achievement-status {
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.achievement-name {
+  margin: 8px 0 6px;
+}
+
+.achievement-desc {
+  min-height: 38px;
+}
+
+.difficulty-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 4px;
+}
+
+.no-achievements {
+  text-align: center;
+  padding: 24px;
+}
+</style>
+<script src="./interact.js"></script>
+</head>
+<body data-page-type="base">
+   
+
+<div class="container" >
+  <div class="header">
+    <img class="banner" src="banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+    <h1 style="margin-top: 10vh;">Achievements</h1>
+    <p style="color:var(--muted);"><span id="username-greet"></span>View all your Achievements!</p>
+    <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  </div>
+<section class="adContainer bottom">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px;">Dashboard</div>
+        <div class="ads">
+            <div class="ad">Vocab Progress: <div class='score' id="div-vocab-completed"></div></div>
+            <div class="ad">Grammar Progress: <div class='score' id="div-grammar-completed"></div></div>
+            <div class="ad">Questions Completed: <div class='score' id="div-questions-completed"></div></div>
+            <div class="ad">Tests Completed: <div class='score' id="div-tests-completed"></div></div>
+            <div class="ad">Total Hours Studied: <div class='score' id="div-hours-studied"></div></div>
+            
+        </div>
+  </section>
+
+  
+
+    <section class="achievement-summary">
+      <div class="achievement-stat">
+        <div class="achievement-stat-title">Achievements Completed</div>
+        <div class="achievement-stat-value" id="achievementCompletedStat">0/0</div>
+      </div>
+
+      <div class="achievement-stat">
+        <div class="achievement-stat-title">Completion Rate</div>
+        <div class="achievement-stat-value" id="achievementPercentStat">0%</div>
+      </div>
+
+      <div class="achievement-stat">
+        <div class="achievement-stat-title">Hardest Completed</div>
+        <div class="achievement-stat-value" id="hardestAchievementStat">—</div>
+      </div>
+    </section>
+
+    <section class="achievement-toolbar">
+      <input
+        type="text"
+        id="achievementSearch"
+        placeholder="Search achievements..."
+      >
+
+      <select id="achievementFilter">
+        <option value="all">All achievements</option>
+        <option value="completed">Completed only</option>
+        <option value="incomplete">Incomplete only</option>
+      </select>
+
+      <select id="difficultyFilter">
+        <option value="all">All difficulties</option>
+        <option value="1">Difficulty 1</option>
+        <option value="2">Difficulty 2</option>
+        <option value="3">Difficulty 3</option>
+        <option value="4">Difficulty 4</option>
+        <option value="5">Difficulty 5</option>
+      </select>
+    </section>
+
+    <div id="displayArea"></div>
+
+    
+
+    
+    
+
+</div>
+
+<script src="./vocab/vocabDataLSA.js"></script>
+<script src="./vocab/vocabData.js"></script>
+<script src="./verbs/grammarData.js"></script>
+<script src="./achievementData.js"></script>
+<script>
+  let divVocabCompleted = document.getElementById("div-vocab-completed");
+  let divGrammarCompleted = document.getElementById("div-grammar-completed");
+  let divTestsCompleted = document.getElementById("div-tests-completed");
+  let divQuestionsCompleted = document.getElementById("div-questions-completed");
+  let divHoursStudied = document.getElementById("div-hours-studied");
+
+
+  function update(){
+    let vocabCount = 0;
+    let vocabTotal = 0;
+    for (let prop in vocabProgress){
+      if (isWordLearned(vocabProgress[prop])){
+        vocabCount+=1;
+      }
+      vocabTotal+=1;
+    }
+    divVocabCompleted.textContent=`${vocabCount}/${vocabTotal} → ${Math.round((vocabCount/vocabTotal)*100)}%`;
+    
+    
+    let testHistory = JSON.parse(localStorage.getItem("latinHistory")) ||[];
+    divTestsCompleted.textContent = testHistory.length;
+    questionTotal=0;
+    for (let test of testHistory){
+      questionTotal+=test.total;
+    }
+    divQuestionsCompleted.textContent = questionTotal;
+    let grammarCount = 0;
+    let grammarTotal = 0;
+    let grammarProgress = JSON.parse(localStorage.getItem("latinGrammarProgress"));
+      for (let prop in grammarProgress){
+        if (isEndingLearned(grammarProgress[prop])){
+          grammarCount+=1;
+        }
+        grammarTotal+=1;
+      }
+      divGrammarCompleted.textContent=`${grammarCount}/${grammarTotal} → ${Math.round((grammarCount/grammarTotal)*100)}%`;
+
+    let studySeconds = Number(localStorage.getItem("studySeconds")) || 0;
+
+    let studyHours = (studySeconds / 3600).toFixed(1);
+
+    divHoursStudied.textContent = studyHours;
+  }
+
+  
+  update();
+    
+
+
+  const achievements =
+    achievementData || [];
+
+  //const achievementProgress =JSON.parse(localStorage.getItem("localAchievementProgress")) || {};
+
+  const typeLabels = {
+    rawVocab: "Vocabulary Achievements",
+    vocabTest: "Vocabulary Test Achievements",
+    grammar: "Grammar Achievements",
+    noun: "Noun Achievements",
+    pronoun: "Pronoun Achievements",
+    verb: "Verb Achievements",
+    streak: "Streak Achievements",
+    studyTime: "Study Time Achievements"
+  };
+
+  const typeOrder = [
+    "rawVocab",
+    "vocabTest",
+    "grammar",
+    "noun",
+    "pronoun",
+    "verb",
+    "streak",
+    "studyTime"
+  ];
+
+  const achievementSearch =
+    document.getElementById("achievementSearch");
+
+  const achievementFilter =
+    document.getElementById("achievementFilter");
+
+  const difficultyFilter =
+    document.getElementById("difficultyFilter");
+
+  function isAchievementCompleted(achievement) {
+    return achievementProgress["i" + achievement.index] === true;
+  }
+
+  function getAchievementTypeLabel(type) {
+    return typeLabels[type] || capitaliseWords(type);
+  }
+
+  function getSortedAchievements() {
+    return [...achievements].sort((a, b) => {
+      const typeA =
+        typeOrder.indexOf(a.type);
+
+      const typeB =
+        typeOrder.indexOf(b.type);
+
+      const safeTypeA =
+        typeA === -1 ? 999 : typeA;
+
+      const safeTypeB =
+        typeB === -1 ? 999 : typeB;
+
+      if (safeTypeA !== safeTypeB) {
+        return safeTypeA - safeTypeB;
+      }
+
+      const diffA =
+        Number(a.difficulty) || 0;
+
+      const diffB =
+        Number(b.difficulty) || 0;
+
+      if (diffA !== diffB) {
+        return diffA - diffB;
+      }
+
+      return String(a.index).localeCompare(String(b.index));
+    });
+  }
+
+  function groupAchievements(achievementList) {
+    const groups = {};
+
+    achievementList.forEach(achievement => {
+      if (!groups[achievement.type]) {
+        groups[achievement.type] = [];
+      }
+
+      groups[achievement.type].push(achievement);
+    });
+
+    return groups;
+  }
+
+  function renderAchievements() {
+    const displayArea =
+      document.getElementById("displayArea");
+
+    const searchTerm =
+      achievementSearch.value.trim().toLowerCase();
+
+    const statusFilter =
+      achievementFilter.value;
+
+    const selectedDifficulty =
+      difficultyFilter.value;
+
+    let filteredAchievements =
+      getSortedAchievements();
+
+    filteredAchievements =
+      filteredAchievements.filter(achievement => {
+        const completed =
+          isAchievementCompleted(achievement);
+
+        const typeLabel =
+          getAchievementTypeLabel(achievement.type);
+
+        const searchableText = `
+          ${achievement.index}
+          ${achievement.name}
+          ${achievement.desc}
+          ${typeLabel}
+        `.toLowerCase();
+
+        const matchesSearch =
+          searchableText.includes(searchTerm);
+
+        const matchesStatus =
+          statusFilter === "all" ||
+          (statusFilter === "completed" && completed) ||
+          (statusFilter === "incomplete" && !completed);
+
+        const matchesDifficulty =
+          selectedDifficulty === "all" ||
+          String(achievement.difficulty) === selectedDifficulty;
+
+        return (
+          matchesSearch &&
+          matchesStatus &&
+          matchesDifficulty
+        );
+      });
+
+    const groups =
+      groupAchievements(filteredAchievements);
+
+    displayArea.innerHTML = "";
+
+    if (filteredAchievements.length === 0) {
+      displayArea.innerHTML = `
+        <section class="bottom no-achievements">
+          No achievements match your search.
+        </section>
+      `;
+      return;
+    }
+
+    Object.keys(groups)
+      .sort((a, b) => {
+        const orderA =
+          typeOrder.indexOf(a) === -1 ? 999 : typeOrder.indexOf(a);
+
+        const orderB =
+          typeOrder.indexOf(b) === -1 ? 999 : typeOrder.indexOf(b);
+
+        return orderA - orderB;
+      })
+      .forEach(type => {
+        const group =
+          groups[type];
+
+        const completedInGroup =
+          group.filter(isAchievementCompleted).length;
+
+        const totalInGroup =
+          group.length;
+
+        displayArea.innerHTML += `
+          <details class="achievement-group" open>
+            <summary>
+              <span>${escapeHTML(getAchievementTypeLabel(type))}</span>
+              <span class="group-progress">
+                ${completedInGroup}/${totalInGroup} completed
+              </span>
+            </summary>
+
+            <div class="achievement-list">
+              ${group.map(createAchievementCard).join("")}
+            </div>
+          </details>
+        `;
+      });
+
+    renderAchievementSummary();
+  }
+
+  function createAchievementCard(achievement) {
+    const completed =
+      isAchievementCompleted(achievement);
+
+    const difficulty =
+      Number(achievement.difficulty) || 0;
+
+    return `
+      <article class="achievement-card ${completed ? "completed" : "incomplete"}">
+        <div class="achievement-topline">
+          <div class="achievement-index">
+            #${escapeHTML(achievement.index)}
+          </div>
+
+          <div class="achievement-status ${completed ? "completed" : "incomplete"}">
+            ${completed ? "Completed" : "Locked"}
+          </div>
+        </div>
+
+        <div class="achievement-name">
+          ${escapeHTML(achievement.name)}
+        </div>
+
+        <div class="achievement-desc">
+          ${escapeHTML(achievement.desc)}
+        </div>
+
+        <div class="difficulty-row" aria-label="Difficulty ${difficulty} out of 5">
+          ${renderDifficultyStars(difficulty)}
+        </div>
+      </article>
+    `;
+  }
+
+  function renderDifficultyStars(difficulty) {
+    let html = "";
+
+    for (let i = 1; i <= 5; i++) {
+      html += `
+        <span class="star ${i <= difficulty ? "filled" : ""}">
+          ★
+        </span>
+      `;
+    }
+
+    return html;
+  }
+
+  function renderAchievementSummary() {
+    const total =
+      achievements.length;
+
+    const completed =
+      achievements.filter(isAchievementCompleted).length;
+
+    const percent =
+      total > 0
+        ? Math.round((completed / total) * 100)
+        : 0;
+
+    const completedAchievements =
+      achievements.filter(isAchievementCompleted);
+
+    const hardest =
+      completedAchievements.length > 0
+        ? Math.max(
+            ...completedAchievements.map(a => Number(a.difficulty) || 0)
+          )
+        : null;
+
+    document.getElementById("achievementCompletedStat").textContent =
+      `${completed}/${total}`;
+
+    document.getElementById("achievementPercentStat").textContent =
+      `${percent}%`;
+
+    document.getElementById("hardestAchievementStat").textContent =
+      hardest ? `Level ${hardest}` : "—";
+  }
+
+  achievementSearch.addEventListener("input", renderAchievements);
+  achievementFilter.addEventListener("change", renderAchievements);
+  difficultyFilter.addEventListener("change", renderAchievements);
+
+  renderAchievements();
+
+  /* =========================
+    ACHIEVEMENT HELPERS
+  ========================= */
+
+  function capitaliseWords(str) {
+    return String(str || "")
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, char => char.toUpperCase());
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+/*
+
+
+*/
+</script>
+</body>
+</html>

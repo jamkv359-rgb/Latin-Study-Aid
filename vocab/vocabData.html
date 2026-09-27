@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Database</title>
+    <link rel="stylesheet" href="../theme.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: min(1000px, 100%);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+        }
+
+        .vocabdata-title {
+            margin: 0px 0px 0px 0px;
+        }
+
+        /* Controls Section (the search/filter bar - page-specific skin) */
+        .vocabdata-controls {
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 16px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .view-toggles {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Neutral-bordered baseline for every bare <button> on this page
+           (exportMiniBtn/Print/Export CSV) - previously unstyled, so they
+           fell back to the browser's own default button chrome (a thin UA
+           border) which read as cramped against their small padding.
+           .toggle-btn overrides colour below since it's a distinct pill. */
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            padding: 8px 14px;
+            transition: all 0.2s;
+        }
+        button:hover { background: var(--card); border-color: var(--accent); }
+
+        .toggle-btn {
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Vocabulary Tables */
+        .group-section {
+            margin-bottom: 40px;
+        }
+
+        .group-title {
+            margin-bottom: 15px;
+            padding-left: 5px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+
+        /* Wide enough (with the TYPE/SUBTYPE/stage columns) that narrow
+           viewports need to scroll the table itself rather than squeeze
+           every column unreadably thin. */
+        .table-card {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 640px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 12px 16px;
+        }
+
+        /* Was ".vocabdata-table td" - that class was never actually on the
+           table, so this padding silently never applied (cells fell back to
+           the browser's ~1px default). Fixed to the class that's really
+           there. Also gives every data row a uniform 2-line height (instead
+           of only the rows whose INFO text happens to wrap, e.g. "1st & 2nd
+           declension") via a fixed height + line-height, vertically
+           centering shorter single-line cells within that space. */
+        .table-card td {
+            padding: 12px 16px;
+            height: 2.9em;
+            vertical-align: middle;
+        }
+
+        /* Caps LATIN/ENGLISH/INFO cell text at 2 lines (with an ellipsis for
+           anything longer, e.g. a 3-form Latin principal-parts list or a
+           multi-word INFO note) so every row's height is genuinely uniform
+           - the .table-card td height above only sets a floor for SHORT
+           content; this sets the ceiling for LONG content. */
+        .cell-clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.45em;
+        }
+
+        .type-tag {
+            /* Matches achievements.html's .achievement-status pill padding -
+               2px felt cramped against the tag's own border. */
+            padding: 4px 8px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .vocabdata-controls { flex-direction: column; align-items: stretch; }
+        }
+
+        /* =========================
+        EXPORT / PRINT
+        ========================= */
+        .exportSection {
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .exportGrid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .exportGroup {
+            padding: 12px;
+            flex: 1;
+            min-width: 200px;
+            box-sizing: border-box;
+        }
+
+        .exportGroup .exportGroupScroll {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .exportGroup h3 {
+            margin: 0 0 8px 0;
+        }
+
+        .exportGroup label {
+            gap: 6px;
+            padding: 3px 0;
+        }
+
+        .exportMiniBtn {
+            padding: 4px 8px;
+            margin-top: 6px;
+            margin-right: 6px;
+        }
+
+        #printArea { display: none; }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .collapse-arrow { display: inline-block; }
+        .collapsible-hidden { display: none !important; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea {
+                display: block;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+        }
+        /* =========================
+        COLLAPSIBLE HEADERS
+        ========================= */
+
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* =========================
+        SUBTYPE HEADERS
+        ========================= */
+
+        .subgroup-section {
+            margin-top: 20px;
+        }
+
+        .subgroup-title {
+            margin-bottom: 12px;
+            padding-left: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        /* Ads/Footer */
+        .adContainer {
+            margin: 20px 0;
+            width: min(1000px, 100%);
+        }
+
+        /* theme.css's shared `.bottom` rule only supplies the card's
+           border/background/shadow, not padding - other pages (about.html,
+           vocabTest.html) each add their own override for it; this page
+           never did, so its .ads content sat flush against the card edge. */
+        .bottom {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .ads {
+            display: flex;
+            gap: 10px;
+            /* Matches .ad's own background so the flex gap between buttons
+               doesn't show a mismatched sliver of the card colour behind it. */
+            background: var(--bg);
+        }
+
+        .ad {
+            padding: 10px;
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: calc(20% - 10px);
+        }
+    </style>
+    <script src="../interact.js"></script>
+</head>
+<body data-page-type="vocab">
+<img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0;   z-index: 9999;" >
+    <div style="margin-top: 10vh;" class="container">
+        <header class="header">
+            <h1 class="vocabdata-title">Latin Vocabulary Database</h1>
+            <p style="color: var(--muted)"><span id="username-greet"></span>Browse, search, and filter the full vocabulary database</p>
+            <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+        </header>
+    <section class="adContainer bottom">
+        <div class="ads">
+            <div class="ad" onclick="window.location.href='vocabTest.html'">Type-in Tester</div>
+            <div class="ad" onclick="window.location.href='../flashcards.html'">Flashcards</div>
+        </div>
+    </section>
+    <section class="adContainer bottom">
+        <div class="ads">
+            <div class="ad" style="color: var(--bluepop);">Total Vocab Covered: <div id="totalCompleted" class="score"></div></div>
+        </div>
+    </section>
+        <section class="vocabdata-controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search Latin or English..." autocomplete="off">
+            </div>
+            <div class="view-toggles">
+                <button class="toggle-btn active" id="viewByStageBtn" data-view="stage" onclick="setView('stage')">By Stage</button>
+                <button class="toggle-btn" data-view="type" onclick="setView('type')">By Type</button>
+                <button class="toggle-btn" data-view="domain" onclick="setView('domain')">By Domain</button>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:14px; white-space:nowrap; color:var(--text);">
+                <input type="checkbox" id="weakOnlyToggle">
+                Only words I'm behind on
+            </label>
+        </section>
+
+        <section class="exportSection">
+            <h2 class="collapsible-header" id="exportHeader" style="font-size:inherit; font-family:inherit; color:inherit; margin:0;"><strong>📤 Print / Export</strong></h2>
+            <div id="exportBody">
+                <p style="color:var(--muted); font-size:14px; margin: 10px 0 0 0;">Choose what to include, then print a clean revision list or export a CSV file - capped to the <span id="exportStagesWord">stages</span> you've covered on your current course.</p>
+                <div class="exportGrid">
+                    <div class="exportGroup">
+                        <h3>Results to include</h3>
+                        <label><input type="checkbox" data-group="exportResult" value="correct" checked> Words I got right</label>
+                        <label><input type="checkbox" data-group="exportResult" value="incorrect" checked> Words I got wrong</label>
+                        <label><input type="checkbox" data-group="exportResult" value="untried" checked> Not yet attempted</label>
+                    </div>
+                    <div class="exportGroup">
+                        <h3>Word types</h3>
+                        <div class="exportGroupScroll" id="exportTypeGroup"></div>
+                        <button type="button" class="exportMiniBtn" onclick="setExportGroup('exportType', true)">Select all</button>
+                        <button type="button" class="exportMiniBtn" onclick="setExportGroup('exportType', false)">Clear</button>
+                    </div>
+                    <div class="exportGroup">
+                        <h3 id="exportStageHeading">Stages</h3>
+                        <div class="exportGroupScroll" id="exportStageGroup"></div>
+                        <button type="button" class="exportMiniBtn" onclick="setExportGroup('exportStage', true)">Select all</button>
+                        <button type="button" class="exportMiniBtn" onclick="setExportGroup('exportStage', false)">Clear</button>
+                    </div>
+                </div>
+                <div class="controls" style="background:none; border:none; box-shadow:none; padding:0; margin:0;">
+                    <button type="button" onclick="printVocabExport()">🖨️ Print</button>
+                    <button type="button" onclick="exportVocabCSV()">⬇️ Export CSV</button>
+                </div>
+            </div>
+        </section>
+
+        <div id="displayArea">
+            </div>
+
+    </div>
+
+    <div id="printArea"></div>
+    <script src = "./vocabDataLSA.js"></script>
+    <script src = "./vocabData.js"></script>
+    <script src="../achievementData.js"></script>
+    <script>
+document.querySelector("body").classList.toggle("dark"); 
+let currentView = "stage";
+
+const displayArea = document.getElementById("displayArea");
+const searchInput = document.getElementById("searchInput");
+
+/* =========================
+   COLLAPSE STATE
+========================= */
+
+let collapsedGroups = {};
+
+/* =========================
+   CAPITALISE
+========================= */
+
+function capitalise(str) {
+
+    if (!str) return "";
+
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/* =========================
+   PRINT / EXPORT
+   The type/stage checkboxes are (re)built from whatever's actually in the
+   stage-capped word list, so "Stages" never offers anything beyond the
+   user's current course progress - same filterVocabUpToChapter() the rest
+   of this page's browsing already respects.
+========================= */
+
+function buildExportFilters() {
+    const course = getActiveCourse();
+    const hasStage = COURSES[course].hasSelector;
+    const unitLabel = COURSES[course].unitLabel || "Stage";
+    const unitLabelPlural = COURSES[course].unitLabelPlural || "Stages";
+    const capped = filterVocabUpToChapter(vocabData).filter(w => w.stage !== "0");
+
+    const types = [...new Set(capped.map(w => w.type))].sort();
+    const stages = hasStage
+        ? [...new Set(capped.map(w => w.stage))].sort((a, b) => Number(a) - Number(b))
+        : [];
+
+    document.getElementById("exportTypeGroup").innerHTML = types.map(t => `
+        <label><input type="checkbox" data-group="exportType" value="${t}" checked> ${capitalise(t)}</label>
+    `).join("");
+
+    // Courses without a chapter/stage concept (A Level, GCSE-OCR) have
+    // nothing meaningful to group by here - hide the whole stage group.
+    document.getElementById("exportStageGroup").closest(".exportGroup").style.display = hasStage ? "" : "none";
+    document.getElementById("exportStageGroup").innerHTML = stages.map(s => `
+        <label><input type="checkbox" data-group="exportStage" value="${s}" checked> ${unitLabel} ${s}</label>
+    `).join("");
+
+    document.getElementById("exportStageHeading").textContent =
+        `${unitLabelPlural} (up to your current ${unitLabel.toLowerCase()})`;
+
+    document.getElementById("exportStagesWord").textContent = unitLabelPlural.toLowerCase();
+}
+
+function setExportGroup(groupName, checked) {
+    document.querySelectorAll(`[data-group="${groupName}"]`).forEach(cb => cb.checked = checked);
+}
+
+function getExportSelectedValues(groupName) {
+    return [...document.querySelectorAll(`[data-group="${groupName}"]:checked`)].map(cb => cb.value);
+}
+
+function getExportWords() {
+    const results = getExportSelectedValues("exportResult");
+    const types = getExportSelectedValues("exportType");
+    const stages = getExportSelectedValues("exportStage");
+    const hasStage = COURSES[getActiveCourse()].hasSelector;
+
+    return filterVocabUpToChapter(vocabData).filter(word => {
+        if (word.stage === "0") return false;
+        if (!types.includes(word.type)) return false;
+        if (hasStage && !stages.includes(word.stage)) return false;
+
+        const entry = normalizeWordProgressEntry(vocabProgress["i" + word.index]);
+        const attempts = entry.correct + entry.incorrect;
+        const bucket = attempts === 0 ? "untried" : (entry.correct > entry.incorrect ? "correct" : "incorrect");
+
+        return results.includes(bucket);
+    });
+}
+
+function printVocabExport() {
+    const words = getExportWords();
+    if (words.length === 0) {
+        alert("No words match your print/export selection.");
+        return;
+    }
+
+    const unitLabel = COURSES[getActiveCourse()].unitLabel || "Stage";
+
+    const printArea = document.getElementById("printArea");
+    printArea.innerHTML = `
+        <h2 style="margin-bottom:4px;">Latin Vocabulary Revision List</h2>
+        <p style="color:#555; margin-top:0;">${words.length} words - generated ${new Date().toLocaleDateString()}</p>
+        <table style="border-collapse:collapse; width:100%;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; border-bottom:2px solid #333; padding:6px 8px;">Latin</th>
+                    <th style="text-align:left; border-bottom:2px solid #333; padding:6px 8px;">English</th>
+                    <th style="text-align:left; border-bottom:2px solid #333; padding:6px 8px;">${unitLabel}</th>
+                    <th style="text-align:left; border-bottom:2px solid #333; padding:6px 8px;">Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${words.map(w => `
+                    <tr>
+                        <td style="padding:6px 8px; border-bottom:1px solid #ccc;">${w.latin.join(", ")}</td>
+                        <td style="padding:6px 8px; border-bottom:1px solid #ccc;">${w.english.join(", ")}</td>
+                        <td style="padding:6px 8px; border-bottom:1px solid #ccc;">${w.stage}</td>
+                        <td style="padding:6px 8px; border-bottom:1px solid #ccc;">${capitalise(w.type)}</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    `;
+
+    window.print();
+}
+
+function exportVocabCSV() {
+    const words = getExportWords();
+    if (words.length === 0) {
+        alert("No words match your print/export selection.");
+        return;
+    }
+
+    const escapeCsv = val => `"${String(val).replace(/"/g, '""')}"`;
+    const header = ["Latin", "English", COURSES[getActiveCourse()].unitLabel || "Stage", "Type", "Subtype", "Info", "Correct", "Incorrect"];
+
+    const rows = words.map(w => {
+        const entry = normalizeWordProgressEntry(vocabProgress["i" + w.index]);
+        return [
+            w.latin.join("; "),
+            w.english.join("; "),
+            w.stage,
+            w.type,
+            w.subtype || "",
+            w.info || "",
+            entry.correct,
+            entry.incorrect
+        ].map(escapeCsv).join(",");
+    });
+
+    const csv = [header.map(escapeCsv).join(","), ...rows].join("\r\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `latin-vocab-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function makeCollapsible(headerId, bodyId, startCollapsed = false) {
+    const header = document.getElementById(headerId);
+    const body = document.getElementById(bodyId);
+    if (!header || !body) return;
+
+    const arrow = document.createElement("span");
+    arrow.className = "collapse-arrow";
+    header.prepend(arrow);
+
+    let collapsed = startCollapsed;
+    function apply() {
+        body.classList.toggle("collapsible-hidden", collapsed);
+        arrow.textContent = collapsed ? "▶" : "▼";
+    }
+
+    header.addEventListener("click", () => {
+        collapsed = !collapsed;
+        apply();
+    });
+    apply();
+}
+
+/* =========================
+   NORMALISE SEARCH
+========================= */
+
+function normalizeLatin(str) {
+
+    return str
+        .toLowerCase()
+        .trim()
+
+        .replace(/a\u0304/g, "a")
+        .replace(/e\u0304/g, "e")
+        .replace(/i\u0304/g, "i")
+        .replace(/o\u0304/g, "o")
+        .replace(/u\u0304/g, "u")
+        .replace(/y\u0304/g, "y")
+
+        .replace(/ā/g, "a")
+        .replace(/ē/g, "e")
+        .replace(/ī/g, "i")
+        .replace(/ō/g, "o")
+        .replace(/ū/g, "u")
+        .replace(/ȳ/g, "y")
+
+        .normalize("NFC");
+}
+
+/* =========================
+   SET VIEW
+========================= */
+
+function setView(view) {
+
+    currentView = view;
+
+    document.querySelectorAll(".toggle-btn")
+    .forEach(btn => {
+
+        btn.classList.toggle(
+            "active",
+            btn.dataset.view === view
+        );
+
+    });
+
+    render();
+}
+
+/* =========================
+   TOGGLE COLLAPSE
+========================= */
+
+function toggleGroup(id) {
+
+    collapsedGroups[id] = !collapsedGroups[id];
+
+    render();
+}
+
+/* =========================
+   TOTAL QUESTIONS COMPLETED
+========================= */
+function update(){
+    let vocabCount = 0;
+    const cappedWords = filterVocabUpToChapter(vocabData);
+    cappedWords.forEach(word => {
+      if (isWordLearned(vocabProgress["i" + word.index])){
+        vocabCount+=1;
+      }
+    });
+    const vocabTotal = cappedWords.length;
+    document.getElementById("totalCompleted").textContent=`${vocabCount}/${vocabTotal} → ${Math.round((vocabCount/vocabTotal)*100)}%`;
+}
+update();
+
+/* =========================
+   ACCURACY COLOUR (interpolates the theme's --redpop/--greenpop)
+========================= */
+
+function hexToRgb(colour) {
+    colour = colour.trim();
+
+    if (colour.startsWith("#")) {
+        let hex = colour.slice(1);
+        if (hex.length === 3) {
+            hex = hex.split("").map(c => c + c).join("");
+        }
+        const num = parseInt(hex, 16);
+        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+
+    const match = colour.match(/rgba?\(([^)]+)\)/);
+    if (match) {
+        const [r, g, b] = match[1].split(",").map(part => parseFloat(part.trim()));
+        return { r, g, b };
+    }
+
+    return { r: 128, g: 128, b: 128 };
+}
+
+function accuracyColor(ratio) {
+    const styles = getComputedStyle(document.body);
+    const red = hexToRgb(styles.getPropertyValue("--redpop"));
+    const green = hexToRgb(styles.getPropertyValue("--greenpop"));
+
+    const r = Math.round(red.r + (green.r - red.r) * ratio);
+    const g = Math.round(red.g + (green.g - red.g) * ratio);
+    const b = Math.round(red.b + (green.b - red.b) * ratio);
+
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+
+/* =========================
+   CREATE TABLE
+========================= */
+
+// Some verb entries' `info` field carries a leftover form-generation error
+// message (e.g. "could not expand '-iī' against 'abeō'") instead of real
+// grammatical info - a data-generation artifact, not content. Filtered out
+// here at display time rather than in the source JSON.
+function cleanInfo(info) {
+    if (!info || info.startsWith("could not expand")) return "-";
+    return info;
+}
+
+function createTable(words) {
+
+    let colourz=["bluepop","redpop","greenpop","yellowpop","purplepop","bluepop","redpop","greenpop","yellowpop","purplepop"];
+    let typez=["noun", "verb", "adjective", "adverb", "pronoun","preposition","particle","exclamation","deponent verb", "conjunction",];
+    const unitLabel = COURSES[getActiveCourse()].unitLabel || "Stage";
+    const hasStage = COURSES[getActiveCourse()].hasSelector;
+
+    return `
+        <div class="table-card">
+            <table>
+
+                <thead>
+                    <tr>
+                        <th style="width:4%; background: var(--card);">#</th>
+                        <th style="width:18%; background: var(--card);">LATIN</th>
+                        <th style="width:18%; background: var(--card);">ENGLISH</th>
+                        <th style="width:10%; background: var(--card);">TYPE</th>
+                        <th style="width:13%; background: var(--card);">SUBTYPE</th>
+                        ${hasStage ? `<th style="width:9%; background: var(--card);">${unitLabel.toUpperCase()}</th>` : ""}
+                        <th style="width:${hasStage ? 14 : 23}%; background: var(--card);">INFO</th>
+                        <th style="width:10%; background: var(--card);">ACCURACY</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    ${words.map(word => {
+
+                        const entry = normalizeWordProgressEntry(vocabProgress["i" + word.index]);
+                        const attempts = entry.correct + entry.incorrect;
+                        const ratioColor = attempts === 0 ? "var(--muted)" : accuracyColor(entry.correct / attempts);
+                        const ratioText = attempts === 0 ? "Not tried yet" : `${entry.correct} ✓ / ${entry.incorrect} ✗`;
+                        const subtype = word.subtype && word.subtype !== "" ? word.subtype : "Regular";
+
+                        return `
+
+                        <tr>
+                        <td style="color:var(--bluepop);">
+                                ${word.index}
+                            </td>
+                            <td class="latin-word">
+                                <span class="cell-clamp">${word.latin.join(", ")}</span>
+                            </td>
+
+                            <td style="color:var(--redpop);">
+                                <strong class="cell-clamp">${word.english.join(", ")}</strong>
+                            </td>
+
+                            <td>
+                                <span class="type-tag" style="border: 1.5px solid var(--${colourz[typez.indexOf(word.type)]});">
+                                    ${word.type}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="cell-clamp" style="color:var(--muted); font-size:13px;">${capitalise(subtype)}</span>
+                            </td>
+                            ${hasStage ? `
+                                <td>
+                                    <span style="color:var(--muted); font-size:13px;">
+                                        ${unitLabel} ${word.stage}
+                                    </span>
+                                </td>
+                            ` : ""}
+                            <td>
+                                <span class="cell-clamp">${cleanInfo(word.info)}</span>
+                            </td>
+                            <td>
+                                <span style="font-weight:700; color:${ratioColor}; white-space:nowrap;">
+                                    ${ratioText}
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    `;
+                    }).join("")}
+
+                </tbody>
+
+            </table>
+        </div>
+    `;
+}
+
+/* =========================
+   MAIN RENDER
+========================= */
+
+function render() {
+
+    const query =
+        normalizeLatin(searchInput.value);
+
+    /* =========================
+       FILTER
+    ========================== */
+
+    const weakOnly = document.getElementById("weakOnlyToggle").checked;
+
+    const filtered = filterVocabUpToChapter(vocabData).filter(word => {
+
+        if (word.stage === "0") return false;
+
+        const latinText =
+            normalizeLatin(word.latin.join(" "));
+
+        const englishText =
+            word.english.join(" ").toLowerCase();
+
+        const searchMatch = (
+            latinText.includes(query) ||
+            englishText.includes(query)
+        );
+
+        const weakMatch =
+            !weakOnly ||
+            isWeakWord(vocabProgress["i" + word.index]);
+
+        return searchMatch && weakMatch;
+    });
+
+    if (filtered.length === 0) {
+
+        displayArea.innerHTML = `
+            <div class="no-results">
+                No words found.
+            </div>
+        `;
+
+        return;
+    }
+
+    /* =========================
+       STAGE VIEW
+    ========================== */
+
+    if (currentView === "stage") {
+
+        const unitLabel = COURSES[getActiveCourse()].unitLabel || "Stage";
+
+        if (COURSES[getActiveCourse()].filterType === "range") {
+            // DCC has 997 individual frequency ranks - one table per rank
+            // would mean ~994 tiny sections, so show one flat table sorted
+            // ordinally by frequency instead of grouping into sections.
+            const sorted = filtered.slice().sort((a, b) => Number(a.stage) - Number(b.stage));
+            displayArea.innerHTML = createTable(sorted);
+            return;
+        }
+
+        let groups = {};
+
+        filtered.forEach(word => {
+
+            const key = `${unitLabel} ${word.stage}`;
+
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+
+            groups[key].push(word);
+        });
+
+        const sortedKeys =
+            Object.keys(groups)
+            .sort((a, b) => {
+
+                return parseInt(a.replace(unitLabel + " ", "")) -
+                       parseInt(b.replace(unitLabel + " ", ""));
+            });
+
+        let html = "";
+
+        sortedKeys.forEach(key => {
+
+            const collapsed =
+                collapsedGroups[key];
+
+            html += `
+
+                <section class="group-section">
+
+                    <div
+                        class="group-title collapsible"
+                        onclick="toggleGroup('${key}')"
+                    >
+
+                        <span>
+                            ${collapsed ? "▶" : "▼"}
+                        </span>
+
+                        ${key}
+
+                    </div>
+
+                    ${collapsed
+                        ? ""
+                        : createTable(groups[key])
+                    }
+
+                </section>
+            `;
+        });
+
+        displayArea.innerHTML = html;
+    }
+
+    /* =========================
+       DOMAIN VIEW
+       Groups by field, then by subdomain - mirrors the Type/Subtype view
+       below, except a word can land in more than one group here since
+       word.domain is an array, not a single value.
+    ========================== */
+
+    else if (currentView === "domain") {
+
+        let fieldGroups = {};
+
+        filtered.forEach(word => {
+            const wordDomains = Array.isArray(word.domain) && word.domain.length ? word.domain : ["Uncategorised"];
+
+            wordDomains.forEach(domain => {
+                const field = getDomainField(domain);
+                const subLabel = domain.includes(":") ? domain.slice(domain.indexOf(":") + 1).trim() : domain;
+
+                if (!fieldGroups[field]) fieldGroups[field] = {};
+                if (!fieldGroups[field][subLabel]) fieldGroups[field][subLabel] = [];
+
+                fieldGroups[field][subLabel].push(word);
+            });
+        });
+
+        const sortedFields = Object.keys(fieldGroups).sort();
+
+        let html = "";
+
+        sortedFields.forEach(field => {
+
+            const fieldID = `domain-${field}`;
+            const fieldCollapsed = collapsedGroups[fieldID];
+
+            html += `
+
+                <section class="group-section">
+
+                    <div
+                        class="group-title collapsible"
+                        onclick="toggleGroup('${fieldID}')"
+                    >
+
+                        <span>
+                            ${fieldCollapsed ? "▶" : "▼"}
+                        </span>
+
+                        ${field}
+
+                    </div>
+            `;
+
+            if (!fieldCollapsed) {
+
+                const subLabels = Object.keys(fieldGroups[field]).sort();
+
+                subLabels.forEach(subLabel => {
+
+                    const subID = `${fieldID}-${subLabel}`;
+                    const subCollapsed = collapsedGroups[subID];
+
+                    html += `
+
+                        <div class="subgroup-section">
+
+                            <div
+                                class="subgroup-title collapsible"
+                                onclick="toggleGroup('${subID}')"
+                            >
+
+                                <span>
+                                    ${subCollapsed ? "▶" : "▼"}
+                                </span>
+
+                                ${subLabel}
+
+                            </div>
+
+                            ${subCollapsed
+                                ? ""
+                                : createTable(fieldGroups[field][subLabel])
+                            }
+
+                        </div>
+                    `;
+                });
+            }
+
+            html += `</section>`;
+        });
+
+        displayArea.innerHTML = html;
+    }
+
+    /* =========================
+       TYPE VIEW
+    ========================== */
+
+    else {
+
+        let typeGroups = {};
+
+        filtered.forEach(word => {
+
+            const type = word.type;
+
+            const subtype =
+                word.subtype && word.subtype !== ""
+                    ? word.subtype
+                    : "Regular";
+
+            if (!typeGroups[type]) {
+                typeGroups[type] = {};
+            }
+
+            if (!typeGroups[type][subtype]) {
+                typeGroups[type][subtype] = [];
+            }
+
+            typeGroups[type][subtype].push(word);
+        });
+
+        const sortedTypes =
+            Object.keys(typeGroups).sort();
+
+        let html = "";
+
+        sortedTypes.forEach(type => {
+
+            const typeID = `type-${type}`;
+
+            const typeCollapsed =
+                collapsedGroups[typeID];
+
+            html += `
+
+                <section class="group-section">
+
+                    <div
+                        class="group-title collapsible"
+                        onclick="toggleGroup('${typeID}')"
+                    >
+
+                        <span>
+                            ${typeCollapsed ? "▶" : "▼"}
+                        </span>
+
+                        ${capitalise(type)}S
+
+                    </div>
+            `;
+
+            if (!typeCollapsed) {
+
+                const subtypes =
+                    Object.keys(typeGroups[type]).sort();
+
+                subtypes.forEach(subtype => {
+
+                    const subtypeID =
+                        `${typeID}-${subtype}`;
+
+                    const subtypeCollapsed =
+                        collapsedGroups[subtypeID];
+
+                    html += `
+
+                        <div class="subgroup-section">
+
+                            <div
+                                class="subgroup-title collapsible"
+                                onclick="toggleGroup('${subtypeID}')"
+                            >
+
+                                <span>
+                                    ${subtypeCollapsed ? "▶" : "▼"}
+                                </span>
+
+                                ${capitalise(subtype)}
+
+                            </div>
+
+                            ${subtypeCollapsed
+                                ? ""
+                                : createTable(typeGroups[type][subtype])
+                            }
+
+                        </div>
+                    `;
+                });
+            }
+
+            html += `</section>`;
+        });
+
+        displayArea.innerHTML = html;
+    }
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+searchInput.addEventListener(
+    "input",
+    render
+);
+
+document.getElementById("weakOnlyToggle").addEventListener(
+    "change",
+    render
+);
+
+/* =========================
+   INITIAL RENDER
+========================= */
+
+// De Romanis has "Chapters", DCC has "Frequency" - relabel the stage
+// button/toggle wherever the site would otherwise just say "Stage".
+document.getElementById("viewByStageBtn").textContent =
+    "By " + (COURSES[getActiveCourse()].unitLabel || "Stage");
+
+// Courses without a chapter/stage concept (A Level, GCSE-OCR, All Words)
+// have nothing to group "By Stage" - hide that toggle and force "By Type".
+if (!COURSES[getActiveCourse()].hasSelector) {
+    document.getElementById("viewByStageBtn").style.display = "none";
+    currentView = "type";
+    document.querySelectorAll(".toggle-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === "type");
+    });
+}
+
+buildExportFilters();
+makeCollapsible("exportHeader", "exportBody", true);
+render();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anagram Scramble</title>
+  <link rel="stylesheet" href="../theme.css">
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction:column;
+    }
+
+    .game-container {
+      padding: 2.5rem 2.5rem 2.5rem;
+      text-align: center;
+      width: min(400px, 90vw);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .score-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      margin-bottom: 1.5rem;
+    }
+
+    .scramble-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 0 1.5rem 0;
+      line-height: 1.2;
+    }
+
+    .scramble-title span {
+      display: block;
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .scrambled-word {
+      margin: 2rem 0;
+    }
+
+    .input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 1.2rem;
+      outline: none;
+      box-sizing: border-box;
+      text-align: center;
+      transition: border-color 0.2s ease;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .scramble-message {
+      margin-top: 1.5rem;
+      line-height: 1.5;
+      min-height: 3em;
+    }
+      .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+    max-height: 20px;
+  }
+
+    .side, .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  </style>
+  <script src="../interact.js"></script>
+
+</head>
+<body data-page-type="vocab">
+<img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0;   z-index: 9999;" >
+  <div style="margin-top: 15vh;" class="game-container">
+        
+    <div class="score-badge">Points: 0</div>
+    
+    <h1 class="scramble-title">
+      Anagram Scramble
+      <span><span id="username-greet"></span>Unscramble the Latin vocab word</span>
+    </h1>
+
+    <div class="scrambled-word">???</div>
+    
+    <input type="text" class="input" placeholder="Enter guess..." autocomplete="off" />
+    <button class="submit-btn">Draw random word</button>
+    
+    <p class="scramble-message">Press 'Draw random word' to start.</p>
+    <div class='interact' style= "background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  </div>
+    <script src="../achievementData.js"></script>
+  <script src="./vocabDataLSA.js"></script>
+  <script src="./vocabData.js"></script>
+  <script>
+    //document.querySelector("body").classList.toggle("dark"); 
+        let btnSubmit = document.querySelector(".submit-btn");
+        let divScore = document.querySelector(".score-badge");
+        let divInput = document.querySelector(".input");
+        let divOutput = document.querySelector(".scrambled-word");
+        let divMessage = document.querySelector(".scramble-message");
+
+        let score = 0;
+        let guessing = false;
+
+        let currentWord = null;
+        let targetWord = "";
+
+        /* =========================
+        NORMALISE LATIN
+        (supports BOTH Unicode forms)
+        ========================== */
+
+        function normalizeLatin(str) {
+            return str
+                .toLowerCase()
+                .trim()
+
+                // convert combining macrons first
+                .replace(/a\u0304/g, "a")
+                .replace(/e\u0304/g, "e")
+                .replace(/i\u0304/g, "i")
+                .replace(/o\u0304/g, "o")
+                .replace(/u\u0304/g, "u")
+                .replace(/y\u0304/g, "y")
+
+                // convert normal macrons
+                .replace(/ā/g, "a")
+                .replace(/ē/g, "e")
+                .replace(/ī/g, "i")
+                .replace(/ō/g, "o")
+                .replace(/ū/g, "u")
+                .replace(/ȳ/g, "y")
+
+                // final unicode normalization
+                .normalize("NFC");
+        }
+
+        /* =========================
+        CAPITALIZE
+        ========================== */
+
+        function capitalize(str) {
+            if (!str) return "";
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        /* =========================
+        UNICODE-SAFE SPLIT
+        ========================== */
+
+        function splitChars(str) {
+            return Array.from(str.normalize("NFC"));
+        }
+
+        /* =========================
+        SCRAMBLE WORD
+        ========================== */
+
+        function generateScramble(word) {
+
+            let chars = splitChars(word);
+
+            // Remove spaces from scrambling
+            let letters = chars.filter(c => c !== " ");
+
+            let scrambled = "";
+
+            // Keep scrambling until different
+            do {
+
+                let temp = [...letters];
+                scrambled = "";
+
+                while (temp.length > 0) {
+
+                    let randomIndex = Math.floor(Math.random() * temp.length);
+
+                    scrambled += temp[randomIndex];
+
+                    temp.splice(randomIndex, 1);
+                }
+
+            } while (
+                scrambled === letters.join("") &&
+                letters.length > 1
+            );
+
+            return scrambled;
+        }
+        
+        function hasSpecialCharacters(str) {
+            // Also excludes spaces and hyphens (e.g. "-ne", "grātiās agere")
+            // - the original punctuation-only check let multi-word phrases
+            // and enclitic-particle entries slip into single-word games.
+            return /[!?,.():+\-\s]/.test(str);
+        }
+
+        function isSafeWord(word) {
+            let latinForms = word.latin;
+            let englishMeanings = word.english;
+
+            for (let l of latinForms) {
+                if (hasSpecialCharacters(l)) {
+                    return false;
+                }
+            }
+
+            for (let e of englishMeanings) {
+                if (hasSpecialCharacters(e)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /* =========================
+        DRAW NEW WORD
+        ========================== */
+
+        function startRound() {
+
+            let safeVocab = filterVocabUpToChapter(vocabData).filter(isSafeWord);
+
+            if (safeVocab.length === 0) {
+                divMessage.textContent = "No valid vocab words available.";
+                return;
+            }
+
+            currentWord =
+                safeVocab[Math.floor(Math.random() * safeVocab.length)];
+
+            // FIRST latin form only
+            targetWord = normalizeLatin(currentWord.latin[0]);
+
+            let scrambled = generateScramble(targetWord);
+
+            divOutput.textContent = scrambled;
+
+            divMessage.innerHTML = `
+                Unscramble the Latin word!<br>
+                <strong>${capitalize(currentWord.type)}</strong>
+                ${currentWord.subtype
+                    ? `• ${capitalize(currentWord.subtype)}`
+                    : ""}
+                <br>
+                Meaning: ${currentWord.english.join(", ")}
+            `;
+
+            divMessage.style.color = "#6b7280";
+
+            btnSubmit.textContent = "Submit Guess";
+
+            guessing = true;
+
+            divInput.value = "";
+            divInput.focus();
+        }
+
+        /* =========================
+        CHECK ANSWER
+        ========================== */
+
+        function submitGuess() {
+
+            let guess = normalizeLatin(divInput.value);
+
+            if (!guess) return;
+
+            // Correct
+            if (guess === targetWord) {
+
+                score += 10;
+
+                divScore.textContent = `Points: ${score}`;
+
+                divMessage.style.color = "#16a34a";
+
+                divMessage.innerHTML = `
+                    <strong>Optime!</strong><br>
+                    Correct answer: <strong>${targetWord}</strong><br>
+                    Meaning: ${currentWord.english.join(", ")}
+                `;
+
+                updateWordCompletion(currentWord, true);
+
+            }
+
+            // Wrong
+            else {
+
+                divMessage.style.color = "#dc2626";
+
+                divMessage.innerHTML = `
+                    <strong>Incorrect.</strong><br>
+                    The word was:
+                    <strong>${targetWord}</strong><br>
+                    Meaning: ${currentWord.english.join(", ")}
+                `;
+
+                // Feed the same per-word progress tracking every other
+                // tester uses, so scramble rounds count toward weak-word
+                // tracking and achievements instead of vanishing on leave.
+                updateWordCompletion(currentWord, false);
+            }
+
+            guessing = false;
+
+            btnSubmit.textContent = "Draw Random Word";
+        }
+
+        /* =========================
+        MAIN BUTTON
+        ========================== */
+
+        function mainButton() {
+
+            if (!guessing) {
+                startRound();
+            } else {
+                submitGuess();
+            }
+        }
+
+        /* =========================
+        EVENTS
+        ========================== */
+
+        btnSubmit.onclick = mainButton;
+
+        divInput.addEventListener("keypress", (e) => {
+
+            if (e.key === "Enter") {
+                mainButton();
+            }
+
+        });
+
+
+    </script>
+</body>
+</html>

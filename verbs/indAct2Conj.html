@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Latin Verb Tables — Second Conjugation (Indicative Active)</title>
+
+
+<link rel="stylesheet" type="text/css" href="./verbStyle.css" />
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<header>
+  <h2>Latin Verb Tables: Second Conjugation (Indicative Active)</h2>
+  <div class="stem">Stem: <strong>habeo</strong></div>
+</header>
+<div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+
+<table id="quiz">
+  <thead>
+    <tr>
+      <th>Person</th>
+      <th>Present</th>
+      <th>Imperfect</th>
+      <th>Perfect</th>
+      <th>Pluperfect</th>
+    <th>Future</th>
+    <th>Future Perfect</th>
+    </tr>
+  </thead>
+
+
+  <tbody id="grid"></tbody>
+</table>
+
+
+<div class="controls">
+  <button onclick="checkAnswers()">Check Answers</button>
+  <button onclick="resetAll()">Reset</button>
+</div>
+
+
+</div>
+
+
+<script>
+const rows = [
+  "1st Singular",
+  "2nd Singular",
+  "3rd Singular",
+  "1st Plural",
+  "2nd Plural",
+  "3rd Plural"
+];
+
+
+const answers = [
+  ["habeo",    "habebam",     "habui",      "habueram","habebo", "habuero"],
+  ["habes",    "habebas",     "habuisti",   "habueras","habebis", "habueris"],
+  ["habet",    "habebat",     "habuit",     "habuerat","habebit", "habuerit"],
+  ["habemus",  "habebamus",   "habuimus",   "habueramus","habebimus", "habuerimus"],
+  ["habetis",  "habebatis",   "habuistis",   "habueratis","habebitis", "habueritis"],
+  ["habent",   "habebant",    "habuerunt", "habuerant","habebunt", "habuerint"]
+
+
+];
+</script>
+<script src="./indActScript.js"></script>
+
+</body>
+</html>

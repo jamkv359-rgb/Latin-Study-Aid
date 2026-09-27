@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>1D Verb Tables</title>
+<link rel="stylesheet" href="../theme.css">
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .container {
+    width: min(1000px, 92vw);
+    margin: 40px 0;
+  }
+
+  header {
+    padding: 20px 24px;
+    border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    margin-bottom: 20px;
+  }
+
+  .stem {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    overflow: hidden;
+    /* FIX: prevents column overflow */
+    table-layout: fixed;
+  }
+
+  /* This sub-family shows a plain header row, not the yellow highlight
+     the pronouns/nouns/verbs family uses - deliberate, not drift. */
+  th {
+    background: var(--card);
+    color: var(--text);
+  }
+
+  th, td {
+    padding: 10px;
+    text-align: center;
+    /* FIX: prevents spill outside container */
+    overflow: hidden;
+  }
+
+  input {
+    width: 100%;
+    padding: 8px;
+    outline: none;
+    transition: 0.15s ease;
+    /* FIX: keeps padding inside width */
+    box-sizing: border-box;
+  }
+
+  .feedback {
+    margin-top: 4px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  button {
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    font-weight: 600;
+    font-family: inherit;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  .filterGrid{
+    display:flex;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* This sub-family's filter cards sit on --card, not --bg like the other
+   grammar-drill pages - deliberate, not drift. */
+.filterGroup {
+        background: var(--card);
+        padding: 15px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: calc(33% - 37px);
+        margin: 10px;
+    }
+
+    .filterGroup h3 {
+        margin-top: 0;
+        margin-bottom: 0px;
+    }
+
+    .filterGroup label {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .filterGroup input {
+        width:14px;
+    }
+/* Ads/Footer */
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+  }
+  .bottom {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    }
+</style>
+<script src="../interact.js"></script>
+</head>
+
+
+<body data-page-type="verb">
+<img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+
+<div class="container" style="margin-top: 15vh;">
+
+
+    <header>
+    <h2>Latin Verb Tables: 1D Input</h2>
+        <div style="color:var(--muted); margin: 5px 0px 0px 0px"><span id="username-greet"></span>Select what verb endings you want, then start testing~</div>
+    <div style="display:flex; gap:10px;"><div class='interact' style= "background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px; margin-top:10px;"></div>
+        </div>
+    <div class="stem">Stem: <strong>porto</strong> • <strong>doceo</strong> • <strong>duco</strong> • <strong>audio</strong></div>
+    <div class="stem"><strong>Tab</strong> → Next input</div>
+    <div class="stem"><strong>Enter</strong> → Next input</div>
+    </header>
+    <div class="container">
+
+        <!-- SETTINGS -->
+        <section id="settingsPanel">
+
+            <h2 style="margin-bottom: 15px;">Select Forms To Test</h2>
+
+            <div class="filterGrid">
+                <div class="filterGroup">
+                    <h3>Tense</h3>
+
+                    <label><input type="checkbox" data-group="tense" value="present" checked>Present</label>
+                    <label><input type="checkbox" data-group="tense" value="imperfect" checked>Imperfect</label>
+                    <label><input type="checkbox" data-group="tense" value="future" checked>Future</label>
+                    <label><input type="checkbox" data-group="tense" value="perfect" checked>Perfect</label>
+                    <label><input type="checkbox" data-group="tense" value="pluperfect" checked>Pluperfect</label>
+                    <label><input type="checkbox" data-group="tense" value="future perfect" checked>Future-Perfect</label>
+                </div>
+                <div class="filterGroup">
+                    <h3>Mood</h3>
+
+                    <label><input type="checkbox" data-group="mood" value="indicative" checked>Indicative</label>
+                    <label><input type="checkbox" data-group="mood" value="subjunctive" checked>Subjunctive</label>
+                    <label><input type="checkbox" data-group="mood" value="infinitive" checked>Infinitive</label>
+                    <label><input type="checkbox" data-group="mood" value="imperative" checked>Imperative</label>
+                    <label><input type="checkbox" data-group="mood" value="participle" checked>Participle</label>
+                </div>
+                <div class="filterGroup">
+                    <h3>Conjugation</h3>
+
+                    <label><input type="checkbox" data-group="conjugation" value="1st" checked>1st</label>
+                    <label><input type="checkbox" data-group="conjugation" value="2nd" checked>2nd</label>
+                    <label><input type="checkbox" data-group="conjugation" value="3rd" checked>3rd</label>
+                    <label><input type="checkbox" data-group="conjugation" value="4th" checked>4th</label>
+                </div>
+                <div class="filterGroup">
+                    <h3>Person</h3>
+
+                    <label><input type="checkbox" data-group="person" value="1st" checked>1st</label>
+                    <label><input type="checkbox" data-group="person" value="2nd" checked>2nd</label>
+                    <label><input type="checkbox" data-group="person" value="3rd" checked>3rd</label>
+                    <label><input type="checkbox" data-group="person" value="-" checked>N/A (infinitives/participles)</label>
+                </div>
+                <div class="filterGroup">
+                    <h3>Number</h3>
+
+                    <label><input type="checkbox" data-group="number" value="singular" checked>Singular</label>
+                    <label><input type="checkbox" data-group="number" value="plural" checked>Plural</label>
+                    <label><input type="checkbox" data-group="number" value="-" checked>N/A (infinitives/participles)</label>
+                </div>
+                <div class="filterGroup">
+                    <h3>Voice</h3>
+
+                    <label><input type="checkbox" data-group="voice" value="active" checked>Active</label>
+                    <label><input type="checkbox" data-group="voice" value="passive" checked>Passive</label>
+                </div>
+            </div>
+
+            <button id="startBtn" style="color: var(--text); background-color: var(--card)">Start Test</button>
+
+        </section>
+
+        <!-- TEST -->
+        <section id="testPanel" style="display:none">
+
+            <table id="quizTable">
+                <thead>
+                    <tr>
+                        <th>Person</th>
+                        <th>Tense</th>
+                        <th>Mood</th>
+                        <th>Voice</th>
+                        <th>Conjugation</th>
+                        <th>Answer</th>
+                    </tr> 
+                </thead>
+
+                <tbody id="tableBody"></tbody>
+            </table>
+
+            <div class="controls"> 
+
+                <button id="showAnswersBtn">
+                    Show Answers
+                </button>
+
+                <button id="restartBtn">
+                    Restart Test
+                </button>
+
+                <button id="rerenderBtn">
+                    Re-render Table
+                </button>
+
+            </div>
+
+        </section>
+        <section class="result hidden" style="width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: calc(16px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(16px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(16px * var(--radius-mult-br, var(--radius-mult, 1))) calc(16px * var(--radius-mult-bl, var(--radius-mult, 1))); padding: 20px; box-shadow: var(--shadow); box-sizing: border-box;margin-top:15px;">
+
+                <div><strong>Finished!</strong></div>
+                <div class="results" style="display: flex; flex-wrap: wrap; width: 100%; flex-direction: row;">
+
+                </div>
+                
+                <style>.hidden{display:none;}</style>
+            </section>
+
+    </div>
+
+
+</div>
+
+
+<script src="./grammarData.js"></script>
+<script src="../achievementData.js"></script>
+<script>
+//WORK ON ENABLING DARK MODE Line 28-35, 417
+document.querySelector("body").classList.toggle("dark"); 
+let currentForms = [];
+
+/* =========================
+   HELPERS
+========================= */
+
+function getSelectedValues(groupName) {
+
+    return [
+        ...document.querySelectorAll(
+            `[data-group="${groupName}"]:checked`
+        )
+    ].map(cb => cb.value);
+}
+
+/* =========================
+   FILTER VISIBILITY
+   Hides checkboxes (and, if a whole group has none available, the group box
+   itself) for values that don't appear anywhere in grammarData.
+========================= */
+
+function updateAvailableFilters() {
+    const availableForms = grammarData;
+    const groups = ["voice", "mood", "tense", "conjugation", "person", "number"];
+
+    groups.forEach(groupName => {
+        const checkboxes = document.querySelectorAll(`[data-group="${groupName}"]`);
+        let anyVisible = false;
+
+        checkboxes.forEach(cb => {
+            const hasMatch = availableForms.some(form => form[groupName] === cb.value);
+            const label = cb.closest("label");
+            if (label) label.style.display = hasMatch ? "" : "none";
+            if (hasMatch) anyVisible = true;
+        });
+
+        const groupBox = checkboxes.length ? checkboxes[0].closest(".filterGroup") : null;
+        if (groupBox) groupBox.style.display = anyVisible ? "" : "none";
+    });
+}
+
+/* ========================= 
+   START TEST
+========================= */
+
+function startTest() {
+
+    const voices = getSelectedValues("voice");
+    const moods = getSelectedValues("mood");
+    const tenses = getSelectedValues("tense");
+    const conjugations = getSelectedValues("conjugation");
+    const persons = getSelectedValues("person"); 
+    const numbers = getSelectedValues("number");
+
+
+    currentForms = grammarData.filter(form => {
+
+        return (
+            voices.includes(form.voice) &&
+            moods.includes(form.mood) &&
+            tenses.includes(form.tense) &&
+            conjugations.includes(form.conjugation) &&
+            persons.includes(form.person) &&
+            numbers.includes(form.number)
+        );
+
+    });
+    
+
+    if (currentForms.length === 0) {
+
+        alert("No matching grammar forms found.");
+
+        return;
+    }
+
+    buildTable();
+
+    document.getElementById("settingsPanel").style.display = "none";
+    document.getElementById("testPanel").style.display = "block";
+}
+
+/* =========================
+   BUILD TABLE
+========================= */
+
+function buildTable() {
+
+    const tableBody =
+        document.getElementById("tableBody"); 
+
+    tableBody.innerHTML = "";
+
+    currentForms.forEach((form, index) => {
+
+        const row =
+            document.createElement("tr");
+        row.innerHTML = `
+            <td>
+                ${form.person}
+                ${form.number}
+            </td>
+
+            <td>
+                ${capitalise(form.tense)}
+            </td>
+
+            <td>
+                ${capitalise(form.mood)}
+            </td>
+
+            <td>
+                ${capitalise(form.voice)}
+            </td>
+
+            <td>
+                ${form.conjugation}
+            </td>
+
+            <td>
+
+                <input
+                    type="text"
+                    data-index="${index}"
+                    autocomplete="off"
+                    style="background-color:var(--bg);color:var(--text);"
+                >
+
+                <div class="feedback"></div>
+
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+
+    const firstInput =
+        document.querySelector('input[data-index="0"]');
+
+    if (firstInput) {
+        firstInput.focus();
+    }
+}
+
+/* =========================
+   SHOW ANSWERS
+========================= */
+
+function showAnswers() {
+    let score = 0;
+    let total = 0;
+
+    // Get saved progress from localStorage
+    let savedGrammarProgress = localStorage.getItem("latinGrammarProgress");
+
+    if (savedGrammarProgress) {
+        savedGrammarProgress = JSON.parse(savedGrammarProgress);
+    } else {
+        savedGrammarProgress = {};
+    }
+
+    document
+        .querySelectorAll("input[data-index]")
+        .forEach(input => {
+
+            const index = Number(input.dataset.index);
+
+            const correctForm = currentForms[index];
+            const correctWord = correctForm.word;
+
+            const userAnswer = input.value.trim().toLowerCase();
+
+            const feedback = input.parentElement.querySelector(".feedback");
+
+            const progressKey = "i" + correctForm.index;
+
+            total += 1;
+
+            const progressEntry = normalizeGrammarProgressEntry(savedGrammarProgress[progressKey]);
+
+            if (userAnswer === correctWord.toLowerCase()) {
+                feedback.textContent = "✓ Correct";
+                feedback.className = "feedback correct";
+
+                score += 1;
+
+                // Mark this grammar form as answered correctly
+                progressEntry.correct += 1;
+
+            } else {
+                feedback.textContent = `✗ ${correctWord}`;
+                feedback.className = "feedback wrong";
+
+                // Mark this grammar form as answered incorrectly
+                progressEntry.incorrect += 1;
+            }
+
+            savedGrammarProgress[progressKey] = progressEntry;
+        });
+
+    // Save updated progress back to localStorage
+    localStorage.setItem(
+        "latinGrammarProgress",
+        JSON.stringify(savedGrammarProgress)
+    );
+        document.querySelector(".result").classList.remove("hidden");
+        document.querySelector(".results").innerHTML+=`
+            <div style="width: calc(((100% - 40px) * 0.25) - 24px); border: 1px solid var(--border); background-color: var(--bg); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); margin:5px; padding: 10px;">
+                <div id="score">${score}/${total} → ${Math.floor((score/total)*100)}%</div>
+                <div id="quotes" style="color: var(--text);">${calcScore(score, total)}</div>
+            </div>`;
+            const result = {
+        date: new Date().toISOString(),
+
+        testType: "Grammar",
+        page: document.title,
+
+        score,
+        total,
+        percent: Math.round(score/total*100),
+
+        quote: calcScore(score,total),
+
+        settings: {
+            voices: getSelectedValues("voice"),
+            moods: getSelectedValues("mood"),
+            tenses: getSelectedValues("tense"),
+            conjugations: getSelectedValues("conjugation"),
+           persons: getSelectedValues("person"),
+            numbers: getSelectedValues("number")
+        }
+    };
+    let history =JSON.parse(localStorage.getItem("latinHistory")) || [];
+        history.unshift(result);
+        localStorage.setItem("latinHistory",JSON.stringify(history));
+    
+    
+}
+
+
+/* =========================
+   RESTART TEST
+========================= */
+
+function restartTest() {
+
+    document
+        .querySelectorAll("input[data-index]")
+        .forEach(input => {
+
+            input.value = "";
+
+        });
+
+    document
+        .querySelectorAll(".feedback")
+        .forEach(feedback => {
+
+            feedback.textContent = "";
+            feedback.className = "feedback";
+
+        });
+
+    const firstInput =
+        document.querySelector('input[data-index="0"]');
+
+    if (firstInput) {
+        firstInput.focus();
+    }
+}
+
+/* =========================
+   RERENDER
+========================= */
+
+function rerenderTable() {
+
+    document.getElementById("testPanel")
+        .style.display = "none";
+
+    document.getElementById("settingsPanel")
+        .style.display = "block";
+
+    document.getElementById("tableBody")
+        .innerHTML = "";
+
+    currentForms = [];
+}
+
+/* =========================
+   CAPITALISE
+========================= */
+
+function capitalise(str) {
+
+    if (!str) return "";
+
+    return (
+        str.charAt(0).toUpperCase() +
+        str.slice(1)
+    );
+}
+
+
+/* =========================
+   EVENTS
+========================= */
+
+document
+    .getElementById("startBtn")
+    .addEventListener("click", startTest);
+
+document
+    .getElementById("showAnswersBtn")
+    .addEventListener("click", showAnswers);
+
+document
+    .getElementById("restartBtn")
+    .addEventListener("click", restartTest);
+
+document
+    .getElementById("rerenderBtn")
+    .addEventListener("click", rerenderTable);
+
+/* =========================
+   ENTER KEY NAVIGATION
+   (single answer column, so "down" just means "next row" - Tab already
+   does this natively; delegated once on tableBody rather than re-attached
+   per input, since buildTable() rebuilds the rows on every "Start Test")
+========================= */
+document.getElementById("tableBody").addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+
+    const currentInput = e.target;
+    if (currentInput.tagName !== "INPUT" || !currentInput.dataset.index) return;
+
+    e.preventDefault();
+
+    const nextIndex = parseInt(currentInput.dataset.index, 10) + 1;
+    const nextInput = document.querySelector(`input[data-index="${nextIndex}"]`);
+
+    if (nextInput) {
+        nextInput.focus();
+    } else {
+        // At the end - wrap back to the first input.
+        const firstInput = document.querySelector('input[data-index="0"]');
+        if (firstInput) firstInput.focus();
+    }
+});
+
+updateAvailableFilters();
+</script>
+
+</body>
+</html>

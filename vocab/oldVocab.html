@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Latin Vocab Quiz</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#7dd3fc;
+      --muted:#9aa4b2;
+      --text:#e6eef6;
+      --glass: rgba(255,255,255,0.03);
+      --radius:12px;
+      font-size:16px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#071029 0%, #071022 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:24px;
+    }
+    .container{
+      max-width:900px;
+      margin:0 auto;
+    }
+    header h1{
+      margin:0 0 6px 0;
+      font-size:28px;
+      letter-spacing:0.2px;
+    }
+    .muted{ color:var(--muted); font-size:14px; }
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:16px;
+      margin-top:16px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    }
+    .settings .row{ display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+    .settings label{ min-width:160px; color:var(--muted); font-size:14px; }
+    .settings input[type="text"]{
+      flex:1;
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.04);
+      background:var(--glass);
+      color:var(--text);
+    }
+    .options label{ margin-right:12px; color:var(--muted); font-size:14px; }
+    .actions{ display:flex; gap:10px; margin-top:6px; }
+    .btn{
+      background:linear-gradient(90deg,var(--accent), #38bdf8);
+      border:none;
+      color:#022;
+      padding:9px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn.ghost{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .btn.small{ padding:6px 10px; font-size:14px; border-radius:8px; }
+
+    .hidden{ display:none; }
+    .questionCard{ padding:18px; margin-top:8px; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); }
+    .latinWord{ font-size:34px; font-weight:700; margin-bottom:12px; color:var(--accent); }
+    .mcOptions{ display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+    .mcOptions button{ text-align:left; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); background:transparent; color:var(--text); cursor:pointer; }
+    .typeArea{ display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+    .typeArea input{ flex:1; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); background:var(--glass); color:var(--text); }
+    .feedback{ min-height:28px; font-weight:600; }
+    .feedback.correct{ color:#4ade80; }
+    .feedback.wrong{ color:#fb7185; }
+    .summary h3{ margin-top:0; }
+    footer{ margin-top:18px; color:var(--muted); font-size:13px; text-align:center; }
+    @media (max-width:520px){
+      .settings label{ min-width:120px; }
+      .latinWord{ font-size:24px; }
+    }
+      .ad {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20%-10px);
+    margin: 10px 0px 10px 0px;
+}
+.ad:hover{
+    background: var(--bg);
+}
+
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header>
+      <h1 class="title">Latin Vocabulary Quizz</h1>
+      <p class="muted">Choose stages, quiz style, and track progress in your browser.</p>
+    </header>
+    <div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+    <section class="settings card">
+      <div id="row">
+        <label>Stages (e.g., <code>1,3-5</code> or <code>all</code>)</label>
+        <input id="stagesInput" type="text" placeholder="all" value="all">
+      </div>
+
+      <div class="row">
+        <label>Quiz type</label>
+        <div class="options">
+          <label><input type="radio" name="quizType" value="type" checked> Type-in</label>
+          <label><input type="radio" name="quizType" value="mc"> Multiple choice</label>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Behavior</label>
+        <div class="options">
+          <label><input id="removeOnCorrect" type="checkbox"> Remove word after correct</label>
+          <label><input id="saveProgress" type="checkbox" checked> Save progress (localStorage)</label>
+        </div>
+      </div>
+
+      <div class="row actions">
+        <button id="startBtn" class="btn">Start Quiz</button>
+        <button id="resetProgressBtn" class="btn ghost">Reset Progress</button>
+      </div>
+    </section>
+
+    <section id="quizArea" class="card hidden">
+      <div class="quizHeader">
+        <div id="stageSummary" class="muted"></div>
+        <div id="progress" class="muted"></div>
+      </div>
+
+      <div id="questionCard" class="questionCard">
+        <div id="latinWord" class="latinWord"></div>
+
+        <div id="mcOptions" class="mcOptions"></div>
+
+        <div id="typeArea" class="typeArea">
+          <input id="typeInput" type="text" placeholder="Type the English meaning here">
+          <button id="submitType" class="btn small">Submit</button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+      </div>
+
+      <div class="row actions">
+        <button id="nextBtn" class="btn ghost">Next</button>
+        <button id="endBtn" class="btn ghost">End Session</button>
+      </div>
+
+      <div id="mistakeSummary" class="card summary hidden">
+        <h3>Mistakes summary</h3>
+        <div id="mistakeList"></div>
+      </div>
+    </section>
+
+    <footer>
+      <small class="muted">Works offline in your browser. Progress saved locally if enabled.</small>
+    </footer>
+  </main>
+
+  <script>
+        // ----------------------------
+    // Constants & Data
+    // ----------------------------
+    const MAX_STAGE = 28;
+    const LS_KEY = "latin_quiz_progress_v1";
+    const stages = {
+        1: [["canis", ["dog"]], ["coquus", ["cook"]], ["est", ["is"]], ["fīlia", ["daughter"]], ["fīlius", ["son"]], ["hortus", ["garden"]], ["in", ["in"]], ["labōrat", ["works"]], ["māter", ["mother"]], ["pater", ["father"]], ["servus", ["slave"]], ["via", ["street"]],],
+        2: [["amīcus", ["male friend"]], ["ancilla", ["slave girl"]], ["cēna", ["dinner"]], ["cibus", ["food"]], ["dominus", ["master"]], ["dormit", ["sleep"]], ["intrat", ["enter"]], ["laetus", ["happy"]], ["laudat", ["praises"]], ["mercātor", ["merchant"]], ["quoque", ["also"]], ["salūtat", ["greets"]],],
+        3: [["ad", ["to"]], ["bibit", ["drinks"]], ["circumspectat", ["looks round"]], ["clāmat", ["shouts"]], ["et", ["and"]], ["exit", ["goes out"]], ["exspectat", ["waits for"]], ["iānua", ["door"]], ["īrātus", ["angry"]], ["magnus", ["big"]], ["nāvis", ["ship"]], ["nōn", ["not"]], ["portat", ["carries"]], ["respondet", ["reply"]], ["rīdet", ["laughs"]], ["salvē", ["hello"]], ["sedet", ["sit"]], ["taberna", ["store"]], ["videt", ["sees"]], ["vīnum", ["wine"]],],
+        4: [["agit", ["does"]], ["ānulus", ["ring"]], ["coquit", ["cooks"]], ["cūr", ["why?"]], ["ē", ["from"]], ["ecce", ["look!"]], ["ego", ["I"]], ["ēheu", ["oh no!"]], ["forum", ["forum"]], ["habet", ["has"]], ["inquit", ["says"]], ["pecūnia", ["money"]], ["perterritus", ["terrified"]], ["quaerit", ["searches for"]], ["quis", ["who?"]], ["reddit", ["give back"]], ["satis", ["enough"]], ["sed", ["but"]], ["tū", ["you (singular)"]], ["vocat", ["call"]],],
+        5: [["adest", ["is here"]], ["adsunt", ["are here"]], ["agricola", ["farmer"]], ["ambulat", ["walks"]], ["audit", ["hears"]], ["clāmor", ["noise"]], ["contendit", ["hurries"]], ["currit", ["run"]], ["fābula", ["story"]], ["fēmina", ["woman"]], ["hodiē", ["today"]], ["iuvenis", ["young man"]], ["meus", ["my"]], ["multī", ["many"]], ["multus", ["much"]], ["optimus", ["very good"]], ["petit", ["seeks"]], ["plaudit", ["applaud"]], ["puella", ["girl"]], ["senex", ["old man"]], ["spectat", ["looks at"]], ["stat", ["stands"]], ["turba", ["crowd"]], ["ubi", ["where"]], ["urbs", ["city"]], ["venit", ["come"]],],
+        6: [["aberat", ["was absent"]], ["abest", ["is absent"]], ["emit", ["buys"]], ["ferōciter", ["fiercely"]], ["festīnat", ["hurries"]], ["fortis", ["strong"]], ["fūr", ["thief"]], ["intentē", ["carefully"]], ["lībertus", ["freedman"]], ["ōlim", ["once"]], ["parvus", ["small"]], ["per", ["through"]], ["postquam", ["after"]], ["pulsat", ["knocks at"]], ["quod", ["because"]], ["rēs", ["thing"]], ["scrībit", ["writes"]], ["subitō", ["suddenly"]], ["superat", ["overcome"]], ["tum", ["then"]], ["tuus", ["your"]], ["vēndit", ["sell"]], ["vituperat", ["curses"]],],
+        7: [["cōnspexit", ["caught sight of"]], ["cōnspicit", ["catches sight of"]], ["cum", ["with"]], ["facit", ["makes"]], ["fēcit", ["made"]], ["heri", ["yesterday"]], ["ingēns", ["huge"]], ["intellegit", ["understands"]], ["lacrimat", ["weep"]], ["mortuus", ["dead"]], ["nārrāvit", ["told"]], ["necāvit", ["killed"]], ["nihil", ["nothing"]], ["omnis", ["all"]], ["parat", ["prepares"]], ["paravit", ["prepared"]], ["prope", ["near"]], ["rogāvit", ["asked"]], ["surgit", ["gets up"]], ["tacitē", ["quietly"]], ["tamen", ["however"]], ["terret", ["frightens"]], ["terruit", ["frightened"]], ["valdē", ["very"]],],
+        8: [["agitat", ["hunt"]], ["cōnsūmit", ["eat"]], ["cōnsūmpsit", ["ate"]], ["dūcit", ["lead"]], ["eum", ["him"]], ["facile", ["easily"]], ["ferōx", ["fierce"]], ["gladius", ["sword"]], ["hic", ["this"]], ["ignāvus", ["lazy"]], ["leō", ["lion"]], ["nūntius", ["messenger"]], ["pēs", ["foot"]], ["porta", ["gate"]], ["postulat", ["demands"]], ["puer", ["boy"]], ["pugnat", ["fight"]], ["saepe", ["often"]], ["sanguis", ["blood"]], ["signum", ["sign"]], ["silva", ["woods"]], ["spectāculum", ["spectacle"]], ["statim", ["at once"]], ["sum", ["I am"]], ["tōtus", ["whole"]],],
+        9: [["agnōscit", ["recognises"]], ["celeriter", ["quickly"]], ["cupit", ["want"]], ["dat", ["give"]], ["diēs", ["day"]], ["ēmīsit", ["threw out"]], ["ēmittit", ["throws out"]], ["fert", ["brings"]], ["homō", ["human being"]], ["hospes", ["guest"]], ["ille", ["that"]], ["īnspicit", ["inspect"]], ["iterum", ["again"]], ["manet", ["remains"]], ["medius", ["middle"]], ["mox", ["soon"]], ["offert", ["offer"]], ["ostendit", ["shows"]], ["post", ["after"]], ["prōcēdit", ["proceeds"]], ["pulcher", ["beautiful"]], ["revenit", ["returns"]], ["trādit", ["hands over"]],],
+        10: [["abit", ["goes away"]], ["accipit", ["accept"]], ["callidus", ["clever"]], ["capit", ["captures"]], ["cēpit", ["captured"]], ["contentus", ["satisfied"]], ["exclāmat", ["exclaims"]], ["exclāmāvit", ["exclaimed"]], ["frāter", ["brother"]], ["habitat", ["lives"]], ["imperium", ["empire"]], ["invenit", ["finds"]], ["liber", ["book"]], ["nōs", ["we"]], ["nūntiat", ["announce"]], ["pāx", ["peace"]], ["portus", ["harbor"]], ["quam", ["how"]], ["semper", ["always"]], ["servat", ["saves"]], ["sōlus", ["alone"]], ["suus", ["his"]], ["tacet", ["is silent"]], ["uxor", ["wife"]], ["vehementer", ["violently"]], ["vōs", ["you (plural)"]],],
+        11: [["cīvis", ["citizen"]], ["convenit", ["gather"]], ["convēnit", ["gathered"]], ["crēdit", ["trust"]], ["dē", ["down from"]], ["favet", ["favors"]], ["igitur", ["therefore"]], ["invītat", ["invites"]], ["it", ["goes"]], ["legit", ["reads"]], ["līberālis", ["generous"]], ["minimē", ["no!"]], ["mūrus", ["wall"]], ["noster", ["our"]], ["nunc", ["now"]], ["placet", ["it pleases"]], ["prīmus", ["first"]], ["prōmīsit", ["promised"]], ["pugna", ["fight"]], ["senātor", ["senator"]], ["sollicitus", ["anxious"]], ["stultus", ["stupid"]], ["valē", ["good-bye"]], ["verberat", ["strikes"]], ["vir", ["man"]],],
+        12: [["āmīsit", ["lost"]], ["āmīttit", ["loses"]], ["bonus", ["good"]], ["complet", ["fill"]], ["custōdit", ["guards"]], ["duo", ["two"]], ["epistula", ["letter"]], ["flamma", ["flame"]], ["fortiter", ["bravely"]], ["frūstrā", ["in vain"]], ["fugit", ["flees"]], ["fūgit", ["fled"]], ["fundus", ["farm"]], ["iacet", ["lie"]], ["iam", ["now"]], ["mīrābilis", ["extraordinary"]], ["mittit", ["sends"]], ["mōns", ["mountain"]], ["optimē", ["very well"]], ["paene", ["nearly"]], ["sēnsit", ["felt"]], ["tandem", ["at last"]], ["templum", ["temple"]], ["terra", ["ground"]], ["timet", ["fears"]], ["trēs", ["three"]], ["ūnus", ["one"]],],
+        13: [["aeger", ["sick"]], ["audāx", ["bold"]], ["cadō", ["fall"]], ["cēterī", ["the others"]], ["custodit", ["guard"]], ["dīcō", ["say"]], ["domina", ["mistress"]], ["interficiō", ["kill"]], ["ita vero", ["yes"]], ["longus", ["long"]], ["mīles", ["soldier"]], ["nōlō", ["not want"]], ["novus", ["new"]], ["possum", ["can"]], ["postrīdiē", ["on the next day"]], ["ruō", ["rush"]], ["sē", ["himself"]], ["trahō", ["drag"]], ["vīlla", ["house"]], ["vīta", ["life"]], ["volō", ["want"]], ["vulnerō", ["wound"]],],
+        14: [["adveniō", ["arrive"]], ["apud", ["among"]], ["attonitus", ["astonished"]], ["celer", ["quick"]], ["decōrus", ["right"]], ["dēleō", ["destroy"]], ["difficilis", ["difficult"]], ["dōnum", ["present"]], ["fessus", ["tired"]], ["inimīcus", ["enemy"]], ["ipse", ["himself"]], ["iste", ["that"]], ["līberī", ["children"]], ["marītus", ["husband"]], ["necesse", ["necessary"]], ["nūllus", ["no"]], ["num?", ["surely ... not?"]], ["quamquam", ["although"]], ["-que", ["and"]], ["redeō", ["return"]], ["simulac", ["as soon as"]], ["ubi", ["when"]],],
+        15: [["alius", ["other"]], ["alter", ["the other"]], ["aqua", ["water"]], ["aula", ["palace"]], ["bellum", ["wage war"]], ["cantō", ["sing"]], ["dēbeō", ["owe"]], ["deus", ["god"]], ["dīligenter", ["carefully"]], ["equus", ["horse"]], ["fidēlis", ["loyal"]], ["gerō", ["wage"]], ["imperātor", ["emperor"]], ["lectus", ["bed"]], ["mare", ["sea"]], ["nauta", ["sailor"]], ["prīnceps", ["chieftain"]], ["rēgīna", ["queen"]], ["rēx", ["king"]], ["sacerdōs", ["priest"]], ["teneō", ["hold"]], ["vincō", ["win"]],],
+        16: [["aedificō", ["build"]], ["appāreō", ["appear"]], ["auxilium", ["help"]], ["cōnsentiō", ["agree"]], ["cōnsilium", ["plan"]], ["cotīdiē", ["every day"]], ["deinde", ["then"]], ["effugiō", ["escape"]], ["facilis", ["easy"]], ["inter", ["among"]], ["ita", ["in this way"]], ["melior", ["better"]], ["miser", ["miserable"]], ["nāvigō", ["sail"]], ["nōnne", ["surely?"]], ["paucī", ["a few"]], ["pereō", ["die"]], ["pōnō", ["place"]], ["summus", ["top"]], ["tollō", ["raise"]], ["trīstis", ["sad"]], ["vertō", ["turn"]],],
+        17: [["aliquid", ["something"]], ["amō", ["love"]], ["appropinquō", ["approach"]], ["ascendō", ["climb"]], ["bene", ["good"]], ["benignus", ["kind"]], ["diū", ["for a long time"]], ["etiam", ["even"]], ["fortasse", ["perhaps"]], ["graviter", ["seriously"]], ["hūc", ["here"]], ["īnsula", ["island"]], ["invītus", ["unwilling"]], ["iter", ["journey"]], ["maximus", ["very big"]], ["negōtium", ["business"]], ["numquam", ["never"]], ["perveniō", ["reach"]], ["quondam", ["once"]], ["soror", ["sister"]], ["tūtus", ["safe"]], ["vōx", ["voice"]],],
+        18: [["ā", ["from"]], ["anteā", ["before"]], ["audeō", ["dare"]], ["caput", ["head"]], ["coepī", ["I began"]], ["cognōscō", ["find out"]], ["fēlīx", ["lucky"]], ["ibi", ["there"]], ["itaque", ["and so"]], ["libenter", ["gladly"]], ["nam", ["for"]], ["nēmō", ["nobody"]], ["nōmen", ["name"]], ["obstō", ["obstruct"]], ["pars", ["part"]], ["posteā", ["afterwards"]], ["prō", ["in front of"]], ["pūniō", ["punish"]], ["recūsō", ["refuse"]], ["resistō", ["resist"]], ["sacer", ["sacred"]], ["soleō", ["be accustomed"]],],
+        19: [["cārus", ["dear"]], ["comparō", ["obtain"]], ["cūrō", ["care for"]], ["dea", ["goddess"]], ["discēdō", ["depart"]], ["dīves", ["rich"]], ["flūmen", ["river"]], ["hasta", ["spear"]], ["lentus", ["slow"]], ["locus", ["place"]], ["māne", ["in the morning"]], ["manus", ["hand"]], ["nōnnūllī", ["some"]], ["perīculum", ["danger"]], ["petō", ["make for"]], ["plūrimī", ["very many"]], ["quō?", ["where"]], ["sine", ["without"]], ["temptō", ["try"]], ["vexō", ["annoy"]], ["vīvō", ["live"]], ["vix", ["hardly"]],],
+        20: [["accidō", ["happen"]], ["adeō", ["go up to"]], ["ars", ["art"]], ["cōgitō", ["think"]], ["cōnficiō", ["finish"]], ["crūdēlis", ["cruel"]], ["decem", ["ten"]], ["dēnique", ["at last", "finally"]], ["dēspērō", ["despair"]], ["domī", ["at home"]], ["domus", ["home"]], ["duo", ["two"]], ["enim", ["for"]], ["mors", ["death"]], ["novem", ["nine"]], ["nox", ["night"]], ["octō", ["eight"]], ["oculus", ["eye"]], ["persuādeō", ["persuade"]], ["pessimus", ["worst"]], ["quadrāgintā", ["forty"]], ["quattuor", ["four"]], ["quīnquāgintā", ["fifty"]], ["quīnque", ["five"]], ["relinquō", ["leave behind"]], ["septem", ["seven"]], ["sex", ["six"]], ["sīcut", ["like"]], ["tam", ["so"]], ["tempestās", ["storm"]], ["trēs", ["three"]], ["trīgintā", ["thirty"]], ["ūnus", ["one"]], ["vīgintī", ["twenty"]], ["vulnus", ["wound"]],],
+        21: [["a", ["by"]], ["adiuvō", ["help"]], ["annus", ["year"]], ["cēlō", ["hide"]], ["circum", ["around"]], ["dūrus", ["hard"]], ["efficiō", ["carry out"]], ["fōns", ["fountain"]], ["gravis", ["serious"]], ["hōra", ["hour"]], ["īnfelīx", ["unlucky"]], ["iubeō", ["order"]], ["morbus", ["illness"]], ["nōnnullī", ["some"]], ["nūper", ["recently"]], ["oppidum", ["town"]], ["plēnus", ["full"]], ["plūs", ["more"]], ["pretium", ["price"]], ["sacer", ["sacred"]], ["sapiēns", ["wise"]], ["unde", ["from where"]],],
+        22: [["adeptus", ["having received"]], ["amor", ["love"]], ["caelum", ["sky"]], ["dēcipiō", ["deceive"]], ["ēligō", ["choose"]], ["fundō", ["pour"]], ["hostis", ["enemy"]], ["iactō", ["throw"]], ["incipiō", ["begin"]], ["ingressus", ["having entered"]], ["lacrima", ["tear"]], ["minimus", ["least"]], ["moneō", ["warn"]], ["nox", ["night"]], ["parcō", ["spare"]], ["precatus", ["having prayed"]], ["quantus", ["how big"]], ["quō", ["how"]], ["tūtus", ["safe"]], ["verbum", ["word"]], ["virtūs", ["courage"]], ["vītō", ["avoid"]],],
+        23: [["cēdō", ["give in"]], ["clārus", ["famous"]], ["cōnspicātus", ["having caught sight of"]], ["cūra", ["care"]], ["enim", ["for"]], ["gerō", ["wear"]], ["honor", ["honour"]], ["iaciō", ["throw"]], ["immōtus", ["still"]], ["locūtus", ["having spoken"]], ["mandātum", ["order"]], ["modus", ["way"]], ["nimium", ["too much"]], ["ōrnō", ["decorate"]], ["pāreō", ["obey"]], ["regressus", ["having returned"]], ["sciō", ["know"]], ["tālis", ["such"]], ["umquam", ["ever"]], ["venēnum", ["poison"]],],
+        24: [["auctoritās", ["authority"]], ["audāx", ["bold"]], ["carcer", ["prison"]], ["comprehendō", ["arrest"]], ["cum", ["when"]], ["dēserō", ["desert"]], ["ēgressus", ["having gone out"]], ["eques", ["horseman"]], ["flūmen", ["river"]], ["humī", ["on the ground"]], ["intereā", ["meanwhile"]], ["maximē", ["most of all"]], ["oppugnō", ["attack"]], ["passus", ["having suffered"]], ["patefaciō", ["reveal"]], ["pōns", ["bridge"]], ["trānseō", ["cross"]], ["trīstis", ["sad"]], ["vērum", ["truth"]],],
+        25: [["accidō", ["happen"]], ["aperiō", ["open"]], ["autem", ["but"]], ["castra", ["camp"]], ["cōgō", ["compel"]], ["cōnfīdō", ["trust"]], ["dignitās", ["dignity"]], ["explicō", ["explain"]], ["extrā", ["outside"]], ["lateō", ["lie hidden"]], ["nesciō", ["not know"]], ["nōmen", ["name"]], ["peritus", ["skilful"]], ["poena", ["punishment"]], ["rūrsus", ["again"]], ["scelestus", ["wicked"]], ["suāvis", ["sweet"]], ["testis", ["witness"]],],
+        27: [["adeō", ["so greatly"]], ["anteā", ["before"]], ["appāreō", ["appear"]], ["ardeō", ["burn"]], ["comes", ["comrade"]], ["gaudeō", ["rejoice"]], ["ignārus", ["unaware"]], ["imperō", ["order"]], ["incendō", ["burn"]], ["īnsidiae", ["trap"]], ["iussum", ["order"]], ["noceō", ["hurt"]], ["praeceps", ["headlong"]], ["praemium", ["prize"]], ["proximus", ["nearest"]], ["quālis", ["what sort of"]], ["sub", ["under"]], ["tacitus", ["quiet"]], ["tantus", ["so great"]],],
+        26: [["auferō", ["steal"]], ["bellum", ["war"]], ["bellum gerere", ["wage war"]], ["commōtus", ["moved"]], ["doceō", ["teach"]], ["falsus", ["false"]], ["fidēs", ["loyalty"]], ["īnstruō", ["draw up"]], ["lēgātus", ["commander"]], ["legiō", ["legion"]], ["nōtus", ["famous"]], ["num", ["whether"]], ["praebeō", ["provide"]], ["quot", ["how many"]], ["referō", ["report"]], ["rēgnum", ["kingdom"]], ["saevus", ["savage"]], ["sī", ["if"]], ["ultimus", ["furthest"]], ["ut", ["as", "so that"]],],
+        28: [["ac", ["and"]], ["atque", ["and"]], ["centum", ["hundred"]], ["cōnstituō", ["decide"]], ["corpus", ["body"]], ["doleō", ["hurt"]], ["gemitus", ["groan"]], ["īra", ["anger"]], ["malus", ["evil"]], ["mandō", ["order"]], ["metus", ["fear"]], ["milia", ["thousands"]], ["mille", ["thousand"]], ["nōnāgintā", ["ninety"]], ["occīdō", ["kill"]], ["octōgintā", ["eighty"]], ["opēs", ["wealth"]], ["quicquam", ["anything"]], ["septuāgintā", ["seventy"]], ["sexāgintā", ["sixty"]], ["sīc", ["thus"]], ["spēs", ["hope"]], ["suspicātus", ["having suspected"]], ["ut", ["as", "so that"]], ["ventus", ["wind"]],],
+    };
+
+
+    // ----------------------------
+    // State
+    // ----------------------------
+    let activeWords = [];
+    let currentIndex = -1;
+    let modeType = "type";
+    let removeOnCorrect = false;
+    let saveProgress = true;
+    let scores = {};
+    let mistakes = {};
+    let answeredSet = new Set();
+    let allowEnterForNext = false;
+
+    // ----------------------------
+    // Helpers
+    // ----------------------------
+    const normalizeText = (word = "") =>
+        word
+            .normalize("NFKD")
+            .replace(/\p{M}/gu, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, "")
+            .trim();
+
+    function parseSelection(raw) {
+        if (!raw) return [];
+        if (raw.trim().toLowerCase() === "all") return Array.from({ length: MAX_STAGE }, (_, i) => i + 1);
+
+        const chosen = new Set();
+        raw.split(",").map(p => p.trim()).forEach(part => {
+            if (part.includes("-")) {
+                const [start, end] = part.split("-").map(x => parseInt(x, 10));
+                if (!isNaN(start) && !isNaN(end)) {
+                    for (let i = Math.max(1, start); i <= Math.min(MAX_STAGE, end); i++) chosen.add(i);
+                }
+            } else {
+                const n = parseInt(part, 10);
+                if (!isNaN(n) && n >= 1 && n <= MAX_STAGE) chosen.add(n);
+            }
+        });
+        return [...chosen].sort((a, b) => a - b);
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    // ----------------------------
+    // Storage
+    // ----------------------------
+    function loadProgress() {
+        try { return JSON.parse(localStorage.getItem(LS_KEY)) || null; }
+        catch { return null; }
+    }
+
+    function saveProgressToStorage() {
+        if (!saveProgress) return;
+        localStorage.setItem(
+            LS_KEY,
+            JSON.stringify({ answered: [...answeredSet], mistakes, scores })
+        );
+    }
+
+    function clearProgressStorage() {
+        localStorage.removeItem(LS_KEY);
+        answeredSet.clear();
+        mistakes = {};
+        scores = {};
+    }
+
+    // ----------------------------
+    // Word Management
+    // ----------------------------
+    function buildWordsFromStages(selectedStages) {
+        return selectedStages.flatMap(s => stages[s] || []);
+    }
+
+    function pickNextIndex() {
+        if (!activeWords.length) return -1;
+        const start = Math.floor(Math.random() * activeWords.length);
+        for (let i = 0; i < activeWords.length; i++) {
+            const idx = (start + i) % activeWords.length;
+            const latin = activeWords[idx][0];
+            if (!removeOnCorrect && answeredSet.has(latin) && answeredSet.size < activeWords.length) continue;
+            return idx;
+        }
+        return -1;
+    }
+
+    // ----------------------------
+    // UI
+    // ----------------------------
+    const $ = id => document.getElementById(id);
+    const startBtn = $("startBtn");
+    const stagesInput = $("stagesInput");
+    const removeOnCorrectEl = $("removeOnCorrect");
+    const saveProgressEl = $("saveProgress");
+    const quizArea = $("quizArea");
+    const latinWordEl = $("latinWord");
+    const mcOptionsEl = $("mcOptions");
+    const typeArea = $("typeArea");
+    const typeInput = $("typeInput");
+    const submitType = $("submitType");
+    const feedback = $("feedback");
+    const nextBtn = $("nextBtn");
+    const endBtn = $("endBtn");
+    const progressEl = $("progress");
+    const stageSummary = $("stageSummary");
+    const mistakeList = $("mistakeList");
+    const mistakeSummary = $("mistakeSummary");
+    const resetProgressBtn = $("resetProgressBtn");
+    const title = $("title");
+
+    function renderProgress() {
+        progressEl.textContent = `Progress: ${answeredSet.size}/${activeWords.length}`;
+    }
+
+    function showQuestionByIndex(idx) {
+        if (idx < 0 || idx >= activeWords.length) return;
+        currentIndex = idx;
+        const [latin, translations] = activeWords[idx];
+
+        latinWordEl.textContent = latin;
+        feedback.textContent = "";
+        feedback.className = "feedback";
+        mcOptionsEl.innerHTML = "";
+        typeInput.value = "";
+
+        if (modeType === "mc") {
+            typeArea.classList.add("hidden");
+            const allTranslations = activeWords.flatMap(w => w[1]).filter(t => !translations.includes(t));
+            const options = [...translations];
+            while (options.length < 4 && allTranslations.length > 0) {
+                options.push(allTranslations.splice(Math.floor(Math.random() * allTranslations.length), 1)[0]);
+            }
+            shuffle(options);
+            options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.textContent = opt;
+                btn.addEventListener("click", () => handleAnswer(opt));
+                mcOptionsEl.appendChild(btn);
+            });
+        } else {
+            typeArea.classList.remove("hidden");
+        }
+        renderProgress();
+    }
+
+    // ----------------------------
+    // Answer Handling
+    // ----------------------------
+    function handleAnswer(answer) {
+        const ans = typeInput.value.trim();
+        if (!ans) return;
+        const [latin, translations] = activeWords[currentIndex];
+        const isCorrect = translations.map(normalizeText).includes(normalizeText(ans));
+        if (isCorrect) {
+            feedback.textContent = `✔ ${latin} → ${translations.join(", ")}`;
+            feedback.classList.add("correct");
+            scores[latin] = (scores[latin] || 0) + 1;
+
+            // Mark that the user can now press Enter to go next
+            allowEnterForNext = true;
+
+            if (removeOnCorrect) {
+                activeWords = activeWords.filter(w => w[0] !== latin);
+            } else {
+                answeredSet.add(latin);
+            }
+
+            // Disable typing so user sees feedback but can press Enter
+            typeInput.disabled = true;
+        } else {
+            feedback.textContent = `✖ ${latin} → ${translations.join(", ")}`;
+            feedback.classList.add("wrong");
+            allowEnterForNext = false;
+            mistakes[latin] = mistakes[latin] || [];
+            mistakes[latin].push(ans);
+            typeInput.value = ""; // clear for retry
+        }
+        saveProgressToStorage();
+        renderProgress();
+    }
+
+    submitType.addEventListener("click", () => handleAnswer(typeInput.value.trim()));
+
+    typeInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") handleAnswer(typeInput.value.trim());
+    });
+
+    nextBtn.addEventListener("click", () => {
+        const idx = pickNextIndex();
+        idx === -1 ? showSummary() : showQuestionByIndex(idx);
+    });
+
+    endBtn.addEventListener("click", showSummary);
+
+    resetProgressBtn.addEventListener("click", () => {
+        if (confirm("Clear saved progress?")) {
+            clearProgressStorage();
+            alert("Progress cleared.");
+            location.reload();
+        }
+    });
+
+    function showSummary() {
+        quizArea.classList.add("hidden");
+        mistakeSummary.classList.remove("hidden");
+        mistakeList.innerHTML = "";
+        const entries = Object.entries(mistakes).sort((a, b) => b[1].length - a[1].length);
+        if (!entries.length) mistakeList.textContent = "None — great job!";
+        else entries.forEach(([latin, arr]) => {
+            const div = document.createElement("div");
+            div.innerHTML = `<strong>${latin}</strong> → ${[...new Set(arr)].join(", ")} (${arr.length})`;
+            mistakeList.appendChild(div);
+        });
+    }
+
+    // ----------------------------
+    // Start Quiz
+    // ----------------------------
+    startBtn.addEventListener("click", () => {
+        const chosen = parseSelection(stagesInput.value);
+        if (!chosen.length) return alert("No valid stages selected.");
+
+        modeType = document.querySelector('input[name="quizType"]:checked').value;
+        removeOnCorrect = removeOnCorrectEl.checked;
+        saveProgress = saveProgressEl.checked;
+
+        activeWords = buildWordsFromStages(chosen);
+        if (!activeWords.length) return alert("No words found for those stages.");
+        shuffle(activeWords);
+
+        if (saveProgress) {
+            const saved = loadProgress();
+            if (saved?.answered) {
+                answeredSet = new Set(saved.answered);
+                mistakes = saved.mistakes || {};
+                scores = saved.scores || {};
+            }
+        }
+
+        quizArea.classList.remove("hidden");
+        mistakeSummary.classList.add("hidden");
+        stageSummary.textContent = `Stages: ${chosen.join(", ")}`;
+
+        const idx = pickNextIndex();
+        idx === -1 ? showSummary() : showQuestionByIndex(idx);
+    });
+
+    // ----------------------------
+    // Keyboard navigation
+    // ----------------------------
+    document.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+
+        // Only go to next if the allowEnterForNext flag is set
+        if (allowEnterForNext) {
+            const next = pickNextIndex();
+            if (next === -1) {
+                showSummary();
+            } else {
+                showQuestionByIndex(next);
+            }
+            allowEnterForNext = false;
+            typeInput.disabled = false; // re-enable typing for next word
+            typeInput.focus();          // keep cursor in the box
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Defaults already set via HTML
+    });
+
+  </script>
+</body>
+
+</html>

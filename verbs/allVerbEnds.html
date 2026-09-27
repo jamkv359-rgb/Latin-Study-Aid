@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verb Endings Condensed</title>
+    <link rel="stylesheet" href="../theme.css">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: min(1000px, 92vw);
+            margin: 40px 0;
+        }
+
+        header {
+            padding: 20px 24px;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            margin-bottom: 20px;
+        }
+
+        .stem {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+        }
+
+        #settingsPanel,
+        .verb-info {
+            padding: 20px;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            margin-bottom: 20px;
+        }
+
+        #settingsPanel h2 {
+            margin-bottom: 15px;
+        }
+
+        .filterGrid,
+        .settings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .filterGroup {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: calc(50% - 10px);
+            box-sizing: border-box;
+        }
+
+        .filterGroup h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        button {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            font-weight: 600;
+            font-family: inherit;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+        }
+
+        .verb-info {
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        td input {
+            width: 100%;
+            padding: 8px;
+            outline: none;
+            transition: 0.15s ease;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .adContainer {
+            margin: 20px 0;
+            width: min(1000px, 100%);
+        }
+
+        .ads {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ad {
+            padding: 10px;
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: calc(20% - 10px);
+        }
+
+        .bottom {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 700px) {
+            .filterGroup {
+                width: 100%;
+            }
+
+            .controls,
+            .ads {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script src="../interact.js"></script>
+</head>
+<body data-page-type="verb">
+<img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0;   z-index: 9999;" >
+<div class="container" style="margin-top:15vh;">
+    <header>
+        <h2>Latin Verb Drill</h2>
+        <div style="color:var(--muted); margin: 5px 0px 0px 0px"><span id="username-greet"></span>Select what verb endings you want, then start testing~</div>
+        <div style="display:flex; gap:10px;">
+            <div class="interact" style="background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px; margin-bottom: 24px; margin-top: 10px;"></div>
+        </div>
+
+        <div class="stem"><strong>Verbs</strong> • Conjugations • Tenses</div>
+        <div class="stem"><strong>Tab</strong> → Next input in row</div>
+        <div class="stem"><strong>Enter</strong> → Next input in column</div>
+    </header>
+
+    <section id="settingsPanel">
+        <h2>Select Forms To Test</h2>
+
+        <div class="filterGrid">
+            <div class="filterGroup">
+                <h3>Conjugation</h3>
+                <select id="conjSelect" onchange="initDrill()">
+                    <option value="1">1st Conj.</option>
+                    <option value="2">2nd Conj.</option>
+                    <option value="3">3rd Conj.</option>
+                    <option value="M">Mixed (3rd -io)</option>
+                    <option value="4">4th Conj.</option>
+                    <option value="ALL">All Conjugations</option>
+                </select>
+            </div>
+
+            <div class="filterGroup">
+                <h3>Tense</h3>
+                <select id="tenseSelect" onchange="initDrill()">
+                    <option value="pres_ind_act">Present Indicative Active</option>
+                    <option value="imp_ind_act">Imperfect Indicative Active</option>
+                    <option value="perf_ind_act">Perfect Indicative Active</option>
+                    <option value="plup_ind_act">Pluperfect Indicative Active</option>
+                    <option value="imp_subj">Imperfect Subjunctive</option>
+                    <option value="plup_subj">Pluperfect Subjunctive</option>
+                    <option value="perf_pass_ind">Perfect Passive Indicative</option>
+                    <option value="plup_pass_ind">Pluperfect Passive Indicative</option>
+                    <option value="ALL_TENSES">All Tenses Above</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="reroll-btn" onclick="initDrill()">Reroll Verb(s)</button>
+            <button id="submit-btn" onclick="checkAnswers()">Submit</button>
+            <button id="reset-btn" onclick="resetTable()">Reset</button>
+        </div>
+    </section>
+    <section class="result hidden" style="width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: calc(16px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(16px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(16px * var(--radius-mult-br, var(--radius-mult, 1))) calc(16px * var(--radius-mult-bl, var(--radius-mult, 1))); padding: 20px; box-shadow: var(--shadow); box-sizing: border-box;margin-bottom:15px;">
+
+                <div><strong>Finished!</strong></div>
+                <div class="results" style="display: flex; flex-wrap: wrap; width: 100%; flex-direction: row; ">
+
+                </div>
+                
+                <style>.hidden{display:none;}</style>
+            </section>
+
+    <div id="verbDisplay" class="verb-info"></div>
+
+    <div class="table-wrapper">
+        <table id="verbTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+</div>
+<script src="./grammarData.js"></script>
+<script src="../achievementData.js"></script>
+<script>
+    const verbBank = {
+        "1": [["amo", "amare", "amavi", "amatus"], ["laudo", "laudare", "laudavi", "laudatus"], ["voco", "vocare", "vocavi", "vocatus"], ["paro", "parare", "paravi", "paratus"], ["specto", "spectare", "spectavi", "spectatus"], ["narro", "narrare", "narravi", "narratus"], ["navigo", "navigare", "navigavi", "navigatus"], ["porto", "portare", "portavi", "portatus"], ["pugno", "pugnare", "pugnavi", "pugnatus"], ["supero", "superare", "superavi", "superatus"]],
+        "2": [["moneo", "monere", "monui", "monitus"], ["habeo", "habere", "habui", "habitus"], ["video", "videre", "vidi", "visus"], ["terreo", "terrere", "terrui", "territus"], ["doceo", "docere", "docui", "doctus"], ["teneo", "tenere", "tenui", "tentus"], ["moveo", "movere", "movi", "motus"], ["maneo", "manere", "mansi", "mansus"], ["rideo", "ridere", "risi", "risus"], ["debeo", "debere", "debui", "debitus"]],
+        "3": [["rego", "regere", "rexi", "rectus"], ["duco", "ducere", "duxi", "ductus"], ["dico", "dicere", "dixi", "dictus"], ["traho", "trahere", "traxi", "tractus"], ["scribo", "scribere", "scripsi", "scriptus"], ["mitto", "mittere", "misi", "missus"], ["pono", "ponere", "posui", "positus"], ["vivo", "vivere", "vixi", "victus"], ["vinco", "vincere", "vici", "victus"], ["claudo", "claudere", "clausi", "clausus"]],
+        "M": [["capio", "capere", "cepi", "captus"], ["facio", "facere", "feci", "factus"], ["jacio", "jacere", "jeci", "jactus"], ["fugio", "fugere", "fugi", "fugitus"], ["cupio", "cupere", "cupivi", "cupitus"], ["rapio", "rapere", "rapui", "raptus"], ["aspicio", "aspicere", "aspexi", "aspectus"], ["conficio", "conficere", "confeci", "confectus"], ["interficio", "interficere", "interfeci", "interfectus"], ["accipio", "accipere", "accepi", "acceptus"]],
+        "4": [["audio", "audire", "audivi", "auditus"], ["venio", "venire", "veni", "ventus"], ["dormio", "dormire", "dormivi", "dormitus"], ["scio", "scire", "scivi", "scitus"], ["sentio", "sentire", "sensi", "sensus"], ["invenio", "invenire", "inveni", "inventus"], ["impedio", "impedire", "impedivi", "impeditus"], ["munio", "munire", "munivi", "munitus"], ["punio", "punire", "punivi", "punitus"], ["aperio", "aperire", "aperui", "apertus"]]
+    };
+
+    const persons = ["1s", "2s", "3s", "1p", "2p", "3p"];
+    const tenses = {
+        "pres_ind_act": "Present Ind. Act.", "imp_ind_act": "Imperfect Ind. Act.", "perf_ind_act": "Perfect Ind. Act.",
+        "plup_ind_act": "Pluperfect Ind. Act.", "imp_subj": "Imperfect Subj.", "plup_subj": "Pluperfect Subj.",
+        "perf_pass_ind": "Perf. Pass. Ind.", "plup_pass_ind": "Plup. Pass. Ind."
+    };
+
+    let currentVerbs = [];
+    let activeTenseKeys = [];
+
+    // Maps each tense-dropdown value to the (voice, tense, mood) triple it
+    // corresponds to in grammarData.js.
+    const tenseKeyToForm = {
+        "pres_ind_act": { voice: "active", tense: "present", mood: "indicative" },
+        "imp_ind_act": { voice: "active", tense: "imperfect", mood: "indicative" },
+        "perf_ind_act": { voice: "active", tense: "perfect", mood: "indicative" },
+        "plup_ind_act": { voice: "active", tense: "pluperfect", mood: "indicative" },
+        "imp_subj": { voice: "active", tense: "imperfect", mood: "subjunctive" },
+        "plup_subj": { voice: "active", tense: "pluperfect", mood: "subjunctive" },
+        "perf_pass_ind": { voice: "passive", tense: "perfect", mood: "indicative" },
+        "plup_pass_ind": { voice: "passive", tense: "pluperfect", mood: "indicative" }
+    };
+
+    function getAvailableTenseKeys() {
+        return Object.keys(tenseKeyToForm).filter(key => {
+            const t = tenseKeyToForm[key];
+            return grammarData.some(f => f.voice === t.voice && f.tense === t.tense && f.mood === t.mood);
+        });
+    }
+
+    // Hides tense-dropdown options with no matching grammarData entries at
+    // all, and re-points the selection if it was hidden.
+    function updateTenseOptions() {
+        const available = getAvailableTenseKeys();
+        const select = document.getElementById('tenseSelect');
+
+        Array.from(select.options).forEach(opt => {
+            if (opt.value === "ALL_TENSES") return;
+            const visible = available.includes(opt.value);
+            opt.hidden = !visible;
+            opt.disabled = !visible;
+        });
+
+        if (select.selectedOptions[0] && select.selectedOptions[0].hidden) {
+            const firstAvailable = Array.from(select.options).find(o => !o.hidden);
+            if (firstAvailable) select.value = firstAvailable.value;
+        }
+    }
+
+    function getVerbForms(verb, conj, tense) {
+        const [p1, p2, p3, p4] = verb;
+        const perfStem = p3.slice(0, -1); 
+        const pppStem = p4.slice(0, -2);     
+
+        switch(tense) {
+            case "pres_ind_act":
+                const s = p2.slice(0, -3); 
+                if(conj === "1") return [p1, s+"as", s+"at", s+"amus", s+"atis", s+"ant"];
+                if(conj === "2") return [p1, s+"es", s+"et", s+"emus", s+"etis", s+"ent"];
+                if(conj === "3") return [p1, s+"is", s+"it", s+"imus", s+"itis", s+"unt"];
+                if(conj === "M") return [p1, s+"is", s+"it", s+"imus", s+"itis", s+"iunt"];
+                if(conj === "4") return [p1, s+"is", s+"it", s+"imus", s+"itis", s+"iunt"];
+            case "imp_ind_act":
+                let impBase = p2.slice(0, -2); // amare -> ama
+                if(conj === "3") impBase = p2.slice(0, -3) + "e"; // regere -> rege
+                if(conj === "M" || conj === "4") impBase = p2.slice(0, -3) + "ie"; // capere -> capie
+                return [impBase+"bam", impBase+"bas", impBase+"bat", impBase+"bamus", impBase+"batis", impBase+"bant"];
+            case "perf_ind_act":
+                return [perfStem+"i", perfStem+"isti", perfStem+"it", perfStem+"imus", perfStem+"istis", perfStem+"erunt"];
+            case "plup_ind_act":
+                return [perfStem+"eram", perfStem+"eras", perfStem+"erat", perfStem+"eramus", perfStem+"eratis", perfStem+"erant"];
+            case "imp_subj":
+                return [p2+"m", p2+"s", p2+"t", p2+"mus", p2+"tis", p2+"nt"];
+            case "plup_subj":
+                const pSubjBase = p3 + "sse"; // Corrected: Perfect stem + isse
+                return [pSubjBase+"m", pSubjBase+"s", pSubjBase+"t", pSubjBase+"mus", pSubjBase+"tis", pSubjBase+"nt"];
+            case "perf_pass_ind":
+                return [p4+" sum", p4+" es", p4+" est", pppStem+"i sumus", pppStem+"i estis", pppStem+"i sunt"];
+            case "plup_pass_ind":
+                return [p4+" eram", p4+" eras", p4+" erat", pppStem+"i eramus", pppStem+"i eratis", pppStem+"i erant"];
+        }
+    }
+
+    function initDrill() {
+        const conjType = document.getElementById('conjSelect').value;
+        const tenseType = document.getElementById('tenseSelect').value;
+        const display = document.getElementById('verbDisplay');
+        
+        currentVerbs = [];
+        activeTenseKeys = tenseType === "ALL_TENSES" ? getAvailableTenseKeys() : [tenseType];
+        
+        const typesToFetch = conjType === "ALL" ? ["1", "2", "3", "M", "4"] : [conjType];
+        
+        let infoHtml = "";
+        typesToFetch.forEach(t => {
+            const list = verbBank[t];
+            const v = list[Math.floor(Math.random() * list.length)];
+            currentVerbs.push({ data: v, conj: t });
+            infoHtml += `[${t}] <b>${v.join(", ")}</b><br>`;
+        });
+        display.innerHTML = infoHtml;
+
+        renderTable();
+        document.getElementById('submit-btn').disabled = false;
+    }
+
+    function renderTable() {
+        const head = document.getElementById('tableHead');
+        const body = document.getElementById('tableBody');
+        head.innerHTML = ""; body.innerHTML = "";
+
+        let headerRow = `<tr><th class="border-right-thick" style="width:120px">Tense</th><th class="border-right-thick" style="width:70px">Person</th>`;
+        currentVerbs.forEach((v, i) => {
+            headerRow += `<th class="${i < currentVerbs.length - 1 ? 'border-right-thick' : ''}">${v.data[0].toUpperCase()}</th>`;
+        });
+        headerRow += `</tr>`;
+        head.innerHTML = headerRow;
+
+        activeTenseKeys.forEach((tenseKey, tIdx) => {
+            persons.forEach((p, pIdx) => {
+                const isLastInTense = pIdx === 5;
+                const isLastTense = tIdx === activeTenseKeys.length - 1;
+                let row = `<tr>`;
+                
+                if(pIdx === 0) row += `<td rowspan="6" class="border-right-thick ${!isLastTense ? 'border-bottom-thick' : ''}"><strong>${tenses[tenseKey]}</strong></td>`;
+                
+                row += `<td class="border-right-thick ${isLastInTense && !isLastTense ? 'border-bottom-thick' : ''}"><strong>${p}</strong></td>`;
+                
+                currentVerbs.forEach((v, vIdx) => {
+                    const isRight = vIdx < currentVerbs.length - 1;
+                    const cellClass = `${isRight ? 'border-right-thick' : ''} ${isLastInTense && !isLastTense ? 'border-bottom-thick' : ''}`;
+                    row += `<td class="${cellClass}"><input type="text" id="input-${tIdx}-${pIdx}-${vIdx}" data-row="${tIdx * persons.length + pIdx}" data-col="${vIdx}" autocomplete="off"></td>`;
+                });
+                row += `</tr>`;
+                body.innerHTML += row;
+            });
+        });
+    }
+
+    function checkAnswers() {
+        let score=0;
+        let total = 0;
+        activeTenseKeys.forEach((tenseKey, tIdx) => {
+            currentVerbs.forEach((v, vIdx) => {
+                const correctForms = getVerbForms(v.data, v.conj, tenseKey);
+                persons.forEach((p, pIdx) => {
+                    const input = document.getElementById(`input-${tIdx}-${pIdx}-${vIdx}`);
+                    if(!input) return;
+                    
+                    const userVal = input.value.trim().toLowerCase();
+                    const correctVal = correctForms[pIdx].toLowerCase();
+                    const td = input.parentElement;
+
+                    if(correctVal === "-") {
+                        td.innerHTML = `<span class="blank-text" style="color:var(--yellowpop);">${correctVal}</span>`;
+                        
+                    } else if(userVal === correctVal) {
+                        td.innerHTML = `<span class="correct">${userVal}</span>`;
+                        score+=1;
+                        total+=1;
+                    } else {
+                        td.innerHTML = `<span class="incorrect-text">${userVal}</span><span class="correction-text">${correctVal}</span>`;
+                        total+=1;
+                    }
+                });
+            });
+        });
+        document.querySelector(".result").classList.remove("hidden");
+        document.querySelector(".results").innerHTML+=`
+            <div style="width: calc(((100% - 40px) * 0.25) - 24px); border: 1px solid var(--border); background-color: var(--bg); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); margin:5px; padding: 10px;">
+                <div id="score">${score}/${total} → ${Math.floor((score/total)*100)}%</div>
+                <div id="quotes" style="color: var(--text);">${calcScore(score, total)}</div>
+            </div>`;
+        const result = {
+                date: new Date().toISOString(),
+
+                testType: "Grammar",
+                page: document.title,
+
+                score,
+                total,
+                percent: Math.round(score/total*100),
+
+                quote: calcScore(score,total),
+
+                settings: {
+                    conjugations: document.getElementById('conjSelect').value,
+                    tenses: document.getElementById('tenseSelect').value.split("_").join(" ")
+                }
+            };
+            let history =JSON.parse(localStorage.getItem("latinHistory")) || [];
+                history.unshift(result);
+                localStorage.setItem("latinHistory",JSON.stringify(history));
+            console.log(localStorage.getItem('latinHistory'));
+            
+    }
+
+    function resetTable() {
+        initDrill();
+    }
+
+    // Attribute-based (not DOM-position-based) column tracking: the Tense
+    // label cell is rowspan'd across 6 person rows, which would shift a
+    // naive [...row.children].indexOf() column index on every row except
+    // the first of each tense - same reasoning as pronouns/allPronouns.html.
+    function enableEnterColumnNavigation() {
+        const table = document.getElementById("verbTable");
+
+        table.addEventListener("keydown", function (e) {
+            if (e.key !== "Enter") return;
+
+            const currentInput = e.target;
+            if (currentInput.tagName !== "INPUT" || !currentInput.dataset.col) return;
+
+            e.preventDefault();
+
+            const allInputs = [...table.querySelectorAll("tbody input[data-col]")];
+            const columns = [];
+            const columnIndexByCol = {};
+            allInputs.forEach(el => {
+                const col = el.dataset.col;
+                if (!(col in columnIndexByCol)) {
+                    columnIndexByCol[col] = columns.length;
+                    columns.push([]);
+                }
+                columns[columnIndexByCol[col]].push(el);
+            });
+
+            const myColIdx = columnIndexByCol[currentInput.dataset.col];
+            const myColumn = columns[myColIdx];
+            const posInColumn = myColumn.indexOf(currentInput);
+
+            // 1. Move down in the same column
+            if (posInColumn + 1 < myColumn.length) {
+                myColumn[posInColumn + 1].focus();
+                return;
+            }
+
+            // 2. If at bottom, move to top of the next column
+            if (myColIdx + 1 < columns.length) {
+                columns[myColIdx + 1][0].focus();
+                return;
+            }
+
+            // 3. If at the very end, wrap back to the first input
+            if (columns.length && columns[0].length) columns[0][0].focus();
+        });
+    }
+
+    updateTenseOptions();
+    initDrill();
+    enableEnterColumnNavigation();
+</script>
+
+</body>
+</html>

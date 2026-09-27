@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Choice Tester</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../theme.css">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            transition: 0.4s ease;
+        }
+        .container {
+            width: min(1000px, 100%);
+            margin: 40px 0;
+        }
+
+        header {
+            padding: 20px 24px;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            margin-bottom: 20px;
+            text-align: center;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+        }
+
+        h1 { margin: 0; }
+
+        .game-card {
+            padding: 30px;
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            text-align: center;
+        }
+
+        .output {
+            margin-bottom: 25px;
+            min-height: 3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .answer {
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .startButton {
+            width: 100%;
+            padding: 12px;
+        }
+
+        /* Footer/Ad Style */
+        .adContainer {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: calc(14px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(14px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(14px * var(--radius-mult-br, var(--radius-mult, 1))) calc(14px * var(--radius-mult-bl, var(--radius-mult, 1)));
+            text-align: center;
+        }
+
+        .ads {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .ad {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="../interact.js"></script>
+</head>
+<body data-page-type="vocab">
+<img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+
+<div style="margin-top: 15vh;" class="container">
+    <header>
+        <h1>Latin Multi-Choice Tester</h1>
+        <div style="color:var(--muted); margin: 10px 0px 0px 0px"><span id="username-greet"></span>Test your vocab with a simple multi-choice quiz~</div>
+        <div class='interact' style= "background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px; margin-top:10px;"></div>
+        <div class="score-display" style="background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px; margin-top:10px; font-weight:600;">Score: 0/0</div>
+    </header>
+
+    <main class="game-card">
+        <div class="output">Press the button below to begin the quiz!</div>
+        
+        <div class="answers">
+            <button class="answer" id="btn0">-</button>
+            <button class="answer" id="btn1">-</button>
+            <button class="answer" id="btn2">-</button>
+            <button class="answer" id="btn3">-</button>
+        </div>
+
+        <button class="startButton">Press To Start</button>
+    </main>
+
+</div>
+<script src="../achievementData.js"></script>
+<script src="vocabDataLSA.js"></script>
+<script src="vocabData.js"></script> 
+<script>
+    //document.querySelector("body").classList.toggle("dark"); 
+    const startBtn = document.querySelector(".startButton");
+    const output = document.querySelector(".output");
+    const answerButtons = [
+        document.getElementById("btn0"),
+        document.getElementById("btn1"),
+        document.getElementById("btn2"),
+        document.getElementById("btn3")
+    ];
+
+    let currentOptions = [];
+    let correctAnswer = null;
+    let canAnswer = false;
+    let score = 0;
+    let total = 0;
+    const scoreDisplay = document.querySelector(".score-display");
+
+    startBtn.onclick = () => {
+        generateQuestion();
+    };
+
+    // Helper functions to safely extract string data from mixed array/string properties
+    function getLatinText(wordObj) {
+        return Array.isArray(wordObj.latin) ? wordObj.latin[0] : wordObj.latin;
+    }
+
+    function getEnglishText(wordObj) {
+        return Array.isArray(wordObj.english) ? wordObj.english.join(", ") : wordObj.english;
+    }
+
+    function generateQuestion() {
+        canAnswer = true;
+        currentOptions = [];
+        
+        // Reset button colors
+        answerButtons.forEach(btn => {
+            btn.style.backgroundColor = "var(--bg)";
+            btn.style.color = "var(--text)";
+            btn.style.borderColor = "var(--border)";
+        });
+
+        // Pick 4 unique random words, capped to the selected chapter/stage
+        let pool = [...filterVocabUpToChapter(vocabData)];
+        for (let i = 0; i < 4; i++) {
+            const randomIndex = Math.floor(Math.random() * pool.length);
+            currentOptions.push(pool.splice(randomIndex, 1)[0]);
+        }
+
+        // Select one of the four as the target
+        correctAnswer = currentOptions[Math.floor(Math.random() * currentOptions.length)]; 
+        console.log(correctAnswer);
+
+        const targetLatin = getLatinText(correctAnswer);
+        output.innerHTML = `What does '<span style="color:var(--accent)">${targetLatin}</span>' mean?`;
+        
+        answerButtons.forEach((btn, i) => {
+            btn.textContent = getEnglishText(currentOptions[i]);
+            btn.onclick = () => processAnswer(i);
+        });
+
+        startBtn.textContent = 'Next Question';
+    }
+
+    function processAnswer(index) {
+        if (!canAnswer) return;
+        canAnswer = false;
+
+        const selected = currentOptions[index];
+        const btn = answerButtons[index];
+
+        const targetLatin = getLatinText(correctAnswer);
+        const targetEnglish = getEnglishText(correctAnswer);
+
+        // Match the complete object references rather than comparing arrays directly
+        const isCorrect = selected === correctAnswer;
+        total++;
+
+        if (isCorrect) {
+            score++;
+            output.textContent = `Correct; '${targetLatin}' → '${targetEnglish}'.`;
+            btn.style.backgroundColor = "var(--correct)";
+            btn.style.color = "white";
+        } else {
+            output.textContent = `Incorrect; '${targetLatin}' → '${targetEnglish}'.`;
+            btn.style.backgroundColor = "var(--wrong)";
+            btn.style.color = "white";
+        }
+
+        // Feed the same per-word progress tracking every other tester uses,
+        // so multi-choice practice counts toward weak-word tracking and
+        // achievements instead of vanishing once the page is left.
+        updateWordCompletion(correctAnswer, isCorrect);
+        scoreDisplay.textContent = `Score: ${score}/${total}`;
+    }
+
+    // Keyboard Shortcuts
+    window.addEventListener("keydown", e => {
+        if (["1", "2", "3", "4"].includes(e.key)) {
+            const idx = parseInt(e.key) - 1;
+            answerButtons[idx].click();
+        }
+        if (e.key === "Enter") {
+            startBtn.click();
+        }
+    });
+</script>
+
+</body>
+</html>

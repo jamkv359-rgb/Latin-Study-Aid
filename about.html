@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>About & Credits</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .container {
+    width: min(1000px, 100%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+  }
+
+  h1 { margin: 0; }
+  p { margin-top: 8px; }
+
+  /* Grid Layout - auto-fit/minmax means the two contributor columns
+     collapse to a single column on narrow/mobile screens automatically,
+     instead of being squeezed to a fixed 50% width no matter how small the
+     viewport gets (that was a leftover from an earlier flex-based version -
+     grid-template-columns silently did nothing while display was "flex"). */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  /* Renamed from .side to avoid colliding with theme.css's communal .side
+     rule (a bordered "answer card" look meant for a different component) -
+     this is a plain layout column and must stay unstyled/transparent. */
+  .about-col {
+    display: flex;
+    flex-direction:column;
+    gap: 24px;
+  }
+  .category-card {
+    padding: 24px;
+  }
+
+  .category-card h2 {
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h2{
+    padding: 24px;
+    margin: 0 0 16px 0;
+    width: calc(100% - 40px);
+  }
+
+  /* Links List */
+  .link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-button:hover {
+    transform: translateX(5px);
+  }
+
+  .tag {
+    padding: 2px 8px;
+    margin-left: 8px;
+  }
+  .adContainer {
+    margin: 20px 0;
+    width:100%;
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+  }
+
+  .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  li{
+    margin: 4px 0px;
+  }
+
+  /* Collapsible info sections (About text pulled from the project's own
+     "About section" document, distinct from the plain, always-open
+     contributor-credit cards above/below). */
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .collapse-arrow { display: inline-block; }
+  .collapsible-hidden { display: none !important; }
+  .info-section h3 {
+    margin: 20px 0 8px 0;
+  }
+  .info-section h3:first-child {
+    margin-top: 0;
+  }
+  .info-section h4 {
+    margin: 12px 0 4px 0;
+  }
+  /* theme.css's sitewide `p { color: var(--muted) }` is meant for small
+     captions/subtitles - fine there, but this page's collapsible sections
+     and credit cards are made almost entirely of long-form body paragraphs,
+     so that same dim, low-contrast colour read as hard to read here.
+     Restored to full text colour with roomier line-height for this page's
+     prose specifically, without touching the shared default. */
+  .info-section p,
+  .category-card > p {
+    margin: 10px 0;
+    color: var(--text);
+    line-height: 1.65;
+  }
+  .info-section li {
+    line-height: 1.5;
+  }
+</style>
+<script src="./interact.js"></script>
+</head>
+<body data-page-type="meta">
+<img class="banner" src="banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0;   z-index: 9999;" >
+<div style="margin-top: 10vh;" class="container">
+  <header>
+    <h1>Credits & Context page</h1>
+    <div style="color:var(--muted); margin: 5px 0px 10px 0px"><span id="username-greet"></span>This is us~</div>
+    <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  </header>
+   <section class="dashboard-grid card">
+      <h2>This website's vocabulary is currently built around the DCC Core Vocabulary.</h2>
+    </section>
+
+    <section class="category-card">
+      <h2 class="collapsible-header" id="whatIsHeader">What is Latin Study Aid?</h2>
+      <div id="whatIsBody" class="info-section">
+        <p>Latin Study Aid (LSA) is a free, non-commercial interactive platform for learning and revising Latin.</p>
+        <p>LSA combines vocabulary, grammar, translation, games, flashcards, progress tracking and personalised revision tools within a single learning environment. Rather than treating Latin vocabulary and grammar as static lists or tables, LSA uses structured data to generate interactive learning activities dynamically.</p>
+        <p>The project was originally created as a personal programming project and has developed into a broader educational resource with support from the [School Name] Latin Department.</p>
+        <p>LSA is designed to complement existing Latin courses and resources rather than replace them.</p>
+      </div>
+    </section>
+
+    <section class="category-card">
+      <h2 class="collapsible-header" id="ideaHeader">The idea behind LSA</h2>
+      <div id="ideaBody" class="info-section">
+        <p>Latin has an enormous amount of existing educational material, but the experience of studying it can involve moving between vocabulary lists, textbooks, grammar tables, worksheets and separate revision tools.</p>
+        <p>LSA explores a different approach: the data contains the information; the learning engine turns that information into an interactive experience.</p>
+        <p>A structured vocabulary entry can therefore be used to generate a flashcard, vocabulary test, game, search result, progress record or personalised revision recommendation without each activity requiring its own separate database.</p>
+        <p>This architecture also allows new resources and learning activities to be added without rebuilding the entire platform.</p>
+      </div>
+    </section>
+
+    <section class="category-card">
+      <h2 class="collapsible-header" id="includesHeader">What LSA currently includes</h2>
+      <div id="includesBody" class="info-section">
+        <h3>Vocabulary</h3>
+        <ul>
+          <li>Vocabulary database</li>
+          <li>Type-in vocabulary testing</li>
+          <li>Multiple-choice testing</li>
+          <li>Flashcards</li>
+          <li>Hangman</li>
+          <li>Word Scramble</li>
+          <li>Vocabulary search and filtering</li>
+          <li>Semantic-domain classification</li>
+          <li>Personalised vocabulary revision</li>
+        </ul>
+        <h3>Grammar</h3>
+        <ul>
+          <li>Noun declension practice</li>
+          <li>Pronoun practice</li>
+          <li>Verb-ending practice</li>
+          <li>Verb conjugation tables</li>
+          <li>Verb parsing</li>
+          <li>Grammar progress tracking</li>
+        </ul>
+        <h3>Progress &amp; Personalisation</h3>
+        <ul>
+          <li>Test history</li>
+          <li>Statistics</li>
+          <li>XP and levels</li>
+          <li>Achievements</li>
+          <li>Login streaks</li>
+          <li>Vocabulary progress</li>
+          <li>Grammar progress</li>
+          <li>Recommended revision</li>
+        </ul>
+        <h3>Interface &amp; Accessibility</h3>
+        <ul>
+          <li>Light and dark modes</li>
+          <li>Custom themes</li>
+          <li>Custom fonts</li>
+          <li>Macron keyboard</li>
+          <li>Responsive interface</li>
+          <li>Persistent navigation and music controls</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="category-card">
+      <h2 class="collapsible-header" id="developmentHeader">Development</h2>
+      <div id="developmentBody" class="info-section">
+        <p>LSA began as a student programming project and has progressively expanded as new programming, Latin and educational ideas have been incorporated into the platform.</p>
+        <p>The project is continually developing, and some features and datasets remain experimental.</p>
+      </div>
+    </section>
+
+  <div class="dashboard-grid">
+    <div class="about-col">
+        <section class="category-card">
+            <h2>James Vo (Class of 2028)</h2>
+            Lead Developer:
+            <ul>
+                <li>Website architecture and project management</li>
+                <li>Home page and dashboard</li>
+                <li>Vocabulary system (Type-in Tester, Multiple Choice, Hangman, Word Scramble, Flashcards, Vocabulary Databases)</li>
+                <li>Grammar systems (All Verb Endings 1D & 2D Testers)</li>
+                <li>Music library/playlist and integrated website music player</li> 
+                <li>Achievements, XP & Level system</li>
+                <li>Previous Tests, User Statistics and Progress Tracking</li>
+                <li>localStorage data and user profiles</li>
+                <li>Cambridge Latin Course and De Romanis vocabulary databases</li>
+                <li>Verb endings, achievements, quotes and music databases</li>
+                <li>Beta Archive homepage and standardisation of archived pages</li>
+                <li>Code refactoring and improvements to the Condensed Grammar pages</li>
+                <li>Universal interface components (dark mode colour theme, macron keyboard, usernames, navigation, styling and responsive layout)</li>
+                <li>Interactive features/systems and dynamic page generation</li>
+                <li>Troubleshooting, code optimisation and ongoing maintenance</li>
+                <li>Project documentation and development logs</li>
+            </ul>
+        </section>
+        
+
+        <section class="category-card">
+            <h2>Chris Ran (Class of 2028)</h2>
+            Developer:
+            <ul>
+                <li>'Nouns Endings Condensed' Page</li>
+                <li>'Pronouns Condensed' Page</li>
+                <li>'Verb Endings Condensed' Page</li>
+                <li>Beta testing</li>
+            </ul>
+        </section>
+        <section class="category-card">
+          <h2>Additional Acknowledgements</h2>
+          <ul>
+              <li>ChatGPT for brainstorming, code debugging assistance, formatting suggestions, hex-code colour picking, complex javascript logic.</li>
+              <li>Pixabay creators for the public-domain music used within the website (credited individually on the Music Library page).</li>
+          </ul>
+        </section>
+        <section class="category-card">
+          <h2>External Resources &amp; Tools</h2>
+          <p>LSA also builds upon resources created by other individuals and organisations. These are not claimed as original LSA work and are credited separately on the Sources &amp; Licensing section below.</p>
+          <p>External tools, open-source resources and publicly licensed datasets have been used where appropriate. Their respective licences and attribution requirements are retained.</p>
+          <p>AI tools have also been used during development for activities such as brainstorming, debugging, data transformation assistance and formatting. The design, implementation, review and final integration of the project remain the responsibility of the LSA developer.</p>
+        </section>
+        <section class="category-card">
+          <h2>Acknowledgements</h2>
+          <p>LSA would not have developed into its current form without the teachers, students, testers, contributors and creators of the open educational resources that have informed the project.</p>
+          <p>Particular thanks to those who have provided feedback, identified problems, suggested improvements or contributed material during development.</p>
+        </section>
+    </div>
+    <div class="about-col">
+        <section class="category-card">
+            <h2>Ned Bolch (Class of 2028)</h2>
+            Entrepreneur:
+            <ul>
+                <li>Getting people involved</li>
+                <li>Nouns, verbs, and pronoun pages in Beta-version pages</li>
+                <li>Beta testing</li>
+            </ul>
+        </section>
+        <section class="category-card">
+          <h2>Eason Y Zhang (Class of 2028)</h2>
+          Beta-tester & developer:
+          <ul>
+              <li>Beta testing</li>
+              <li>Troubleshooting & bug-fixing</li>
+          </ul>
+        </section>
+        <section class="category-card">
+          <h2>Chiron Liu (Class of 2028)</h2>
+          Beta-tester:
+          <ul>
+              <li>Beta testing</li>
+          </ul>
+        </section>
+        <section class="category-card">
+          <h2>Eamon Reilly (Class of 2029)</h2>
+          Developer
+          <ul>
+            <li>Bracket and Labelling Page</li>  
+            <li>Beta testing</li>
+          </ul>
+        </section>
+        <section class="category-card">
+            <h2>Aran Ganesvaran (Class of 2028)</h2>
+            Visual Designer:
+            <ul>
+                <li>Website banner design</li>
+            </ul>
+        </section>
+        
+        <section class="category-card">
+          <h2>Rowan Li (Class of 2028)</h2>
+          Beta-tester:
+          <ul>
+              <li>Beta testing</li>
+          </ul>
+        </section>
+        
+    </div>
+
+  </div>
+  <section class="category-card" style="margin: 16px 0 16px 0;">
+          <h2>Additional Resources:</h2>
+          <ul>
+              <li><a href="https://docs.google.com/spreadsheets/d/1_Pazec92hqcjDwKJ2mT_yEfcOWv4aF7RhTE01p3EmwM/edit?usp=sharing" style="margin: 0 0 0px 0px;font-size: 12px;color: var(--accent, #4f46e5);text-decoration: none;"><u>Google Sheets of all databases</u></a></li>
+          </ul>
+        </section>
+
+    <section class="category-card">
+      <h2 class="collapsible-header" id="statusHeader">Project Status</h2>
+      <div id="statusBody" class="info-section">
+        <p>LSA is an independently developed educational project and is not an official product of any textbook publisher, examination board, university or other external organisation unless explicitly stated otherwise.</p>
+        <p>The current public demonstration version focuses on independently reusable, openly licensed and original material. Additional curriculum-specific resources are being investigated separately, and material requiring permission is not included in the public demonstration dataset unless appropriate rights have been established.</p>
+      </div>
+    </section>
+
+    <section class="category-card">
+      <h2 class="collapsible-header" id="licensingHeader">Sources &amp; Licensing</h2>
+      <div id="licensingBody" class="info-section">
+        <h3>Overview</h3>
+        <p>Latin Study Aid incorporates original material, independently structured data and material derived from external resources.</p>
+        <p>LSA does not claim ownership of third-party material. External resources remain subject to their respective licences and attribution requirements.</p>
+        <p>Where possible, source and licensing information is retained alongside the relevant data so that the provenance of vocabulary and other resources can be identified.</p>
+
+        <h3>DCC Core Vocabulary</h3>
+        <p>Source: Dickinson College Commentaries (DCC)<br>Resource: Core Vocabulary<br>Licence: CC BY-SA 3.0 Unported</p>
+        <p>The DCC Core Vocabulary is incorporated into LSA under its stated Creative Commons licence.</p>
+        <p>LSA adds its own learning functionality and organisational metadata around the vocabulary, including interactive testing, flashcards, semantic-domain classification and other learning tools.</p>
+        <p>The LSA-added interface, code and educational systems should not be interpreted as part of the original DCC resource.</p>
+        <h4>Attribution</h4>
+        <p>Latin Core Vocabulary from Dickinson College Commentaries, licensed under CC BY-SA 3.0 Unported.<br>Original resource: Dickinson College Commentaries &mdash; Core Vocabulary<br><a href="https://dcc.dickinson.edu/latin-core-list1" style="color: var(--accent, #4f46e5);">https://dcc.dickinson.edu/latin-core-list1</a></p>
+
+        <h3>Whitaker's Words</h3>
+        <p>Source: Whitaker's Words / associated open-source resources</p>
+        <p>Whitaker's Words is used as a lexical and morphological resource within LSA's broader Latin data architecture.</p>
+        <p>Where material is derived from a particular implementation, conversion or derivative dataset, the relevant source and licence information is retained rather than treating the resulting data as LSA-original.</p>
+        <p><a href="https://latin-words.com/" style="color: var(--accent, #4f46e5);">https://latin-words.com/</a></p>
+
+        <h3>Other Open Resources</h3>
+        <p>Additional datasets may be incorporated into LSA where their licences permit the intended use. For each resource, LSA aims to record:</p>
+        <ul>
+          <li>original source</li>
+          <li>author/organisation where known</li>
+          <li>applicable licence</li>
+          <li>attribution requirements</li>
+          <li>modifications made by LSA</li>
+          <li>date/version where relevant</li>
+        </ul>
+        <p>Different resources may have different licences. The licence of one dataset does not automatically apply to another.</p>
+
+        <h3>LSA Original Material</h3>
+        <p>The following are original LSA work unless otherwise indicated:</p>
+        <ul>
+          <li>LSA website code</li>
+          <li>interface design</li>
+          <li>learning systems</li>
+          <li>testing systems</li>
+          <li>XP and achievement systems</li>
+          <li>statistics and progress systems</li>
+          <li>database architecture</li>
+          <li>semantic-domain framework</li>
+          <li>original educational explanations</li>
+          <li>original practice material</li>
+          <li>original UI components</li>
+          <li>LSA-specific data transformations and organisation</li>
+        </ul>
+        <p>Third-party material incorporated into these systems remains subject to its own licensing.</p>
+
+        <h3>Material Requiring Permission</h3>
+        <p>Some Latin educational resources are associated with commercial textbooks, courses or other copyrighted publications.</p>
+        <p>LSA does not assume that educational or non-commercial use automatically grants permission to reproduce such material publicly.</p>
+        <p>Accordingly, material for which public redistribution rights have not been established is kept separate from the public demonstration dataset while permission or other appropriate rights are investigated.</p>
+        <p>This particularly applies to course-specific material where the underlying vocabulary lists, exercises, practice sentences or translations may be associated with copyrighted educational resources.</p>
+      </div>
+    </section>
+
+</div>
+
+
+<script src="./achievementData.js"></script>
+<script>
+function makeCollapsible(headerId, bodyId, startCollapsed = false) {
+    const header = document.getElementById(headerId);
+    const body = document.getElementById(bodyId);
+    if (!header || !body) return;
+
+    const arrow = document.createElement("span");
+    arrow.className = "collapse-arrow";
+    header.prepend(arrow);
+
+    let collapsed = startCollapsed;
+    function apply() {
+        body.classList.toggle("collapsible-hidden", collapsed);
+        arrow.textContent = collapsed ? "▶" : "▼";
+    }
+
+    header.addEventListener("click", () => {
+        collapsed = !collapsed;
+        apply();
+    });
+    apply();
+}
+
+makeCollapsible("whatIsHeader", "whatIsBody", true);
+makeCollapsible("ideaHeader", "ideaBody", true);
+makeCollapsible("includesHeader", "includesBody", true);
+makeCollapsible("developmentHeader", "developmentBody", true);
+makeCollapsible("statusHeader", "statusBody", true);
+makeCollapsible("licensingHeader", "licensingBody", true);
+</script>
+</body>
+</html>

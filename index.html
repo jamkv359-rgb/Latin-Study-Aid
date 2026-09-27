@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Homepage</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .side, .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .container {
+    width: min(1000px, 100%);
+  }
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  h1 { margin: 0; }
+  p { margin: 0; }
+
+  /* Grid Layout */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .category-card {
+    padding: 24px;
+  }
+
+  .category-card h2 {
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Links List */
+  .link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-button:hover {
+    transform: translateX(5px);
+  }
+
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .ad {
+    padding: 10px;
+    box-sizing: border-box;
+    /* flex-basis:auto (not the "flex:1" shorthand's 0%) so the width
+       below is actually respected as the target column size - otherwise
+       items just shrink to fit one row forever instead of wrapping. */
+    flex: 1 1 auto;
+    min-width: 140px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .xp-factor { width: calc(25% - 35px); }
+  .adz { width: 50%; }
+
+  /* Theme Settings panel */
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .collapse-arrow { display: inline-block; width: 1em; }
+  .collapsible-hidden { display: none !important; }
+
+  .settingsGroup { margin: 16px 0; }
+  .settingsGroupLabel {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .settingsRadioRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-bottom: 6px;
+    cursor: pointer;
+  }
+  .settingsColorRow { display: flex; flex-wrap: wrap; gap: 20px; }
+  .settingsColorItem {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .settingsColorItem input[type="color"] {
+    width: 44px;
+    height: 32px;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: calc(6px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(6px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(6px * var(--radius-mult-br, var(--radius-mult, 1))) calc(6px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    cursor: pointer;
+  }
+  .settingsToggleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .settingsRangeRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .settingsRangeRow input[type="range"] { flex: 1; max-width: 220px; }
+  .settingsRangeValue { font-size: 12px; color: var(--muted); min-width: 36px; }
+  .settingsResetBtn {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .settingsResetBtn:hover { background: var(--card); border-color: var(--accent); }
+
+  .settingsFontSelect {
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .settingsPresetRow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .settingsPresetBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .settingsPresetBtn:hover { filter: brightness(1.08); }
+  /* Buttons preview their own preset's colours/font inline (see
+     renderPresets()), so "active" is shown as a ring rather than an
+     inline background override that would fight the preview colour. */
+  .settingsPresetBtn.active { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .settingsPresetDelete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: calc(50% * var(--radius-mult-tl, var(--radius-mult, 1))) calc(50% * var(--radius-mult-tr, var(--radius-mult, 1))) calc(50% * var(--radius-mult-br, var(--radius-mult, 1))) calc(50% * var(--radius-mult-bl, var(--radius-mult, 1)));
+    font-size: 12px;
+    line-height: 1;
+    opacity: 0.7;
+  }
+  .settingsPresetDelete:hover { opacity: 1; }
+  .settingsSaveRow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+  .settingsSaveRow input[type="text"] {
+    flex: 1;
+    min-width: 140px;
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+  }
+  .settingsPresetMsg { font-size: 12px; color: var(--muted); min-height: 16px; }
+</style>
+<script src="./interact.js"></script>
+</head>
+<body data-page-type="base">
+   
+
+<div class="container" >
+  <div class="header">
+    <img class="banner" src="banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+    <h1 style="margin-top: 10vh;">Latin Study Aid</h1>
+    <p style="color:var(--muted);"><span id="username-greet"></span>Select a module to begin your practice! Good luck studying~</p>
+    <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  </div>
+  <section class="adContainer bottom" id="wordOfDayCard">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <span>Word of the Day</span>
+            <button onclick="rerollWordOfDay()" style="padding: 6px 12px; font-size: 12px; border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1))); cursor: pointer; background: var(--bg); color: var(--text); border: 1px solid var(--border);">↻ Another</button>
+        </div>
+        <div id="wordOfDayContent" style="font-size: 24px; font-weight: 800; color: var(--bluepop);">Loading…</div>
+        <div id="wordOfDayMeaning" style="color: var(--text); margin-top: 4px; font-size: 15px;"></div>
+        <div id="wordOfDayTag" style="color: var(--muted); font-size: 12px; margin-top: 8px;"></div>
+  </section>
+  <div style="display: flex; width: 100%; gap: 10px;">
+  <section class="adContainer bottom" style="justify-content: center; align-items: center; width: 50%;">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px;">Username Input</div>
+        <div class='username-interact' style= "background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 14px;"></div>
+        <input type="text" class="username-input" placeholder="Enter your username;" style="background-color: var(--bg); color: var(--text); padding: 10px 14px;border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1))); border: 1px solid var(--border); margin-bottom: 10px;"></input>
+        <button onclick="usernameUpdate()" style="padding: 10px 14px; font-size: 14px; border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1))); cursor: pointer; transition: 0.25s ease; background: var(--bg); color: var(--text); border: 1px solid var(--border);">Input Username</button>
+
+  </section>
+  <section class="adContainer bottom" style="justify-content: center; align-items: center; width: 50%;">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px;">Current Latin Course: <span id="course-notif"></span></div>
+        <div class='course-interact' style= "background-color: var(--bg);border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px;">Select your current course!</div>
+        <div style="display: flex; flex-direction:column; align-items: left; justify-content: center;">
+          <ul id="courseButtonList" style="list-style:none; padding:0; margin:0;"></ul>
+        </div>
+  </section>
+  <section class="adContainer bottom" id="chapterSelectSection" style="justify-content: center; align-items: center; width: 50%;">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px;">Current Chapter/Stage: <span id="chapter-notif"></span></div>
+        <div class='course-interact' style= "background-color: var(--bg);border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px;">Select the chapter/stage you're up to!</div>
+        <div style="display: flex; flex-direction:column; align-items: left; justify-content: center; margin-top: 8px;">
+            <select id="chapterSelect" style="padding: 8px 12px; border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1))); border: 1px solid var(--border); background-color: var(--bg); color: var(--text); font-size: 14px;"></select>
+            <div id="chapterRangeInputs" style="display:none; align-items:center; gap:8px; font-size:14px;">
+                <label style="color:var(--muted);">Min <input type="number" id="chapterRangeMin" min="1" style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background-color:var(--bg); color:var(--text);"></label>
+                <label style="color:var(--muted);">Max <input type="number" id="chapterRangeMax" min="1" style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background-color:var(--bg); color:var(--text);"></label>
+            </div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 8px; max-width: 260px;">This limits which vocab you'll be tested on in the Vocabulary Tester and Flashcards to what you've covered so far.</div>
+        </div>
+  </section>
+  </div>
+  <section class="adContainer bottom">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px;">Level</div>
+        <div class="ads">
+            <div class="ad adz">Current Level: <div class='score' id="level">Calculate XP to find out your stats!</div></div>
+            <div class="ad adz">Total XP: <div class='score' id="xp">-</div></div>
+        </div>
+        <div class="xp-bar" style="height: fit-content; width: 100%; border: 1px solid var(--border); border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1))); background-color: var(--bg); margin: 10px 0px 10px 0px;">
+          <strong><div class="xp-bar-fill" style="height:30px; color: var(--text); background-color:var(--greenpop);border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1))); width: 0%;"></div></strong>
+        </div>
+        <button onclick="calculateXP(false)" style="padding: 10px 14px; font-size: 14px; border: none; border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1))); cursor: pointer; transition: 0.25s ease; background: var(--bg); color: var(--text); border: 1px solid var(--border);">Calculate XP</button>
+        <div class="ads xp-factors" style="flex-wrap: wrap;">
+            <div class="ad xp-factor">Tests: <div class='score' id="xp-tests">-</div></div>
+            <div class="ad xp-factor">Vocab Progress: <div class='score' id="xp-vocab">-</div></div>
+            <div class="ad xp-factor">Grammar Progress: <div class='score' id="xp-grammar">-</div></div>
+            <div class="ad xp-factor">Study Hours: <div class='score' id="xp-hours">-</div></div>
+            <div class="ad xp-factor">Daily Logins: <div class='score' id="xp-daily">-</div></div>
+            <div class="ad xp-factor">Current Login Streak: <div class='score' id="xp-streak">-</div></div>
+            <div class="ad xp-factor">Achievements: <div class='score' id="xp-achievements">-</div></div>
+        </div>
+  </section>
+<section class="adContainer bottom" style="flex-wrap: wrap;">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 10px;">Dashboard</div>
+        <div class="ads xp-factors" style="flex-wrap: wrap;">
+            <div class="ad xp-factor"><span id="vocab-progress-label">Vocab Progress:</span><div class='score' id="div-vocab-completed"></div></div>
+            <div class="ad xp-factor">Grammar Progress:<div class='score' id="div-grammar-completed"></div></div>
+            <div class="ad xp-factor">Achievement Progress:<div class='score' id="div-achievement-completed"></div></div>
+            <div class="ad xp-factor">Questions Completed:<div class='score' id="div-questions-completed"></div></div>
+            <div class="ad xp-factor">Average Score:<div class='score' id="div-average-score"></div></div>
+            <div class="ad xp-factor">Tests Completed:<div class='score' id="div-tests-completed"></div></div>
+            <div class="ad xp-factor">Total Hours Studied:<div class='score' id="div-hours-studied"></div></div>
+            <div class="ad xp-factor">Total Login Days:<div class='score' id="div-login-days"></div></div>
+            <div class="ad xp-factor">Current Login Streak:<div class='score' id="div-login-streak"></div></div>
+            <div class="ad xp-factor">Longest Login Streak:<div class='score' id="div-longest-streak"></div></div>
+
+        </div>
+  </section>
+  <div class="dashboard-grid">
+    <section class="category-card">
+      <h2>Vocab</h2>
+      <div class="link-group">
+        <a href="./vocab/vocabTest.html" class="nav-button">Type-in Tester<span>→</span></a>
+        <a href="./flashcards.html" class="nav-button">Vocab Flashcards<span>→</span></a>
+        
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 5px;">Games</div>
+        <a href="./vocab/multiChoice.html" class="nav-button">Multi-choice Tester<span>→</span></a>
+        <a href="./vocab/hangman.html" class="nav-button">Hangman Game<span>→</span></a>
+        <a href="./vocab/scramble.html" class="nav-button">Anagram Scramble Game<span>→</span></a>
+        <a href="./vocab/scrabble.html" class="nav-button">Latin Scrabble<span>→</span></a>
+        <a href="https://latin-paintball-vocab-game.netlify.app/" class="nav-button">2D Paintball game<span>→</span></a>
+        <a href="./vocab/vocabData.html" class="nav-button">Vocab Database<span>→</span></a>
+      </div>
+    </section>
+    <section class="category-card">
+      <h2>Grammar</h2>
+      <div class="link-group">
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 5px;">Nouns</div>
+        <a href="nouns/allNounEnds.html" class="nav-button">Noun Endings Condensed<span>→</span></a>
+        <a href="pronouns/allPronouns.html" class="nav-button">Pronouns Condensed<span>→</span></a>
+        <div style="font-size: 12px; color: var(--muted); margin-bottom: 5px;">Verbs</div>
+        <a href="verbs/allVerbEnds.html" class="nav-button">Verb Endings Condensed<span>→</span></a>
+        <a href="verbs/allVerbEndsCustom1D.html" class="nav-button">All Verb Endings, 1D input<span>→</span></a>
+        <a href="verbs/allVerbEndsCustom2D.html" class="nav-button">All Verb Endings, 2D input<span>→</span></a>
+        <a href="grammarHome.html" class="nav-button">Verb Parser<span>→</span></a>
+      </div>
+    </section>
+
+    
+
+    
+    <section class="category-card">
+      <h2>Sample tests</h2>
+      <div class="link-group">
+
+        <a href="sampleTests/sampleTest1.html" class="nav-button">Sample test 1<span>→</span></a>
+        <div class= "nav-button"><em>Work in progress...</em></div>
+      </div>
+    </section>
+    <section class="category-card">
+      <h2>Personalised Info</h2>
+      <div class="link-group">
+        <a href="./testData.html" class="nav-button">View your tests<span>→</span></a>
+        <a href="./achievements.html" class="nav-button">Achievements homepage<span>→</span></a>
+      </div>
+    
+    </section>
+
+    <section class="category-card">
+      <h2>Other</h2>
+      <div class="link-group">
+        <a href="./music/music.html" class="nav-button">Music Track Library<span>→</span></a>
+        <a href="./archives/archivesHome.html" class="nav-button">Beta Archives homepage<span>→</span></a>
+        <a href="./about.html" class="nav-button">Credits & Info<span>→</span></a>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="adContainer bottom" id="themeSettingsSection">
+        <div class="collapsible-header" id="themeSettingsHeader">
+            <span class="collapse-arrow" id="themeSettingsArrow">▸</span>
+            <strong>⚙️ Theme Settings</strong>
+        </div>
+        <div id="themeSettingsBody" class="collapsible-hidden">
+            <p style="font-size:13px; color:var(--muted); margin: 10px 0 0;">
+                Customising: <strong id="themeSettingsCurrentTheme">Light</strong> – use the sidebar's theme button to switch and customise a different theme.
+            </p>
+
+            <div class="settingsGroup">
+                <div class="settingsGroupLabel">Presets</div>
+                <div class="settingsPresetRow" id="themePresetRow"></div>
+                <div class="settingsSaveRow">
+                    <input type="text" id="themePresetName" placeholder="Name your preset…" maxlength="24">
+                    <button type="button" class="settingsResetBtn" id="themePresetSave">Save current as preset</button>
+                </div>
+                <div class="settingsPresetMsg" id="themePresetMsg"></div>
+            </div>
+
+            <div class="settingsGroup">
+                <div class="settingsGroupLabel">Font</div>
+                <select id="themeFontSelect" class="settingsFontSelect">
+                    <option value="">System default (sans-serif)</option>
+                    <option value="classic">Classic serif (Playfair Display + Manrope)</option>
+                    <option value="inter">Inter</option>
+                    <option value="nunito">Nunito</option>
+                    <option value="quicksand">Quicksand</option>
+                    <option value="patrick-hand">Patrick Hand (handwritten)</option>
+                    <option value="cinzel">Cinzel (Roman inscription)</option>
+                    <option value="mono">Monospace (Consolas)</option>
+                    <option value="jetbrains-mono">JetBrains Mono</option>
+                    <option value="comic">Comic (Comic Sans MS)</option>
+                    <option value="chewy">Chewy (playful)</option>
+                </select>
+            </div>
+
+            <div class="settingsGroup">
+                <div class="settingsGroupLabel">Colours</div>
+                <div class="settingsColorRow">
+                    <label class="settingsColorItem">Background<input type="color" id="themeColorBg"></label>
+                    <label class="settingsColorItem">Cards<input type="color" id="themeColorCard"></label>
+                    <label class="settingsColorItem">Text<input type="color" id="themeColorText"></label>
+                    <label class="settingsColorItem">Accent<input type="color" id="themeColorAccent"></label>
+                    <label class="settingsColorItem">Border<input type="color" id="themeColorBorder"></label>
+                </div>
+                <div class="settingsPresetMsg">Muted text colour follows your Text + Background choice automatically.</div>
+            </div>
+
+            <div class="settingsGroup">
+                <div class="settingsGroupLabel">Shape</div>
+                <label class="settingsRadioRow"><input type="radio" name="radiusMode" id="radiusModeUniform"> All sides together</label>
+                <label class="settingsRadioRow"><input type="radio" name="radiusMode" id="radiusModePerCorner"> Each corner separately</label>
+
+                <div class="settingsRangeRow" id="radiusUniformRow">
+                    <span>Corner roundness</span>
+                    <input type="range" id="themeRadius" min="0" max="1.5" step="0.1">
+                    <span class="settingsRangeValue" id="themeRadiusValue">100%</span>
+                </div>
+
+                <div id="radiusCornerRows" class="collapsible-hidden">
+                    <div class="settingsRangeRow">
+                        <span>Top-left</span>
+                        <input type="range" id="radiusTL" min="0" max="1.5" step="0.1">
+                        <span class="settingsRangeValue" id="radiusTLValue">100%</span>
+                    </div>
+                    <div class="settingsRangeRow">
+                        <span>Top-right</span>
+                        <input type="range" id="radiusTR" min="0" max="1.5" step="0.1">
+                        <span class="settingsRangeValue" id="radiusTRValue">100%</span>
+                    </div>
+                    <div class="settingsRangeRow">
+                        <span>Bottom-right</span>
+                        <input type="range" id="radiusBR" min="0" max="1.5" step="0.1">
+                        <span class="settingsRangeValue" id="radiusBRValue">100%</span>
+                    </div>
+                    <div class="settingsRangeRow">
+                        <span>Bottom-left</span>
+                        <input type="range" id="radiusBL" min="0" max="1.5" step="0.1">
+                        <span class="settingsRangeValue" id="radiusBLValue">100%</span>
+                    </div>
+                </div>
+
+                <label class="settingsToggleRow"><input type="checkbox" id="themeBordersOn"> Show borders</label>
+                <label class="settingsToggleRow"><input type="checkbox" id="themeShadowOn"> Show card shadows</label>
+            </div>
+
+            <button type="button" class="settingsResetBtn" id="themeSettingsReset">Reset to theme defaults</button>
+        </div>
+  </section>
+</div>
+
+<script src="./vocab/vocabDataLSA.js"></script>
+<script src="./vocab/vocabData.js"></script>
+<script src="./verbs/grammarData.js"></script>
+<script src="./achievementData.js"></script>
+<script>
+  let divVocabCompleted = document.getElementById("div-vocab-completed");
+  let divGrammarCompleted = document.getElementById("div-grammar-completed");
+  let divAchievementCompleted = document.getElementById("div-achievement-completed");
+  let divTestsCompleted = document.getElementById("div-tests-completed");
+  let divQuestionsCompleted = document.getElementById("div-questions-completed");
+  let divBestLoginStreak = document.getElementById("div-longest-streak");
+  let divAverageScore = document.getElementById("div-average-score");
+  let divHoursStudied = document.getElementById("div-hours-studied");
+  let divLoginDays = document.getElementById("div-login-days");
+  let divLoginStreak = document.getElementById("div-login-streak");
+  let divUsernameInput = document.querySelector(".username-input");
+  let divUsernameInteract = document.querySelector(".username-interact");
+  let username = localStorage.getItem("username") || ""; //username is a single string value
+loadVocab();
+  function updateVocabProgressDisplay(){
+    const course = getActiveCourse();
+    const cappedList = filterVocabUpToChapter(getCourseWords(course), course);
+
+    let vocabCount = 0;
+    cappedList.forEach(word => {
+      if (isWordLearned(vocabProgress["i" + word.index])) {
+        vocabCount += 1;
+      }
+    });
+    const vocabTotal = cappedList.length;
+
+    document.getElementById("vocab-progress-label").textContent = `${COURSES[course].short} Vocab Progress:`;
+    divVocabCompleted.textContent = vocabTotal
+      ? `${vocabCount}/${vocabTotal} → ${Math.round((vocabCount/vocabTotal)*100)}%`
+      : "0/0";
+  }
+
+  // Renders one button per course from the COURSES registry (vocab/vocabData.js)
+  // instead of hand-written per-course markup, and highlights the active one.
+  function renderCourseButtons(){
+    const active = getActiveCourse();
+    const list = document.getElementById("courseButtonList");
+    list.innerHTML = Object.values(COURSES).map(c => `
+      <li><div><button onclick="changeCourse('${c.key}')" data-course="${c.key}"
+        style="background-color: ${c.key === active ? "var(--greenpop)" : "var(--bg)"}; color: var(--text); border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1))); border: 1px solid var(--border); padding: 5px 10px; margin-bottom: 6px;">
+        ${c.label}
+      </button></div></li>
+    `).join("");
+
+    document.getElementById("course-notif").textContent = COURSES[active].label;
+  }
+
+  function populateChapterSelect(){
+    const course = getActiveCourse();
+    const courseInfo = COURSES[course];
+
+    document.getElementById("chapterSelectSection").style.display = courseInfo.hasSelector ? "" : "none";
+    if (!courseInfo.hasSelector) return;
+
+    const max = getMaxChapterForCourse(course);
+    const unitLabel = courseInfo.unitLabel;
+    const select = document.getElementById("chapterSelect");
+    const rangeInputs = document.getElementById("chapterRangeInputs");
+
+    if (courseInfo.filterType === "range") {
+      select.style.display = "none";
+      rangeInputs.style.display = "flex";
+
+      const range = getProgressRange(course);
+      const minInput = document.getElementById("chapterRangeMin");
+      const maxInput = document.getElementById("chapterRangeMax");
+      minInput.min = 1; minInput.max = max;
+      maxInput.min = 1; maxInput.max = max;
+      minInput.value = range.min;
+      maxInput.value = range.max;
+
+      document.getElementById("chapter-notif").textContent = `${unitLabel} ${range.min}–${range.max}`;
+      return;
+    }
+
+    select.style.display = "";
+    rangeInputs.style.display = "none";
+
+    const current = getProgressChapter(course);
+    select.innerHTML = "";
+    for (let i = 1; i <= max; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      // The last option for CLC/DR is one past the course's real last
+      // stage/chapter - a placeholder for "grammar endings this course
+      // never actually covers" (see vocabData.js's MAX_CHAPTER_BY_COURSE),
+      // so it gets its own label rather than looking like a normal
+      // stage/chapter.
+      option.textContent = (i === max)
+        ? `${unitLabel} ${i} — grammar not covered by ${courseInfo.short}`
+        : `${unitLabel} ${i}`;
+      select.appendChild(option);
+    }
+    select.value = current;
+
+    document.getElementById("chapter-notif").textContent = `${unitLabel} ${current}`;
+  }
+
+  document.getElementById("chapterSelect").addEventListener("change", function(){
+    const course = getActiveCourse();
+    setProgressChapter(course, this.value);
+
+    document.getElementById("chapter-notif").textContent = `${COURSES[course].unitLabel} ${this.value}`;
+
+    updateVocabProgressDisplay();
+    pickWordOfTheDay(false);
+  });
+
+  function handleRangeInputChange(){
+    const course = getActiveCourse();
+    const max = getMaxChapterForCourse(course);
+    let min = parseInt(document.getElementById("chapterRangeMin").value, 10) || 1;
+    let rawMax = parseInt(document.getElementById("chapterRangeMax").value, 10) || max;
+    min = Math.min(Math.max(min, 1), max);
+    rawMax = Math.min(Math.max(rawMax, 1), max);
+
+    setProgressRange(course, Math.min(min, rawMax), Math.max(min, rawMax));
+
+    const range = getProgressRange(course);
+    document.getElementById("chapter-notif").textContent = `${COURSES[course].unitLabel} ${range.min}–${range.max}`;
+
+    updateVocabProgressDisplay();
+    pickWordOfTheDay(false);
+  }
+
+  document.getElementById("chapterRangeMin").addEventListener("change", handleRangeInputChange);
+  document.getElementById("chapterRangeMax").addEventListener("change", handleRangeInputChange);
+
+  function update(){
+    updateVocabProgressDisplay();
+
+    let grammarCount = 0;
+    let grammarTotal = 0;
+    let grammarProgress = JSON.parse(localStorage.getItem("latinGrammarProgress"));
+      for (let prop in grammarProgress){
+        if (isEndingLearned(grammarProgress[prop])){
+          grammarCount+=1;
+        }
+        grammarTotal+=1;
+      }
+      divGrammarCompleted.textContent=`${grammarCount}/${grammarTotal} → ${Math.round((grammarCount/grammarTotal)*100)}%`;
+      let achievementCount=0;
+      let achievementTotal=0;
+      for (let prop in achievementProgress){
+        if (achievementProgress[prop]===true){
+          achievementCount+=1;
+        }
+        achievementTotal+=1;
+      }
+      divAchievementCompleted.textContent=`${achievementCount}/${achievementTotal} → ${Math.round((achievementCount/achievementTotal)*100)}%`;
+      
+      let testHistory = JSON.parse(localStorage.getItem("latinHistory")) ||[];
+
+      divTestsCompleted.textContent = testHistory.length; 
+
+    let questionTotal=0;
+    let scoreTotal=0;
+    let highestScore = 0;
+      for (let test of testHistory){
+        questionTotal+=test.total;
+        scoreTotal+=test.score;
+        if (highestScore < test.percent){
+          highestScore = test.percent;
+        }
+      }
+      let averageScore = (scoreTotal/Math.max(questionTotal, 1))*100;
+      divQuestionsCompleted.textContent = questionTotal;
+      divAverageScore.textContent = scoreTotal +"/"+questionTotal + " → "+Math.floor(averageScore*10)/10+"%";
+      //divHighestScore.textContent = highestScore;
+      
+
+    let studySeconds = Number(localStorage.getItem("studySeconds")) || 0;
+      let studyHours = (studySeconds / 3600).toFixed(1);
+      divHoursStudied.textContent = studyHours;
+
+
+    if (username ===""){
+      divUsernameInput.placeHolder = "Input username here...";
+      divUsernameInteract.textContent = "Type in your username; I'll remember it!";
+    }else{
+      divUsernameInput.placeHolder = "Change username here...";
+      divUsernameInteract.textContent = "Current username: '"+username+"'. Type here to change it.";
+    }
+    divLoginStreak.textContent = getLoginStreaks().current;
+  divBestLoginStreak.textContent = getLoginStreaks().longest;
+  divLoginDays.textContent = JSON.parse(localStorage.getItem('savedLogins')).length;
+  renderCourseButtons();
+
+  console.log("stats have been updated.");
+  }
+  
+
+  function usernameUpdate(){
+    
+    username=divUsernameInput.value;
+    localStorage.setItem("username", username);
+    update();
+    rerenderUsername();
+    console.log("New username is: " + username);
+  }
+
+  function changeCourse(course){
+    localStorage.setItem('activeCourse', Object.prototype.hasOwnProperty.call(COURSES, course) ? course : 'dr');
+    console.log("new course is: "+ localStorage.getItem('activeCourse'));
+    if (typeof window.refreshSidebarCourse === "function") window.refreshSidebarCourse();
+
+  loadVocab();
+  populateChapterSelect();
+  update();
+  pickWordOfTheDay(false);
+}
+populateChapterSelect();
+update();
+
+
+(function () {
+    const header = document.getElementById("themeSettingsHeader");
+    const body = document.getElementById("themeSettingsBody");
+    const arrow = document.getElementById("themeSettingsArrow");
+    const currentThemeLabel = document.getElementById("themeSettingsCurrentTheme");
+    const fontSelect = document.getElementById("themeFontSelect");
+    const colorBg = document.getElementById("themeColorBg");
+    const colorCard = document.getElementById("themeColorCard");
+    const colorText = document.getElementById("themeColorText");
+    const colorAccent = document.getElementById("themeColorAccent");
+    const radiusInput = document.getElementById("themeRadius");
+    const radiusValue = document.getElementById("themeRadiusValue");
+    const radiusModeUniform = document.getElementById("radiusModeUniform");
+    const radiusModePerCorner = document.getElementById("radiusModePerCorner");
+    const radiusUniformRow = document.getElementById("radiusUniformRow");
+    const radiusCornerRows = document.getElementById("radiusCornerRows");
+    const bordersToggle = document.getElementById("themeBordersOn");
+    const shadowToggle = document.getElementById("themeShadowOn");
+    const colorBorder = document.getElementById("themeColorBorder");
+    const resetBtn = document.getElementById("themeSettingsReset");
+    const presetRow = document.getElementById("themePresetRow");
+    const presetNameInput = document.getElementById("themePresetName");
+    const presetSaveBtn = document.getElementById("themePresetSave");
+    const presetMsg = document.getElementById("themePresetMsg");
+
+    header.addEventListener("click", () => {
+        const isHidden = body.classList.toggle("collapsible-hidden");
+        arrow.textContent = isHidden ? "▸" : "▾";
+    });
+
+    function cssVarValue(name) {
+        // Read off <body>, not <html> - theme.css's body.dark/body.ancient-
+        // rome overrides only resolve on <body> and its descendants, so
+        // reading from <html> would always report the light-mode default.
+        return getComputedStyle(document.body).getPropertyValue(name).trim();
+    }
+
+    function updateSetting(key, value) {
+        const theme = getSavedTheme();
+        saveThemeSetting(theme, key, value);
+        applyThemeSettings(theme);
+    }
+
+    // Known colours for the 3 base themes, since a built-in preset (Light/
+    // Dark/Ancient Rome) has an EMPTY overrides object - its look comes from
+    // theme.css's body class, not from anything readable off a preset
+    // record. Layering a preset's own overrides on top of this lets every
+    // button preview its actual resulting colours without having to
+    // temporarily apply each theme just to read them.
+    const BASE_THEME_PREVIEW = {
+        light: { bg: "#f6f7fb", card: "#ffffff", text: "#1f2937", accent: "#4f46e5" },
+        dark: { bg: "#0f172a", card: "#1e293b", text: "#f1f5f9", accent: "#818cf8" },
+        "ancient-rome": { bg: "#241209", card: "#2f1b0f", text: "#f1e3c8", accent: "#d9713f" }
+    };
+
+    function renderPresets() {
+        const activeId = getActivePresetId();
+        presetRow.innerHTML = "";
+        getAllPresets().forEach(preset => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "settingsPresetBtn" + (preset.id === activeId ? " active" : "");
+
+            // Preview: this preset's own colours + font, layered over its
+            // base theme's defaults - never its border radius, which stays
+            // whatever the button's own CSS class uses.
+            const preview = { ...BASE_THEME_PREVIEW[preset.base], ...preset.overrides };
+            const fontDef = FONT_DEFS[preset.overrides && preset.overrides.font];
+            btn.style.background = preview.bg;
+            btn.style.color = preview.text;
+            btn.style.borderColor = preview.accent;
+            if (fontDef) btn.style.fontFamily = fontDef.sans;
+
+            const label = document.createElement("span");
+            label.textContent = (preset.id === activeId ? "✓ " : "") + preset.name;
+            btn.appendChild(label);
+
+            if (preset.deletable) {
+                const del = document.createElement("span");
+                del.className = "settingsPresetDelete";
+                del.textContent = "×";
+                del.title = "Delete this preset";
+                del.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    deleteCustomPreset(preset.id);
+                    presetMsg.textContent = `Deleted "${preset.name}".`;
+                    populatePanel();
+                });
+                btn.appendChild(del);
+            }
+
+            btn.addEventListener("click", () => {
+                selectPreset(preset.id);
+                presetMsg.textContent = "";
+                populatePanel();
+            });
+
+            presetRow.appendChild(btn);
+        });
+    }
+
+    presetSaveBtn.addEventListener("click", () => {
+        const result = saveCurrentAsPreset(presetNameInput.value);
+        if (result.ok) {
+            presetNameInput.value = "";
+            presetMsg.textContent = `Saved "${result.preset.name}".`;
+            renderPresets();
+        } else {
+            presetMsg.textContent = result.reason;
+        }
+    });
+
+    function populatePanel() {
+        const theme = getSavedTheme();
+        const settings = getThemeSettings(theme);
+        const activePreset = getPresetById(getActivePresetId());
+        currentThemeLabel.textContent = activePreset ? activePreset.name : THEME_META[theme].label;
+        renderPresets();
+
+        fontSelect.value = settings.font || "";
+
+        colorBg.value = settings.bg || cssVarValue("--bg");
+        colorCard.value = settings.card || cssVarValue("--card");
+        colorText.value = settings.text || cssVarValue("--text");
+        colorAccent.value = settings.accent || cssVarValue("--accent");
+        colorBorder.value = settings.border || cssVarValue("--border");
+
+        const radius = typeof settings.radiusMult === "number" ? settings.radiusMult : 1;
+        radiusInput.value = radius;
+        radiusValue.textContent = Math.round(radius * 100) + "%";
+
+        const isPerCorner = settings.radiusMode === "perCorner";
+        radiusModeUniform.checked = !isPerCorner;
+        radiusModePerCorner.checked = isPerCorner;
+        radiusUniformRow.classList.toggle("collapsible-hidden", isPerCorner);
+        radiusCornerRows.classList.toggle("collapsible-hidden", !isPerCorner);
+
+        ["TL", "TR", "BR", "BL"].forEach(corner => {
+            const input = document.getElementById("radius" + corner);
+            const valueEl = document.getElementById("radius" + corner + "Value");
+            // Unset corners fall back to the uniform slider's value - same
+            // fallback chain the CSS itself uses (var(--radius-mult-tl,
+            // var(--radius-mult, 1))), so the sliders start from a sensible
+            // place the first time a user switches to per-corner mode.
+            const v = typeof settings["radius" + corner] === "number" ? settings["radius" + corner] : radius;
+            input.value = v;
+            valueEl.textContent = Math.round(v * 100) + "%";
+        });
+
+        bordersToggle.checked = settings.bordersOn !== false;
+        shadowToggle.checked = settings.shadowOn !== false;
+    }
+
+    fontSelect.addEventListener("change", () => updateSetting("font", fontSelect.value || null));
+    colorBg.addEventListener("input", () => updateSetting("bg", colorBg.value));
+    colorCard.addEventListener("input", () => updateSetting("card", colorCard.value));
+    colorText.addEventListener("input", () => updateSetting("text", colorText.value));
+    colorAccent.addEventListener("input", () => updateSetting("accent", colorAccent.value));
+    colorBorder.addEventListener("input", () => updateSetting("border", colorBorder.value));
+    radiusInput.addEventListener("input", () => {
+        const v = parseFloat(radiusInput.value);
+        radiusValue.textContent = Math.round(v * 100) + "%";
+        updateSetting("radiusMult", v === 1 ? null : v);
+    });
+    radiusModeUniform.addEventListener("change", () => {
+        updateSetting("radiusMode", null);
+        populatePanel();
+    });
+    radiusModePerCorner.addEventListener("change", () => {
+        updateSetting("radiusMode", "perCorner");
+        populatePanel();
+    });
+    ["TL", "TR", "BR", "BL"].forEach(corner => {
+        const input = document.getElementById("radius" + corner);
+        const valueEl = document.getElementById("radius" + corner + "Value");
+        input.addEventListener("input", () => {
+            const v = parseFloat(input.value);
+            valueEl.textContent = Math.round(v * 100) + "%";
+            updateSetting("radius" + corner, v);
+        });
+    });
+    bordersToggle.addEventListener("change", () => updateSetting("bordersOn", bordersToggle.checked ? null : false));
+    shadowToggle.addEventListener("change", () => updateSetting("shadowOn", shadowToggle.checked ? null : false));
+    resetBtn.addEventListener("click", () => {
+        const theme = getSavedTheme();
+        resetThemeSettings(theme);
+        applyThemeSettings(theme);
+        populatePanel();
+    });
+
+    // populatePanel() must run after applyTheme() has set the body class
+    // and inline theme-settings overrides, which happens in interact.js's
+    // own "load" listener - registered before this one, so by the time
+    // this fires the theme (and this page's own header/sidebar) are ready.
+    window.addEventListener("load", () => {
+        populatePanel();
+        const themeToggleBtn = document.getElementById("sbarThemeToggle");
+        if (themeToggleBtn) themeToggleBtn.addEventListener("click", populatePanel);
+    });
+})();
+
+/* =========================
+   WORD OF THE DAY
+   Same word persists across reloads within the same calendar day (and the
+   same course) - "Another" always forces a fresh pick and that becomes the
+   new persisted pick for the rest of today.
+========================= */
+function capitalise(str) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function pickWordOfTheDay(forceNew) {
+    const course = getActiveCourse();
+    const eligible = filterVocabUpToChapter(getCourseWords(course), course).filter(w => w.stage !== "0");
+
+    if (eligible.length === 0) {
+        document.getElementById("wordOfDayContent").textContent = "No words available yet!";
+        document.getElementById("wordOfDayMeaning").textContent = "Pick a course and stage above to get started.";
+        document.getElementById("wordOfDayTag").textContent = "";
+        return;
+    }
+
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const stored = JSON.parse(localStorage.getItem("wordOfTheDay") || "null");
+
+    let word;
+    if (!forceNew && stored && stored.date === todayKey && stored.course === course) {
+        word = eligible.find(w => w.index === stored.index) || eligible[Math.floor(Math.random() * eligible.length)];
+    } else {
+        word = eligible[Math.floor(Math.random() * eligible.length)];
+    }
+
+    localStorage.setItem("wordOfTheDay", JSON.stringify({ date: todayKey, course, index: word.index }));
+
+    document.getElementById("wordOfDayContent").textContent = word.latin.join(", ");
+    document.getElementById("wordOfDayMeaning").textContent = word.english.join(", ");
+    const stageTag = word.stage !== undefined ? `${COURSES[course].unitLabel} ${word.stage} · ` : "";
+    document.getElementById("wordOfDayTag").textContent =
+        `${stageTag}${capitalise(word.type)}${word.subtype ? " (" + word.subtype + ")" : ""}`;
+}
+
+function rerollWordOfDay() {
+    pickWordOfTheDay(true);
+}
+
+pickWordOfTheDay(false);
+
+
+/*
+NOTE:
+2D vocab paintball game also accessible at https://jamkv.itch.io/2d-latin-vocab-game 
+
+
+To Do: 
+- Fix the remaining space in 'tests completed' section of vocab & grammarHome test page
+- Filter the noun endings, word-specific, to accommodate current user stage/chapter
+
+
+Notes:
+- Everything is saved as a String
+
+Lines:
+  localStorage.setItem(key, value);
+  localStorage.setItem("darkMode", "true");
+
+  let dark = localStorage.getItem("darkMode");
+  //Now, dark = "true"; (Still string)
+
+  let dark = if(localStorage.getItem("darkMode")=="true");
+  let dark = localStorage.getItem("dark") === "true";
+  //Now, dark = true; (Actual boolean) 
+
+  localStorage.removeItem("darkMode");
+
+  localStorage.clear();
+
+  localStorage.setItem("history",JSON.stringify(history));
+    //setItem() can be used to first define a key & value, or cnage the value
+
+Arrays:
+  //Assume: let stages=[1,2,3,4];
+  localStorage.setItem("stages", JSON.stringify(stages));
+  //This saves "[1,2,3,4]" instead of "1,2,3,4"
+  JSON.parse(localStorage.getItem("history"))
+  //This retrievies localStorage and parses it  
+Objects:
+  //Assume: let player={
+    score:25,
+    darkMode:true
+    };
+  localStorage.setItem("player", JSON.stringify(player));
+  //This saves: "let player={ score:25, darkMode:true };"
+
+  If nothing is stored, use:
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+
+Use this everywhere:
+  function saveData(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function loadData(key, defaultValue) {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : defaultValue;
+  }
+
+
+Dates:
+  const now = new Date(); 
+  const thisDate = new Date("2026-06-20");
+  if(today>testDate){}      //Checks if 1st value is "later" than second
+  now.getFullYear()	        //2026
+  now.getMonth()	          //5 (June, start at 0 (January = 0))
+  now.getDate()	            //29 (29th of June)
+  now.getDay()	            //1 (Monday, start at 0 (January = 0))
+  now.getHours()	          //Hour (24hr)	17
+  now.getMinutes()	        //42 (Min)
+  now.getSeconds()	        //31 (Sec) 
+  now.toLocaleDateString()  //Australia: 29/06/2026, America: 06/29/2026
+  now.toLocaleTimeString()  //5:42:31 PM
+  now.toISOString();        //2026-06-29T07:42:31.112Z
+
+
+OFFICIAL NAME: LATIN STUDY AID
+ONE-LINE DESC: A Latin study website for students and educators of the Cambridge Latin Course and De Romanis Course
+
+DESC:
+  Hey everyone! I'm making the basis of a study website for the Cambridge Latin Course, a revision resource for this absolutely hellish language. It contains: 
+  - A vocab type-in tester, with all the words from stage 1-40 (about 888 words).
+  - A vocab dictionary/database, displaying the entire database in an organised and sortable table. The user can search specific words, or sort by stage or word type.
+  - Various grammar testers - one for noun endings, another for pronouns, and a few for the 672 verb endings. The frontends and table formatting for these can be altered by the user. 
+  - Different vocab games; for example, a Hangman or Unscramble game, multi-choice quizzes, etc.
+  - Achievements, test performance, Experience Points and Level system, multiple website themes. 
+I've  also included a multitude of other frontend, interactive, and personalised features, making this website more like a duolingo than a static app.
+
+FIRST DEVLOG:
+  Hey everyone! First devlog: I started making the basis of a study website for the Cambridge Latin Course, a revision resource for this absolutely hellish language.
+  Recently, I’ve added a few neat features to make the website more interactive.
+  - ‘Previous tests’ - The user can see the results of previous tests they’ve done on this website, saved to localStorage. The average percentage, standard deviation, highest test score, and total quesitons answered can be seen. Note that this function works only for the vocab type in, noun endings, pronoun, and verb endings tests
+  - Website colour themes - 2 different colour themes are available for all pages - light and dark mode, changeable by tickbox. The user preference is saved to localStorage, so they don’t have to change it each time.
+  - Achievements - the user can see what achievements they have and haven’t completed. The achievements are saved to loacalStorage, sorted by difficulty, and most definitely never end.
+  - Vocab and Verb grammar completion progress - the user can see what words/verb endings they have and haven’t answered correctly to in their history on this website, saved to localStorage.
+  - XP and level feature - the user can accumilate experience points and increase their level, by acing tests, ticking off more vocab words/verb endings, logging in daily, or unlocking achievements.
+  - Time-sensitive quotes - at the top of each page, the user can read a quote. Its attitude may be inspirational, friendly, witty, or reference ancient Roman scholars, depending on what page the user is on. Their comment also depends on what time of day it is, either chastising you to sleep or praising you as an early bird.
+  - Post-test Latin quotes - the user also gets a quote in Latin (from famous Roman history), and its english translation every time they finish a test, depending on how well they did. It’s randomly generated, so the same score won’t yield the same quote. it can be inspirational, encouraging of your failure, or pleased with your performance.
+  - Beta version archives - The user can access a multitude of scrapped pages that were either replaced or not needed as this project developed.  They’re unpolished; no dark mode, no localStorage.
+  - Sample tests - the user can access past test papers from my school, now digitalised. Currently there’s only one, but there might be more.
+  In the existing frontend, I used AI to help me with: composing the quotes, giving me some ideas, debugging or formatting, and make the colour scheme. I also used excel to help make the huge databases; for vocab, grammar, and achievements.
+  Overall, I’m happy with how this project is going! Next, I’m planning on imkplementing a lofi-beats playlist, where the user can listen to music running from the website itself.
+
+SECOND DEVLOG:
+Hey everyone! Second devlog: Recently, I added a universal feature to my Latin Study Aid website: the music playlist function.
+- Users can listen to music while they study
+- They can select music from a large 'music library homepage', referencing a database that consists of the genres lofi, lofi pop, and pop (no lyrics).
+- Like Spotify, users can access and change the music at the very bottom of their viewport, from any page in the website.
+- The music is public domain, selected from Pixabay, each referenced to the original creator by hyperlink from the music library homepage.
+Overall, I'm really happy about the direction of this project - and am currently running out of ideas, heh. I might ship this project soon, if I find nothing else to add. 
+
+THIRD DEVLOG:
+Hey everyone! Third devlog: Just today, I added a new page to my Latin Study Website - the flashcard feature.
+Users can now:
+- Flip through all 800+ latin words in the Cambridge Latin Course wordlist, in anki-style flippable flashcards
+- Filter out the wordlist by ‘stage’ and ‘type’, so they can focus their revision to what’s relevant to them
+I did this mostly by copying my previous code for the Type-in Vocab Tester, and simplifying it so that no input, other than the ‘reveal’ button, is needed to progress.
+On the side, I also cleaned up the index.html homepage, so that it can display more statistics and data about the user: tests completed, average score across all tests, longest login streak, total days logged in.
+Not only that, but I also fixed the position of the macron keyboard to the top left of the viewport, since my addition of the music player, at the bottom of the viewport, covered it.
+I had some trouble uploadng my changes to the project on github, due to the massive number of music files in the ./music folder - so I spent a lotta time uploading them individually.
+Next, I plan on making a seperate vocab database, but from the De Romanis Latin Course rather than the Cambride Latin Course, allowing for more diversity in the website.
+
+FORTH DEVLOG:
+Hey everyone! 
+Fourth devlog: After a LOT of time spent on Excel and Google spreadsheets, I finally composed the vocab database for the De Romanis Latin Course! I implemented this into the website, and now:
+- The user can choose which vocab set they want to learn; either the Cambridge Latin Course, or the De Romanis Course. 
+- The user can see the 'learning progress' for their vocab for each stage
+- The achievements have been altered to accommodate for the new vocab database
+Not only that, but I also added another feature; the Username.
+- After users enter their username on the dashboard/hopepage, it is saved to localStorage
+- Each page in the website greets the user by their username
+Having implemented all I can, I think I'm ready to ship my project soon. If I get no more ideas for this project, this might be my final devlog. Thanks, all of you, for reading!
+
+FIFTH DEVLOG:
+Hey everyone! 
+Fifth devlog: My Latin-language Study Aid is nearly done! Today, I was mainly cleaning up my code, fixing some bugs, cleaning up stylistic features, and getting ready to ship my project. I also uploaded my files to Github, as well as making the website public on netlify, at https://latin-study-aid.netlify.app/. 
+I also polished up the Google Sheets documents which I managed the massive databases on, cleaning it up for public use/viewing. After this devlog is posted, my devlog will likely have been shipped. Thanks for reading!
+
+GITHUB DESC:
+A modern, interactive study platform for students of the Cambridge Latin Course and De Romanis Latin Course.
+Rather than being a collection of static revision pages, Latin Study Aid aims to provide a complete learning experience. Built entirely with HTML, CSS and JavaScript (without frameworks), it combines vocabulary revision, grammar practice, progress tracking and gamification into a single website.
+Features:
+- Over 800 Latin vocabulary words across multiple courses
+- Multiple vocabulary revision modes including typing, multiple choice, flashcards, Hangman and word scramble
+- Grammar practice covering noun endings, pronouns and over 670 verb endings
+- Personal statistics, test history and learning progress
+- Achievement, XP and Level system
+- Multiple themes, dark mode and personalised greetings
+- Built-in study music player with a searchable music library
+- Automatic progress saving using localStorage
+- Macron input keyboard with Unicode normalisation
+- Interactive vocabulary databases with powerful filtering and searching
+Designed as a long-term educational project, the goal was to make studying Latin feel less like reading a textbook and more like using a modern learning platform.
+
+
+STARDANCE COMPETITION DESC:
+Latin is a subject with fantastic history — but not always fantastic study resources.
+I built this 'Latin Study Aid' website to make revision feel more engaging than flipping through vocabulary lists and pages of verb endings. Instead of a collection of isolated pages, I wanted it to feel like a complete learning platform, with persistent progress, achievements, statistics, music, multiple revision modes, and personalised features that encourage students to keep coming back.
+The project is written entirely in HTML, CSS and JavaScript without using frameworks. Most pages are generated dynamically with Javascript from large databases, allowing new vocabulary, grammar and achievements to be added with minimal code changes.
+I'd say, the tallest hurdle in this project was the persistent bugs in Javascript, and the stylistic failures in CSS. Especially after implementing lage amounts of localStorage variables, debugging required looking over a multitude of scripts. I'd say, what I'm most proud of are the massive databases that I constructed - around 2400 Google Sheet rows were managed by me, accumilating super satisfyingly into ordered Javascript arrays and objects.
+Over the course of development, the project grew from a simple vocabulary tester into a multi-page, cohesive platform containing both the interactive resources for modern study, and many quality-of-life features, both designed specifically for studying Latin.
+
+The website can be easily accessed on a Netlify-hosted domain: https://latin-study-aid.netlify.app/.
+
+NETLIFY DESC:
+Latin Study Aid is an interactive revision platform for students studying the Cambridge Latin Course and De Romanis Latin Course.
+Featuring vocabulary games, flashcards, grammar practice, searchable databases, achievements, XP, statistics, progress tracking, music playback and personalised study tools, it transforms Latin revision into a modern, engaging learning experience.
+Built entirely with HTML, CSS and JavaScript.
+
+ITCH.IO DESC:
+Learn Latin—without the endless vocabulary lists.
+'Latin Study Aid' is a free educational web application designed to make revising Latin more interactive, rewarding and enjoyable.
+Instead of relying on static worksheets, you'll build your progress through achievements, XP, statistics, flashcards, multiple quiz modes and personalised study tools; all while listening to built-in study music.
+It includes:
+- Over 800 Latin vocabulary words
+- Two supported vocabulary courses (Cambridge Latin Course & De Romanis Course)
+- Multiple vocabulary games
+- Flashcards
+- Grammar revision
+- Progress tracking
+- Achievements & Levels
+- Test history & statistics
+- Built-in music player
+- Dark mode and multiple themes
+- Automatic progress saving
+Whether you're preparing for class, revising for exams or simply learning Latin for fun, Latin Study Aid aims to make studying feel engaging rather than repetitive.
+
+
+
+
+
+*/
+</script>
+</body>
+</html>

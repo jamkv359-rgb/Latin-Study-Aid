@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Latin Vocab Tester</title>
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f4f4f4;
+  color: #222;
+}
+
+h1, h2 {
+  margin-top: 0;
+}
+
+.controls label {
+  display: block;
+  margin: 6px 0;
+}
+
+button {
+  margin-top: 10px;
+  padding: 6px 12px;
+  font-size: 1em;
+}
+
+.hidden {
+  display: none;
+}
+
+#question {
+  font-size: 1.4em;
+  margin: 20px 0;
+}
+
+#feedback {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+#score {
+  margin-top: 10px;
+}
+
+/* 🌙 Dark mode */
+body.dark {
+  background: #121212;
+  color: #eee;
+}
+
+body.dark input,
+body.dark button {
+  background: #333;
+  color: #eee;
+  border: 1px solid #666;
+}
+.ad {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20%-10px);
+    margin: 10px 0px 10px 0px;
+}
+.ad:hover{
+    background: var(--bg);
+}
+
+
+  </style>
+</head>
+<body>
+
+<h1>Latin Vocabulary Tester</h1>
+<div class="ad" onclick="window.location.href='../archives/archivesHome.html'">← Back to Beta Archives homepage</div>
+<section class="controls">
+
+  <h2>Stages</h2>
+  <div id="stageCheckboxes"></div>
+
+  <h2>Word Types</h2>
+  <div id="typeCheckboxes"></div>
+
+  <label>
+    <input type="checkbox" id="directionToggle">
+    English → Latin
+  </label>
+
+  <label>
+    <input type="checkbox" id="noRepeatToggle">
+    Remove words once correct
+  </label>
+
+  <label>
+    <input type="checkbox" id="darkModeToggle">
+    Dark mode
+  </label>
+
+  <label>
+    <input type="checkbox" id="timerToggle">
+    Enable timer
+  </label>
+
+  <button id="startBtn">Start Test</button>
+
+</section>
+
+<section class="tester hidden">
+
+  <div id="timer"></div>
+
+  <div id="question"></div>
+
+  <input type="text" id="answerInput" autocomplete="off">
+  <button id="submitBtn">Submit</button>
+
+  <div id="feedback"></div>
+  <div id="score"></div>
+
+</section>
+
+</body>
+  <script>
+    const vocabData = [
+  // ===== STAGE 1 =====
+  { stage: 1, type: "noun", latin: "canis", english: "dog" },
+  { stage: 1, type: "noun", latin: "coquus", english: "cook" },
+  { stage: 1, type: "noun", latin: "filius", english: "son" },
+  { stage: 1, type: "noun", latin: "hortus", english: "garden" },
+  { stage: 1, type: "noun", latin: "mater", english: "mother" },
+  { stage: 1, type: "noun", latin: "pater", english: "father" },
+  { stage: 1, type: "noun", latin: "servus", english: "slave" },
+  { stage: 1, type: "noun", latin: "via", english: "street" },
+  { stage: 1, type: "verb", latin: "laboro", english: "work" },
+  { stage: 1, type: "verb", latin: "sedeo", english: "sit" },
+  { stage: 1, type: "verb", latin: "sum", english: "be" },
+  { stage: 1, type: "preposition", latin: "in", english: "in" },
+
+  // ===== STAGE 2 =====
+  { stage: 2, type: "noun", latin: "amicus", english: "friend" },
+  { stage: 2, type: "noun", latin: "ancilla", english: "slave girl" },
+  { stage: 2, type: "noun", latin: "cena", english: "dinner" },
+  { stage: 2, type: "noun", latin: "cibus", english: "food" },
+  { stage: 2, type: "noun", latin: "dominus", english: "master" },
+  { stage: 2, type: "noun", latin: "mercator", english: "merchant" },
+  { stage: 2, type: "verb", latin: "dormio", english: "sleep" },
+  { stage: 2, type: "verb", latin: "intro", english: "enter" },
+  { stage: 2, type: "verb", latin: "laudo", english: "praise" },
+  { stage: 2, type: "verb", latin: "saluto", english: "greet" },
+  { stage: 2, type: "adjective", latin: "laetus", english: "happy" },
+  { stage: 2, type: "adverb", latin: "quoque", english: "too, also" },
+
+  // ===== STAGE 3 =====
+  { stage: 3, type: "noun", latin: "ianua", english: "door" },
+  { stage: 3, type: "noun", latin: "leo", english: "lion" },
+  { stage: 3, type: "noun", latin: "navis", english: "ship" },
+  { stage: 3, type: "noun", latin: "taberna", english: "shop" },
+  { stage: 3, type: "noun", latin: "vinum", english: "wine" },
+  { stage: 3, type: "verb", latin: "bibo", english: "drink" },
+  { stage: 3, type: "verb", latin: "circumspecto", english: "look round" },
+  { stage: 3, type: "verb", latin: "clamo", english: "shout" },
+  { stage: 3, type: "verb", latin: "exeo", english: "go out" },
+  { stage: 3, type: "verb", latin: "expecto", english: "wait for" },
+  { stage: 3, type: "verb", latin: "porto", english: "carry" },
+  { stage: 3, type: "verb", latin: "respondeo", english: "reply" },
+  { stage: 3, type: "verb", latin: "rideo", english: "laugh" },
+  { stage: 3, type: "verb", latin: "surgo", english: "get up" },
+  { stage: 3, type: "verb", latin: "video", english: "see" },
+  { stage: 3, type: "adjective", latin: "iratus", english: "angry" },
+  { stage: 3, type: "adjective", latin: "magnus", english: "great" },
+  { stage: 3, type: "adverb", latin: "non", english: "not" },
+  { stage: 3, type: "preposition", latin: "ad", english: "to, at" },
+
+  // ===== STAGE 4 =====
+  { stage: 4, type: "noun", latin: "anulus", english: "ring" },
+  { stage: 4, type: "noun", latin: "iudex", english: "judge" },
+  { stage: 4, type: "noun", latin: "mendax", english: "liar" },
+  { stage: 4, type: "noun", latin: "pecunia", english: "money" },
+  { stage: 4, type: "noun", latin: "poeta", english: "poet" },
+  { stage: 4, type: "noun", latin: "signum", english: "sign" },
+  { stage: 4, type: "verb", latin: "ago", english: "do" },
+  { stage: 4, type: "verb", latin: "coquo", english: "cook" },
+  { stage: 4, type: "verb", latin: "habeo", english: "have" },
+  { stage: 4, type: "verb", latin: "inquit", english: "says" },
+  { stage: 4, type: "verb", latin: "quaero", english: "search for" },
+  { stage: 4, type: "verb", latin: "reddo", english: "give back" },
+  { stage: 4, type: "verb", latin: "voco", english: "call" },
+  { stage: 4, type: "adjective", latin: "perterritus", english: "terrified" },
+  { stage: 4, type: "adverb", latin: "satis", english: "enough" },
+  { stage: 4, type: "preposition", latin: "e", english: "from" },
+
+  // ===== STAGE 5 =====
+  { stage: 5, type: "noun", latin: "agricola", english: "farmer" },
+  { stage: 5, type: "noun", latin: "clamor", english: "shout" },
+  { stage: 5, type: "noun", latin: "fabula", english: "story" },
+  { stage: 5, type: "noun", latin: "femina", english: "woman" },
+  { stage: 5, type: "noun", latin: "iuvenis", english: "young man" },
+  { stage: 5, type: "noun", latin: "puella", english: "girl" },
+  { stage: 5, type: "noun", latin: "senex", english: "old man" },
+  { stage: 5, type: "noun", latin: "turba", english: "crowd" },
+  { stage: 5, type: "noun", latin: "urbs", english: "city" },
+  { stage: 5, type: "verb", latin: "adsum", english: "be here" },
+  { stage: 5, type: "verb", latin: "ambulo", english: "walk" },
+  { stage: 5, type: "verb", latin: "audio", english: "hear" },
+  { stage: 5, type: "verb", latin: "contendo", english: "hurry" },
+  { stage: 5, type: "verb", latin: "curro", english: "run" },
+  { stage: 5, type: "verb", latin: "peto", english: "attack" },
+  { stage: 5, type: "verb", latin: "plaudo", english: "applaud" },
+  { stage: 5, type: "verb", latin: "specto", english: "watch" },
+  { stage: 5, type: "verb", latin: "sto", english: "stand" },
+  { stage: 5, type: "adjective", latin: "meus", english: "my" },
+  { stage: 5, type: "adjective", latin: "multi", english: "many" },
+  { stage: 5, type: "adjective", latin: "multus", english: "much" },
+  { stage: 5, type: "adjective", latin: "optimus", english: "excellent" },
+  { stage: 5, type: "adverb", latin: "hodie", english: "today" },
+
+  // ===== STAGE 6 =====
+  { stage: 6, type: "noun", latin: "cubiculum", english: "bedroom" },
+  { stage: 6, type: "noun", latin: "fur", english: "thief" },
+  { stage: 6, type: "noun", latin: "libertus", english: "freedman" },
+  { stage: 6, type: "noun", latin: "res", english: "thing" },
+  { stage: 6, type: "verb", latin: "absum", english: "be absent" },
+  { stage: 6, type: "verb", latin: "emo", english: "buy" },
+  { stage: 6, type: "verb", latin: "festino", english: "hurry" },
+  { stage: 6, type: "verb", latin: "pulso", english: "hit" },
+  { stage: 6, type: "verb", latin: "scribo", english: "write" },
+  { stage: 6, type: "verb", latin: "supero", english: "overpower" },
+  { stage: 6, type: "verb", latin: "vendo", english: "sell" },
+  { stage: 6, type: "verb", latin: "vitupero", english: "curse" },
+  { stage: 6, type: "adjective", latin: "fortis", english: "brave" },
+  { stage: 6, type: "adjective", latin: "parvus", english: "small" },
+  { stage: 6, type: "adjective", latin: "tuus", english: "your" },
+  { stage: 6, type: "adverb", latin: "ferociter", english: "fiercely" },
+  { stage: 6, type: "adverb", latin: "intente", english: "closely" },
+  { stage: 6, type: "adverb", latin: "olim", english: "once" },
+  { stage: 6, type: "adverb", latin: "postquam", english: "after/when" },
+  { stage: 6, type: "adverb", latin: "subito", english: "suddenly" },
+  { stage: 6, type: "adverb", latin: "tum", english: "then" },
+  { stage: 6, type: "preposition", latin: "per", english: "through" },
+
+  // ===== STAGE 7 =====
+  { stage: 7, type: "noun", latin: "nihil", english: "nothing" },
+  { stage: 7, type: "verb", latin: "ceno", english: "dine" },
+  { stage: 7, type: "verb", latin: "conspicio", english: "catch sight of" },
+  { stage: 7, type: "verb", latin: "facio", english: "make/do" },
+  { stage: 7, type: "verb", latin: "intellego", english: "understand" },
+  { stage: 7, type: "verb", latin: "lacrimo", english: "cry" },
+  { stage: 7, type: "verb", latin: "narro", english: "tell" },
+  { stage: 7, type: "verb", latin: "neco", english: "kill" },
+  { stage: 7, type: "verb", latin: "paro", english: "prepare" },
+  { stage: 7, type: "verb", latin: "rogo", english: "ask" },
+  { stage: 7, type: "verb", latin: "terreo", english: "frighten" },
+  { stage: 7, type: "adjective", latin: "ingens", english: "huge" },
+  { stage: 7, type: "adjective", latin: "mortuus", english: "dead" },
+  { stage: 7, type: "adjective", latin: "omnis", english: "all" },
+  { stage: 7, type: "adverb", latin: "heri", english: "yesterday" },
+  { stage: 7, type: "adverb", latin: "tacite", english: "silently" },
+  { stage: 7, type: "adverb", latin: "tamen", english: "however" },
+  { stage: 7, type: "adverb", latin: "valde", english: "very much" },
+  { stage: 7, type: "preposition", latin: "cum", english: "with/when" },
+  { stage: 7, type: "preposition", latin: "prope", english: "near" },
+
+  // ===== STAGE 8 =====
+  { stage: 8, type: "noun", latin: "gladius", english: "sword" },
+  { stage: 8, type: "noun", latin: "nuntius", english: "messenger" },
+  { stage: 8, type: "noun", latin: "pes", english: "paw" },
+  { stage: 8, type: "noun", latin: "porta", english: "gate" },
+  { stage: 8, type: "noun", latin: "puer", english: "boy" },
+  { stage: 8, type: "noun", latin: "sanguis", english: "blood" },
+  { stage: 8, type: "noun", latin: "silva", english: "forest" },
+  { stage: 8, type: "noun", latin: "spectaculum", english: "spectacle" },
+  { stage: 8, type: "verb", latin: "agito", english: "chase" },
+  { stage: 8, type: "verb", latin: "comsumo", english: "eat" },
+  { stage: 8, type: "verb", latin: "duco", english: "lead, take" },
+  { stage: 8, type: "verb", latin: "postulo", english: "demand" },
+  { stage: 8, type: "verb", latin: "pugno", english: "fight" },
+  { stage: 8, type: "adjective", latin: "ferox", english: "fierce" },
+  { stage: 8, type: "adjective", latin: "ignavus", english: "lazy" },
+  { stage: 8, type: "adjective", latin: "totus", english: "whole" },
+  { stage: 8, type: "adverb", latin: "facile", english: "easily" },
+  { stage: 8, type: "adverb", latin: "saepe", english: "often" },
+  { stage: 8, type: "adverb", latin: "statim", english: "at once" },
+
+  // ===== STAGE 9 =====
+  { stage: 9, type: "noun", latin: "dies", english: "day" },
+  { stage: 9, type: "noun", latin: "homo", english: "human" },
+  { stage: 9, type: "noun", latin: "hospes", english: "guest" },
+  { stage: 9, type: "verb", latin: "agnosco", english: "recognise" },
+  { stage: 9, type: "verb", latin: "cupio", english: "want" },
+  { stage: 9, type: "verb", latin: "do", english: "give" },
+  { stage: 9, type: "verb", latin: "emitto", english: "send out" },
+  { stage: 9, type: "verb", latin: "fero", english: "bring" },
+  { stage: 9, type: "verb", latin: "inspicio", english: "inspect" },
+  { stage: 9, type: "verb", latin: "maneo", english: "remain" },
+  { stage: 9, type: "verb", latin: "offero", english: "offer" },
+  { stage: 9, type: "verb", latin: "ostendo", english: "show" },
+  { stage: 9, type: "verb", latin: "procedo", english: "proceed" },
+  { stage: 9, type: "verb", latin: "revenio", english: "return" },
+  { stage: 9, type: "verb", latin: "trado", english: "hand over" },
+  { stage: 9, type: "adjective", latin: "medius", english: "middle" },
+  { stage: 9, type: "adjective", latin: "pulcher", english: "beautiful" },
+  { stage: 9, type: "adverb", latin: "celeriter", english: "quickly" },
+  { stage: 9, type: "adverb", latin: "iterum", english: "again" },
+  { stage: 9, type: "adverb", latin: "mox", english: "soon" },
+  { stage: 9, type: "preposition", latin: "post", english: "after" },
+
+  // ===== STAGE 10 =====
+  { stage: 10, type: "noun", latin: "frater", english: "brother" },
+  { stage: 10, type: "noun", latin: "imperium", english: "empire" },
+  { stage: 10, type: "noun", latin: "liber", english: "book" },
+  { stage: 10, type: "noun", latin: "pax", english: "peace" },
+  { stage: 10, type: "noun", latin: "portus", english: "harbour" },
+  { stage: 10, type: "noun", latin: "uxor", english: "wife" },
+  { stage: 10, type: "verb", latin: "abeo", english: "go away" },
+  { stage: 10, type: "verb", latin: "accipio", english: "accept" },
+  { stage: 10, type: "verb", latin: "exclamo", english: "shout" },
+  { stage: 10, type: "verb", latin: "invenio", english: "find" },
+  { stage: 10, type: "verb", latin: "nuntio", english: "announce" },
+  { stage: 10, type: "verb", latin: "servo", english: "save" },
+  { stage: 10, type: "adjective", latin: "callidus", english: "clever" },
+  { stage: 10, type: "adjective", latin: "contentus", english: "satisfied" },
+  { stage: 10, type: "adjective", latin: "solus", english: "alone" },
+  { stage: 10, type: "adverb", latin: "semper", english: "always" },
+  { stage: 10, type: "adverb", latin: "vehementer", english: "violently" },
+  // ===== STAGE 11 =====
+  { stage: 11, type: "noun", latin: "civis", english: "citizen" },
+  { stage: 11, type: "noun", latin: "murus", english: "wall" },
+  { stage: 11, type: "noun", latin: "pugna", english: "fight" },
+  { stage: 11, type: "noun", latin: "senator", english: "senator" },
+  { stage: 11, type: "noun", latin: "vir", english: "man" },
+  { stage: 11, type: "verb", latin: "capio", english: "take/capture" },
+  { stage: 11, type: "verb", latin: "convenio", english: "gather" },
+  { stage: 11, type: "verb", latin: "credo", english: "trust" },
+  { stage: 11, type: "verb", latin: "eo", english: "go" },
+  { stage: 11, type: "verb", latin: "faveo", english: "favour" },
+  { stage: 11, type: "verb", latin: "invito", english: "invite" },
+  { stage: 11, type: "verb", latin: "lego", english: "read" },
+  { stage: 11, type: "verb", latin: "placeo", english: "please" },
+  { stage: 11, type: "verb", latin: "promitto", english: "promise" },
+  { stage: 11, type: "verb", latin: "verbero", english: "strike/beat" },
+  { stage: 11, type: "adjective", latin: "liberalis", english: "generous" },
+  { stage: 11, type: "adjective", latin: "primus", english: "first" },
+  { stage: 11, type: "adjective", latin: "sollicitus", english: "worried" },
+  { stage: 11, type: "adjective", latin: "stultus", english: "stupid" },
+  { stage: 11, type: "adverb", latin: "nunc", english: "now" },
+  { stage: 11, type: "preposition", latin: "de", english: "down from/about" },
+
+  // ===== STAGE 12 =====
+  { stage: 12, type: "noun", latin: "epistula", english: "letter" },
+  { stage: 12, type: "noun", latin: "flamma", english: "flame" },
+  { stage: 12, type: "noun", latin: "fundus", english: "farm" },
+  { stage: 12, type: "noun", latin: "mons", english: "mountain" },
+  { stage: 12, type: "noun", latin: "templum", english: "temple" },
+  { stage: 12, type: "noun", latin: "terra", english: "ground" },
+  { stage: 12, type: "verb", latin: "amitto", english: "lose" },
+  { stage: 12, type: "verb", latin: "compleo", english: "fill" },
+  { stage: 12, type: "verb", latin: "custodio", english: "guard" },
+  { stage: 12, type: "verb", latin: "fugio", english: "run away" },
+  { stage: 12, type: "verb", latin: "iaceo", english: "lie" },
+  { stage: 12, type: "verb", latin: "mitto", english: "send out" },
+  { stage: 12, type: "verb", latin: "sentio", english: "feel" },
+  { stage: 12, type: "verb", latin: "timeo", english: "fear" },
+  { stage: 12, type: "adjective", latin: "duo", english: "two" },
+  { stage: 12, type: "adjective", latin: "mirabilis", english: "strange" },
+  { stage: 12, type: "adjective", latin: "tres", english: "three" },
+  { stage: 12, type: "adjective", latin: "unus", english: "one" },
+  { stage: 12, type: "adverb", latin: "fortiter", english: "bravely" },
+  { stage: 12, type: "adverb", latin: "frustra", english: "in vain" },
+  { stage: 12, type: "adverb", latin: "iam", english: "now" },
+  { stage: 12, type: "adverb", latin: "optime", english: "very well" },
+  { stage: 12, type: "adverb", latin: "paene", english: "nearly" },
+  { stage: 12, type: "adverb", latin: "tandem", english: "at last" },
+
+  // ===== STAGE 13 =====
+  { stage: 13, type: "noun", latin: "aedificium", english: "building" },
+  { stage: 13, type: "noun", latin: "vita", english: "life" },
+  { stage: 13, type: "noun", latin: "custos", english: "guard" },
+  { stage: 13, type: "verb", latin: "advenio", english: "arrive" },
+  { stage: 13, type: "verb", latin: "canto", english: "sing" },
+  { stage: 13, type: "verb", latin: "dico", english: "say" },
+  { stage: 13, type: "verb", latin: "excito", english: "arouse" },
+  { stage: 13, type: "verb", latin: "interficio", english: "kill" },
+  { stage: 13, type: "verb", latin: "nolo", english: "not want" },
+  { stage: 13, type: "verb", latin: "possum", english: "be able" },
+  { stage: 13, type: "verb", latin: "ruo", english: "rush" },
+  { stage: 13, type: "verb", latin: "traho", english: "drag" },
+  { stage: 13, type: "verb", latin: "volo", english: "want" },
+  { stage: 13, type: "verb", latin: "vulnero", english: "wound" },
+  { stage: 13, type: "adjective", latin: "aeger", english: "sick" },
+  { stage: 13, type: "adjective", latin: "alter", english: "the other" },
+  { stage: 13, type: "adjective", latin: "ceteri", english: "the others" },
+  { stage: 13, type: "adjective", latin: "fessus", english: "tired" },
+  { stage: 13, type: "adjective", latin: "novus", english: "new" },
+  { stage: 13, type: "adjective", latin: "nullus", english: "no/not any" },
+  { stage: 13, type: "adjective", latin: "longus", english: "long" },
+
+  // ===== STAGE 14 =====
+  { stage: 14, type: "noun", latin: "aula", english: "palace" },
+  { stage: 14, type: "noun", latin: "deus", english: "god" },
+  { stage: 14, type: "noun", latin: "domina", english: "mistress" },
+  { stage: 14, type: "noun", latin: "donum", english: "gift" },
+  { stage: 14, type: "noun", latin: "maritus", english: "husband" },
+  { stage: 14, type: "noun", latin: "rex", english: "king" },
+  { stage: 14, type: "verb", latin: "attono", english: "astonish" },
+  { stage: 14, type: "verb", latin: "deleo", english: "destroy" },
+  { stage: 14, type: "adjective", latin: "decorus", english: "right" },
+  { stage: 14, type: "adjective", latin: "difficilis", english: "difficult" },
+  { stage: 14, type: "adjective", latin: "fidelis", english: "loyal" },
+  { stage: 14, type: "adjective", latin: "necesse", english: "necessary" },
+  { stage: 14, type: "adverb", latin: "cotidie", english: "every day" },
+  { stage: 14, type: "adverb", latin: "diligenter", english: "carefully" },
+  { stage: 14, type: "adverb", latin: "simulatque", english: "as soon as" },
+  { stage: 14, type: "preposition", latin: "apud", english: "among" },
+
+  // ===== STAGE 15 =====
+  { stage: 15, type: "noun", latin: "agmen", english: "column (of men)" },
+  { stage: 15, type: "noun", latin: "aqua", english: "water" },
+  { stage: 15, type: "noun", latin: "equus", english: "horse" },
+  { stage: 15, type: "noun", latin: "lectus", english: "couch" },
+  { stage: 15, type: "noun", latin: "litus", english: "sea-shore" },
+  { stage: 15, type: "noun", latin: "mare", english: "sea" },
+  { stage: 15, type: "noun", latin: "nauta", english: "sailor" },
+  { stage: 15, type: "noun", latin: "princeps", english: "chief" },
+  { stage: 15, type: "noun", latin: "sacerdos", english: "priest" },
+  { stage: 15, type: "noun", latin: "unda", english: "wave" },
+  { stage: 15, type: "verb", latin: "claudo", english: "shut" },
+  { stage: 15, type: "verb", latin: "debeo", english: "owe/should" },
+  { stage: 15, type: "verb", latin: "impedio", english: "hinder" },
+  { stage: 15, type: "verb", latin: "redeo", english: "return" },
+  { stage: 15, type: "verb", latin: "teneo", english: "hold" },
+  { stage: 15, type: "verb", latin: "vinco", english: "conquer" },
+  { stage: 15, type: "adjective", latin: "alius", english: "other" },
+  { stage: 15, type: "adjective", latin: "commodus", english: "convenient" },
+  { stage: 15, type: "adjective", latin: "miser", english: "miserable" },
+  { stage: 15, type: "adverb", latin: "etiam", english: "even" },
+  { stage: 15, type: "adverb", latin: "lente", english: "slowly" },
+
+  // ===== STAGES 16–25 CONTINUE IN SAME FILE =====
+
+];
+
+  </script>
+  <script>
+    let vocab = [];
+    let pool = [];
+    let current = null;
+    let score = 0;
+    let total = 0;
+    let timerInterval = null;
+    let timeLeft = 0;
+
+    /* 🔹 LOAD VOCAB FROM JS FILE */
+    vocab = vocabData;
+    buildCheckboxes();
+
+
+
+    /* 🔹 BUILD STAGE + TYPE CHECKBOXES */
+    function buildCheckboxes() {
+    const stages = [...new Set(vocab.map(v => v.stage))];
+    const types = [...new Set(vocab.map(v => v.type))];
+
+    const stageDiv = document.getElementById("stageCheckboxes");
+    const typeDiv = document.getElementById("typeCheckboxes");
+
+    stages.forEach(s => {
+        stageDiv.innerHTML += `<label><input type="checkbox" value="${s}" checked> ${s}</label>`;
+    });
+
+    types.forEach(t => {
+        typeDiv.innerHTML += `<label><input type="checkbox" value="${t}" checked> ${t}s</label>`;
+    });
+    }
+
+    /* 🔹 START TEST */
+    document.getElementById("startBtn").onclick = () => {
+        const selectedStages =
+            [...document.querySelectorAll("#stageCheckboxes input:checked")]
+            .map(cb => cb.value);
+
+        const selectedTypes =
+            [...document.querySelectorAll("#typeCheckboxes input:checked")]
+            .map(cb => cb.value);
+
+        pool = vocab.filter(v =>
+            selectedStages.includes(String(v.stage)) &&
+            selectedTypes.includes(v.type)
+        );
+
+        if (pool.length === 0) {
+            alert("No words selected!");
+            return;
+        }
+
+        score = 0;
+        total = 0;
+
+        document.querySelector(".tester").classList.remove("hidden");
+        nextQuestion();
+    };
+
+    /* 🔹 NEXT QUESTION */
+    function nextQuestion() {
+    if (pool.length === 0) {
+        document.getElementById("question").textContent = "Finished!";
+        return;
+    }
+
+    current = pool[Math.floor(Math.random() * pool.length)];
+    total++;
+
+    const englishToLatin = document.getElementById("directionToggle").checked;
+    document.getElementById("question").textContent =
+    englishToLatin ? current.english : current.latin;
+
+    document.getElementById("answerInput").value = "";
+    document.getElementById("feedback").textContent = "";
+
+    if (document.getElementById("timerToggle").checked) {
+        startTimer();
+    }
+    }
+
+    /* 🔹 SUBMIT ANSWER */
+    document.getElementById("submitBtn").onclick = () => {
+    const input = document.getElementById("answerInput").value.trim().toLowerCase();
+    const englishToLatin = document.getElementById("directionToggle").checked;
+    const correct =
+    String(englishToLatin ? current.latin : current.english).toLowerCase();
+
+    if (input === correct) {
+        score++;
+        document.getElementById("feedback").textContent = "✅ Correct!";
+        if (document.getElementById("noRepeatToggle").checked) {
+        pool = pool.filter(w => w !== current);
+        }
+    } else {
+        document.getElementById("feedback").textContent = `❌ Correct answer: ${correct}`;
+    }
+
+    document.getElementById("score").textContent = `Score: ${score} / ${total}`;
+
+    stopTimer();
+    setTimeout(nextQuestion, 700);
+    };
+
+    /* 🔹 TIMER */
+    function startTimer() {
+    stopTimer();
+    timeLeft = 10;
+    document.getElementById("timer").textContent = `Time: ${timeLeft}`;
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = `Time: ${timeLeft}`;
+        if (timeLeft <= 0) {
+        stopTimer();
+        nextQuestion();
+        }
+    }, 1000);
+    }
+
+    function stopTimer() {
+    clearInterval(timerInterval);
+    }
+
+    /* 🔹 DARK MODE */
+    document.getElementById("darkModeToggle").onchange = e => {
+    document.body.classList.toggle("dark", e.target.checked);
+    };
+
+  </script>
+</html>

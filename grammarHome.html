@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Verb Parser</title>
+  <link rel="stylesheet" href="theme.css">
+  <style>
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    transition: background 0.3s ease;
+  }
+
+  .title { margin-bottom: 14px; }
+  .title2 { margin-bottom: 12px; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: min(1000px, 100%);
+    justify-content: center;
+  }
+
+  .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .otherCheckBoxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+  }
+
+  .otherCheckBoxes label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 220px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .filterGrid{
+    display:flex;
+    flex-wrap:wrap;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .filterGroup {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: calc(33% - 37px);
+    margin: 10px;
+    box-sizing: border-box;
+  }
+
+  .filterGroup h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .filterGroup label {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
+    text-align: left;
+    padding: 3px 0;
+  }
+
+  @media (max-width: 700px) {
+    .filterGroup { width: calc(100% - 20px); }
+  }
+
+  .parseGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .parseField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 130px;
+  }
+
+  .parseField select {
+    padding: 10px 12px;
+  }
+
+  .allSelector {
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-right: 10px;
+  }
+
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .collapse-arrow {
+    display: inline-block;
+  }
+  .collapsible-hidden {
+    display: none !important;
+  }
+
+  button {
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    font-weight: 600;
+    font-family: inherit;
+  }
+
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+
+  #startBtn {
+    margin: 30px 0;
+    padding: 16px 40px;
+  }
+
+  .tester {
+    width: min(1000px, 100%);
+    text-align: center;
+    margin-top: 20px;
+  }
+  .result {
+    width: min(1000px, 100%);
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  #question {
+    margin: 20px 0;
+    color: var(--bluepop);
+  }
+
+  /* The verb form being parsed is the focal point of the test - give it
+     more visual weight than the small "Parse this verb form" label above it. */
+  .parse-word {
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  #feedback {
+    margin-top: 15px;
+    min-height: 1.5em;
+  }
+
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    min-width: 150px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .hidden { display: none; }
+</style>
+<script src="./interact.js"></script>
+</head>
+
+<body data-page-type="verb">
+    <img class="banner" src="banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+  <div style="margin-top: 10vh;" class = "title">Latin Verb Parser</div>
+  <div style="color:var(--muted); margin: 0px 0px 10px 0px"><span id="username-greet"></span>Choose which forms you want to practise, then parse each verb by its voice, tense, mood, person, number and conjugation~</div>
+  <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  <section class="controls">
+
+    <div class="bottom">
+        <div class = "title2 collapsible-header" id="filterHeader">Select Forms To Test</div>
+        <div id="filterBody">
+        <div class="filterGrid" id="filterGrid"></div>
+        </div>
+    </div>
+
+    <div class="bottom">
+        <div class = "title2 collapsible-header" id="otherHeader">Other</div>
+        <div id="otherBody">
+        <div class="checkBoxes otherCheckBoxes">
+            <label>
+                <input type="checkbox" id="noRepeatToggle">
+                Remove endings once correct
+            </label>
+            <label>
+                <input type="checkbox" id="weakEndingsToggle">
+                Only test endings I need to improve on
+            </label>
+            <label>
+                <input type="checkbox" id="timerToggle">
+                Enable timer
+            </label>
+            <label>
+                <input type="checkbox" id="endlessModeToggle" checked>
+                Endless mode (no length limit)
+            </label>
+            <label id="testLengthLabel">
+                Test length:
+                <input type="number" id="testLengthInput" min="1" value="20" style="width:64px; margin-left:6px; padding:6px 8px; border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1))); border:1px solid var(--border); background:var(--bg); color:var(--text);" disabled>
+            </label>
+        </div>
+        </div>
+    </div>
+  </section>
+
+ <button id="startBtn">Start Test</button>
+
+  <section class="tester hidden bottom">
+
+    <div id="timer"></div>
+
+    <div id="question">Press 'Start Test' to start!</div>
+
+    <div class="parseGrid" id="parseGrid"></div>
+
+    <button id="submitBtn">Submit</button>
+    <button id="stopTestBtn" type="button" style="background: var(--redpop); margin-left:10px;">Stop Test</button>
+
+    <div id="feedback"></div>
+    <div id="score"></div>
+
+  </section>
+
+  <section class="bottom" style="width: min(1000px, 100%); box-sizing: border-box; margin-top:15px; margin-bottom:15px;">
+    <div class="collapsible-header" id="endingsIncorrectHeader"><strong>Endings Incorrect</strong></div>
+    <div id="endingsIncorrectBody">
+        <div id="endingsIncorrectEmpty" style="color:var(--muted); font-size:14px; padding:8px 0;">No mistakes yet this test - keep it up!</div>
+        <table id="endingsIncorrectTable" style="width:100%; border-collapse:collapse; display:none;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">WORD</th>
+                    <th style="text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">CORRECT PARSE</th>
+                    <th style="text-align:center; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">TIMES INCORRECT</th>
+                </tr>
+            </thead>
+            <tbody id="endingsIncorrectRows"></tbody>
+        </table>
+    </div>
+  </section>
+
+<section class="result hidden" style="background: var(--card); border: 1px solid var(--border); border-radius: calc(16px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(16px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(16px * var(--radius-mult-br, var(--radius-mult, 1))) calc(16px * var(--radius-mult-bl, var(--radius-mult, 1))); padding: 20px; box-shadow: var(--shadow); box-sizing: border-box;margin-bottom:15px;">
+
+                <div class="collapsible-header" id="resultsHeader"><strong>Tests Completed</strong></div>
+                <div class="results" id="resultsBody" style="display: flex; flex-wrap: wrap; width: 100%; flex-direction: row;">
+
+                </div>
+
+                <style>.hidden{display:none;}</style>
+            </section>
+
+</body>
+<script src="./verbs/grammarData.js"></script>
+<script src="./achievementData.js"></script>
+<script>
+    let pool = [];
+    let current = null;
+    let score = 0;
+    let total = 0;
+    let timerInterval = null;
+    let timeLeft = 0;
+    let endingsIncorrectMap = {};
+    let cooldown = false;
+
+    /*
+        Single source of truth for the parsing taxonomy - used to build both
+        the filter checkboxes ("Select Forms To Test") and the answer
+        dropdowns, so the two can never drift out of sync with each other or
+        with the actual values used in grammarData.js (e.g. grammarData.js
+        uses "future perfect" with a space, not a hyphen).
+    */
+    const parseFields = [
+        { key: "voice", label: "Voice", options: ["active", "passive"] },
+        { key: "tense", label: "Tense", options: ["present", "imperfect", "future", "perfect", "pluperfect", "future perfect"] },
+        { key: "mood", label: "Mood", options: ["indicative", "subjunctive", "infinitive", "imperative", "participle"] },
+        { key: "person", label: "Person", options: ["1st", "2nd", "3rd", "-"] },
+        { key: "number", label: "Number", options: ["singular", "plural", "-"] },
+        { key: "conjugation", label: "Conjugation", options: ["1st", "2nd", "3rd", "4th"] }
+    ];
+
+    /* =========================
+       BUILD FILTER GRID
+    ========================= */
+    function buildFilterGrid() {
+        const container = document.getElementById("filterGrid");
+
+        container.innerHTML = parseFields.map(field => `
+            <div class="filterGroup">
+                <h3>${field.label}</h3>
+                ${field.options.map(opt => `
+                    <label><input type="checkbox" data-group="${field.key}" value="${opt}" checked>${opt === "-" ? "N/A (infinitives/participles)" : capitalise(opt)}</label>
+                `).join("")}
+            </div>
+        `).join("");
+    }
+
+    /* =========================
+       BUILD ANSWER DROPDOWNS
+    ========================= */
+    function buildParseGrid() {
+        const container = document.getElementById("parseGrid");
+
+        container.innerHTML = parseFields.map(field => `
+            <label class="parseField">
+                <span>${field.label}</span>
+                <select id="answer-${field.key}">
+                    <option value="">Choose…</option>
+                    ${field.options.map(opt => `<option value="${opt}">${opt === "-" ? "N/A" : capitalise(opt)}</option>`).join("")}
+                </select>
+            </label>
+        `).join("");
+    }
+
+    /* =========================
+       FILTER VISIBILITY
+       Hides checkboxes (and, if a whole group has none available, the group
+       box itself) for values that don't appear anywhere in grammarData.
+    ========================= */
+    function updateAvailableFilters() {
+        const availableForms = grammarData;
+
+        parseFields.forEach(field => {
+            const checkboxes = document.querySelectorAll(`[data-group="${field.key}"]`);
+            let anyVisible = false;
+
+            checkboxes.forEach(cb => {
+                const hasMatch = availableForms.some(form => form[field.key] === cb.value);
+                const label = cb.closest("label");
+                if (label) label.style.display = hasMatch ? "" : "none";
+                if (hasMatch) anyVisible = true;
+            });
+
+            const groupBox = checkboxes.length ? checkboxes[0].closest(".filterGroup") : null;
+            if (groupBox) groupBox.style.display = anyVisible ? "" : "none";
+        });
+    }
+
+    buildFilterGrid();
+    buildParseGrid();
+    updateAvailableFilters();
+    renderEndingsIncorrect();
+
+    /* =========================
+       HELPERS
+    ========================= */
+    function getSelectedValues(groupName) {
+        return [
+            ...document.querySelectorAll(`[data-group="${groupName}"]:checked`)
+        ].map(cb => cb.value);
+    }
+
+    function capitalise(str) {
+        if (!str) return "";
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function describeForm(form) {
+        const personNumber = (form.person !== "-" && form.number !== "-")
+            ? `${form.person} ${form.number}`
+            : "-";
+
+        return `${capitalise(form.voice)}, ${capitalise(form.tense)}, ${capitalise(form.mood)}, ${personNumber}, ${form.conjugation} conj.`;
+    }
+
+    /* =========================
+       START TEST
+    ========================= */
+    document.getElementById("startBtn").onclick = () => {
+
+        const voices = getSelectedValues("voice");
+        const tenses = getSelectedValues("tense");
+        const moods = getSelectedValues("mood");
+        const persons = getSelectedValues("person");
+        const numbers = getSelectedValues("number");
+        const conjugations = getSelectedValues("conjugation");
+
+        const weakEndingsOnly =
+            document.getElementById("weakEndingsToggle").checked;
+
+        pool = grammarData.filter(form => {
+
+            // Skip forms that do not actually exist
+            if (!form.word || form.word === "-") return false;
+
+            const match = (
+                voices.includes(form.voice) &&
+                tenses.includes(form.tense) &&
+                moods.includes(form.mood) &&
+                persons.includes(form.person) &&
+                numbers.includes(form.number) &&
+                conjugations.includes(form.conjugation)
+            );
+
+            const weakMatch =
+                !weakEndingsOnly ||
+                isWeakEnding(grammarProgress["i" + form.index]);
+
+            return match && weakMatch;
+        });
+
+        if (pool.length === 0) {
+
+            alert(
+                weakEndingsOnly
+                    ? "No endings needing improvement in this selection - nice work!"
+                    : "No matching grammar forms found."
+            );
+
+            return;
+        }
+
+        score = 0;
+        total = 0;
+
+        endingsIncorrectMap = {};
+        renderEndingsIncorrect();
+
+        document.querySelector(".tester").classList.remove("hidden");
+
+        nextQuestion();
+        document.getElementById("score").textContent = "";
+    };
+
+    /* =========================
+       NEXT QUESTION
+    ========================= */
+    function nextQuestion() {
+
+        const endlessMode = document.getElementById("endlessModeToggle").checked;
+        const testLength = parseInt(document.getElementById("testLengthInput").value, 10);
+        const hasValidLength = Number.isFinite(testLength) && testLength > 0;
+        const reachedTestLength = !endlessMode && hasValidLength && total >= testLength;
+
+        if (pool.length === 0 || reachedTestLength) {
+            finishTest();
+            return;
+        }
+
+        current = pool[Math.floor(Math.random() * pool.length)];
+
+        total++;
+
+        document.getElementById("question").innerHTML = `
+            <div style="font-size:14px;color:var(--muted);margin-bottom:8px; text-transform:none; font-weight:500;">
+                Parse this verb form
+            </div>
+            <div class="parse-word">${current.word}</div>
+        `;
+
+        parseFields.forEach(field => {
+            document.getElementById("answer-" + field.key).value = "";
+        });
+
+        document.getElementById("feedback").textContent = " - ";
+
+        if (document.getElementById("timerToggle").checked) {
+            startTimer();
+        }
+        cooldown = false;
+    }
+
+    /* =========================
+       FINISH TEST
+       (pool exhausted, test length reached, or the user hit Stop Test)
+    ========================= */
+    function finishTest() {
+
+        stopTimer();
+        document.querySelector(".tester").classList.add("hidden");
+
+        if (total === 0) {
+            // Nothing was actually attempted - nothing to record.
+            return;
+        }
+
+        document.querySelector(".result").classList.remove("hidden");
+
+        const resultColor = (score/total) > 0.8 ? "var(--greenpop)" : "var(--redpop)";
+        document.getElementById("resultsBody").innerHTML += `
+            <div style="width: calc(((100% - 40px) * 0.25) - 24px); border: 1px solid var(--border); background-color: ${resultColor}; color: #ffffff; border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); margin:5px; padding: 10px; box-sizing: border-box;">
+                <div id="score">${score}/${total} → ${Math.floor((score/total)*100)}%</div>
+                <div id="quotes">${calcScore(score, total)}</div>
+            </div>`;
+
+        const result = {
+            date: new Date().toISOString(),
+
+            testType: "Grammar",
+            page: document.title,
+
+            score,
+            total,
+            percent: Math.round(score/total*100),
+
+            quote: calcScore(score,total),
+
+            settings: {
+                voices: getSelectedValues("voice"),
+                tenses: getSelectedValues("tense"),
+                moods: getSelectedValues("mood"),
+                persons: getSelectedValues("person"),
+                numbers: getSelectedValues("number"),
+                conjugations: getSelectedValues("conjugation"),
+                timerEnabled: document.getElementById("timerToggle").checked,
+                noRepeatEnabled: document.getElementById("noRepeatToggle").checked,
+                weakEndingsEnabled: document.getElementById("weakEndingsToggle").checked,
+                endlessMode: document.getElementById("endlessModeToggle").checked,
+                testLength: document.getElementById("endlessModeToggle").checked ? null : parseInt(document.getElementById("testLengthInput").value, 10)
+            }
+        };
+
+        let history = JSON.parse(localStorage.getItem("latinHistory")) || [];
+        history.unshift(result);
+        localStorage.setItem("latinHistory", JSON.stringify(history));
+    }
+
+    /* =========================
+       SUBMIT ANSWER
+    ========================= */
+    document.getElementById("submitBtn").onclick = () => {
+        if (cooldown === false) {
+
+            const answers = {};
+            let allAnswered = true;
+
+            parseFields.forEach(field => {
+                const value = document.getElementById("answer-" + field.key).value;
+                answers[field.key] = value;
+                if (value === "") allAnswered = false;
+            });
+
+            if (allAnswered) {
+
+                const isCorrect = parseFields.every(
+                    field => answers[field.key] === current[field.key]
+                );
+
+                if (isCorrect) {
+                    score++;
+                    document.getElementById("feedback").textContent = "✅ Correct!";
+
+                    updateEndingCompletion(current, true);
+
+                    if (document.getElementById("noRepeatToggle").checked) {
+                        pool = pool.filter(w => w !== current);
+                    }
+                    setTimeout(nextQuestion, 700);
+                } else {
+                    document.getElementById("feedback").textContent =
+                        `❌ Correct parse: ${describeForm(current)}`;
+
+                    updateEndingCompletion(current, false);
+                    recordIncorrectEnding(current);
+
+                    document.getElementById("submitBtn").addEventListener("click", function nextQ(){
+                        nextQuestion();
+                        document.getElementById("submitBtn").removeEventListener("click", nextQ);
+                    });
+                }
+
+                document.getElementById("score").textContent = `Score: ${score} / ${total}`;
+                stopTimer();
+                cooldown = true;
+            }
+        }
+    };
+
+    /* =========================
+       STOP TEST
+    ========================= */
+    document.getElementById("stopTestBtn").onclick = () => {
+        stopTimer();
+
+        // Don't count the question currently on screen if it was never answered.
+        if (!cooldown && total > 0) {
+            total--;
+        }
+
+        finishTest();
+    };
+
+    /* =========================
+       TIMER
+    ========================= */
+    function startTimer() {
+
+        stopTimer();
+
+        timeLeft = 20;
+
+        document.getElementById("timer").textContent =
+            `Time: ${timeLeft}`;
+
+        timerInterval = setInterval(() => {
+
+            timeLeft--;
+
+            document.getElementById("timer").textContent =
+                `Time: ${timeLeft}`;
+
+            if (timeLeft <= 0) {
+
+                stopTimer();
+
+                handleTimeExpired();
+            }
+
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+
+    function handleTimeExpired() {
+        if (cooldown) return;
+
+        document.getElementById("feedback").textContent =
+            `⏱️ Time's up! Correct parse: ${describeForm(current)}`;
+
+        updateEndingCompletion(current, false);
+        recordIncorrectEnding(current);
+
+        document.getElementById("score").textContent = `Score: ${score} / ${total}`;
+
+        cooldown = true;
+        setTimeout(nextQuestion, 900);
+    }
+
+    /* =========================
+       ENDLESS MODE / TEST LENGTH
+    ========================= */
+    function updateTestLengthAvailability() {
+        const endless = document.getElementById("endlessModeToggle").checked;
+        document.getElementById("testLengthInput").disabled = endless;
+        document.getElementById("testLengthLabel").style.opacity = endless ? "0.5" : "1";
+    }
+    document.getElementById("endlessModeToggle").addEventListener("change", updateTestLengthAvailability);
+    updateTestLengthAvailability();
+
+    /* =========================
+       ENDING COMPLETION (correct/incorrect counts, saved to latinGrammarProgress)
+    ========================= */
+    function updateEndingCompletion(formObj, isCorrect) {
+        const key = "i" + formObj.index;
+
+        const entry = normalizeGrammarProgressEntry(grammarProgress[key]);
+        if (isCorrect) {
+            entry.correct += 1;
+        } else {
+            entry.incorrect += 1;
+        }
+
+        grammarProgress[key] = entry;
+        localStorage.setItem("latinGrammarProgress", JSON.stringify(grammarProgress));
+    }
+
+    /* =========================
+       ENDINGS INCORRECT (this test only)
+    ========================= */
+    function recordIncorrectEnding(formObj) {
+        const key = formObj.index;
+
+        if (!endingsIncorrectMap[key]) {
+            endingsIncorrectMap[key] = {
+                word: formObj.word,
+                parse: describeForm(formObj),
+                count: 0
+            };
+        }
+
+        endingsIncorrectMap[key].count++;
+        renderEndingsIncorrect();
+    }
+
+    function renderEndingsIncorrect() {
+        const rows = document.getElementById("endingsIncorrectRows");
+        const table = document.getElementById("endingsIncorrectTable");
+        const empty = document.getElementById("endingsIncorrectEmpty");
+
+        const entries = Object.values(endingsIncorrectMap)
+            .sort((a, b) => b.count - a.count);
+
+        if (entries.length === 0) {
+            rows.innerHTML = "";
+            table.style.display = "none";
+            empty.style.display = "";
+            return;
+        }
+
+        table.style.display = "";
+        empty.style.display = "none";
+
+        rows.innerHTML = entries.map(entry => `
+            <tr>
+                <td style="padding:8px 12px; border-bottom:1px solid var(--border); font-weight:700; color:var(--greenpop);">${entry.word}</td>
+                <td style="padding:8px 12px; border-bottom:1px solid var(--border);">${entry.parse}</td>
+                <td style="padding:8px 12px; border-bottom:1px solid var(--border); text-align:center; color:var(--redpop); font-weight:700;">${entry.count}</td>
+            </tr>
+        `).join("");
+    }
+
+    /* =========================
+       COLLAPSIBLE SECTIONS
+    ========================= */
+    function makeCollapsible(headerId, bodyId, startCollapsed = false) {
+        const header = document.getElementById(headerId);
+        const body = document.getElementById(bodyId);
+
+        if (!header || !body) return;
+
+        const arrow = document.createElement("span");
+        arrow.className = "collapse-arrow";
+        header.prepend(arrow);
+
+        let collapsed = startCollapsed;
+
+        function apply() {
+            body.classList.toggle("collapsible-hidden", collapsed);
+            arrow.textContent = collapsed ? "▶" : "▼";
+        }
+
+        header.addEventListener("click", () => {
+            collapsed = !collapsed;
+            apply();
+        });
+
+        apply();
+    }
+
+    makeCollapsible("filterHeader", "filterBody");
+    makeCollapsible("otherHeader", "otherBody");
+    makeCollapsible("endingsIncorrectHeader", "endingsIncorrectBody");
+    makeCollapsible("resultsHeader", "resultsBody");
+</script>
+
+</html>

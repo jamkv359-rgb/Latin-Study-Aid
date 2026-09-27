@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Latin Scrabble</title>
+  <link rel="stylesheet" href="../theme.css">
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .game-container {
+      padding: 2.5rem;
+      text-align: center;
+      width: min(480px, 92vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .score-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      margin-bottom: 1.5rem;
+    }
+
+    .scramble-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 0 1.2rem 0;
+      line-height: 1.2;
+    }
+
+    .scramble-title span {
+      display: block;
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .length-toggles {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .length-toggles label {
+      padding: 6px 14px;
+      cursor: pointer;
+    }
+
+    .wordle-board {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+
+    .wordle-row {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .tile {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      text-transform: uppercase;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .guess-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .guess-input {
+      flex: 1;
+      min-width: 0;
+      padding: 12px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .guess-row button {
+      padding: 12px 18px;
+      cursor: pointer;
+    }
+
+    .action-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .action-row .draw-btn {
+      width: 100%;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .give-up-btn {
+      padding: 8px 20px !important;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .scramble-message {
+      margin-top: 1.5rem;
+      line-height: 1.5;
+      min-height: 3em;
+    }
+
+    .hidden { display: none !important; }
+
+    .adContainer {
+      margin: 20px 0;
+      width: min(1000px, 100%);
+    }
+
+    .ads {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .ad {
+      padding: 10px;
+      flex: 1;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: calc(20% - 10px);
+      max-height: 20px;
+    }
+
+    .side, .bottom {
+      padding: 20px;
+      box-sizing: border-box;
+    }
+  </style>
+  <script src="../interact.js"></script>
+</head>
+<body data-page-type="vocab">
+<img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed; height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;">
+  <div style="margin-top: 15vh;" class="game-container">
+
+    <div class="score-badge">Points: 0</div>
+
+    <h1 class="scramble-title">
+      Latin Scrabble
+      <span><span id="username-greet"></span>Guess the Latin vocab word - Wordle style</span>
+    </h1>
+
+    <div class="otherCheckBoxes length-toggles" id="lengthToggles">
+      <label><input type="checkbox" class="length-toggle" value="5" checked> 5 letters</label>
+      <label><input type="checkbox" class="length-toggle" value="6" checked> 6 letters</label>
+      <label><input type="checkbox" class="length-toggle" value="7" checked> 7 letters</label>
+    </div>
+
+    <div class="wordle-board"></div>
+
+    <div class="guess-row hidden">
+      <input type="text" class="guess-input" placeholder="Type your guess..." autocomplete="off">
+      <button class="submit-btn primary">Guess</button>
+    </div>
+
+    <div class="action-row">
+      <button class="draw-btn primary">Draw random word</button>
+      <button class="giveup-btn give-up-btn hidden">Give up</button>
+    </div>
+
+    <p class="scramble-message">Choose your word lengths, then press "Draw random word" to start.</p>
+    <div class='interact' style= "background: var(--bg); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  </div>
+  <script src="../achievementData.js"></script>
+  <script src="./vocabDataLSA.js"></script>
+  <script src="./vocabData.js"></script>
+  <script>
+    const scoreDisplay = document.querySelector(".score-badge");
+    const boardEl = document.querySelector(".wordle-board");
+    const messageEl = document.querySelector(".scramble-message");
+    const lengthToggles = document.getElementById("lengthToggles");
+    const guessRow = document.querySelector(".guess-row");
+    const guessInput = document.querySelector(".guess-input");
+    const submitBtn = document.querySelector(".submit-btn");
+    const drawBtn = document.querySelector(".draw-btn");
+    const giveUpBtn = document.querySelector(".giveup-btn");
+
+    const MAX_GUESSES = 6;
+
+    let score = 0;
+    let currentWord = null;
+    let targetWord = "";
+    let guesses = [];
+
+    /* =========================
+    NORMALISE LATIN
+    (supports BOTH Unicode forms - same as vocab/scramble.html)
+    ========================== */
+
+    function normalizeLatin(str) {
+      return str
+        .toLowerCase()
+        .trim()
+        .replace(/ā/g, "a")
+        .replace(/ē/g, "e")
+        .replace(/ī/g, "i")
+        .replace(/ō/g, "o")
+        .replace(/ū/g, "u")
+        .replace(/ȳ/g, "y")
+        .replace(/ā/g, "a")
+        .replace(/ē/g, "e")
+        .replace(/ī/g, "i")
+        .replace(/ō/g, "o")
+        .replace(/ū/g, "u")
+        .replace(/ȳ/g, "y")
+        .normalize("NFC");
+    }
+
+    function capitalize(str) {
+      if (!str) return "";
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function splitChars(str) {
+      return Array.from(str.normalize("NFC"));
+    }
+
+    /* =========================
+    SAFE-WORD FILTER
+    Same as vocab/scramble.html/vocab/hangman.html's isSafeWord - excludes
+    punctuation AND spaces/hyphens (e.g. "-ne", "grātiās agere"), since a
+    single-word guessing game can't sensibly handle a multi-word phrase.
+    ========================== */
+
+    function hasUnsafeCharacters(str) {
+      return /[!?,.():+\-\s]/.test(str);
+    }
+
+    function isSafeWord(word) {
+      for (const l of word.latin) {
+        if (hasUnsafeCharacters(l)) return false;
+      }
+      for (const e of word.english) {
+        if (hasUnsafeCharacters(e)) return false;
+      }
+      return true;
+    }
+
+    /* =========================
+    DICTIONARY VALIDATION
+    Guesses must be a real Latin word - specifically, any form (not just the
+    nominative/first-listed one) of any entry in the ACTIVE COURSE'S WHOLE
+    database (`vocabData` itself, before filterVocabUpToChapter's stage cap
+    is applied), not just the words the user has reached so far. A student
+    should be able to guess a word they already know from a later chapter,
+    even though it would never be DRAWN as this round's target yet.
+    ========================== */
+
+    let dictionarySet = new Set();
+
+    function buildDictionarySet() {
+      const set = new Set();
+      vocabData.forEach(w => {
+        w.latin.forEach(form => set.add(normalizeLatin(form)));
+      });
+      return set;
+    }
+
+    /* =========================
+    SETTINGS
+    ========================== */
+
+    function getSelectedLengths() {
+      return [...document.querySelectorAll(".length-toggle:checked")]
+        .map(cb => parseInt(cb.value, 10));
+    }
+
+    /* =========================
+    UI STATE
+    Only the buttons/inputs that are actually actionable are ever shown -
+    "Draw random word" is idle/finished-only, "Guess" + the input are
+    playing-only, "Give up" is playing-only.
+    ========================== */
+
+    function setUIState(state) {
+      const playing = state === "playing";
+
+      drawBtn.classList.toggle("hidden", playing);
+      giveUpBtn.classList.toggle("hidden", !playing);
+      guessRow.classList.toggle("hidden", !playing);
+
+      lengthToggles.querySelectorAll("input").forEach(cb => cb.disabled = playing);
+    }
+
+    /* =========================
+    BOARD
+    ========================== */
+
+    function buildBoard(length) {
+      boardEl.innerHTML = "";
+      for (let r = 0; r < MAX_GUESSES; r++) {
+        const row = document.createElement("div");
+        row.className = "wordle-row";
+        row.dataset.row = r;
+
+        for (let c = 0; c < length; c++) {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          row.appendChild(tile);
+        }
+
+        boardEl.appendChild(row);
+      }
+    }
+
+    function renderGuessRow(rowIndex, guessLetters, result) {
+      const row = boardEl.querySelector(`.wordle-row[data-row="${rowIndex}"]`);
+      const tiles = row.querySelectorAll(".tile");
+
+      guessLetters.forEach((ch, i) => {
+        tiles[i].textContent = ch;
+        tiles[i].classList.add(`tile-${result[i]}`);
+      });
+    }
+
+    /* =========================
+    WORDLE SCORING
+    Two passes so duplicate letters are handled correctly: a repeated
+    guess letter only lights up "present" as many times as it actually
+    still occurs in the target after every exact match has claimed its copy.
+    ========================== */
+
+    function scoreGuess(guessLetters, targetLetters) {
+      const result = new Array(guessLetters.length).fill("absent");
+      const remaining = {};
+
+      guessLetters.forEach((ch, i) => {
+        if (ch === targetLetters[i]) {
+          result[i] = "correct";
+        } else {
+          remaining[targetLetters[i]] = (remaining[targetLetters[i]] || 0) + 1;
+        }
+      });
+
+      guessLetters.forEach((ch, i) => {
+        if (result[i] === "correct") return;
+        if (remaining[ch] > 0) {
+          result[i] = "present";
+          remaining[ch]--;
+        }
+      });
+
+      return result;
+    }
+
+    /* =========================
+    DRAW NEW WORD
+    ========================== */
+
+    function startRound() {
+      const lengths = getSelectedLengths();
+
+      if (lengths.length === 0) {
+        messageEl.textContent = "Select at least one word length.";
+        return;
+      }
+
+      const pool = filterVocabUpToChapter(vocabData)
+        .filter(isSafeWord)
+        .filter(w => lengths.includes(splitChars(normalizeLatin(w.latin[0])).length));
+
+      if (pool.length === 0) {
+        messageEl.textContent = "No words of that length in your current course/chapter selection.";
+        return;
+      }
+
+      currentWord = pool[Math.floor(Math.random() * pool.length)];
+      targetWord = normalizeLatin(currentWord.latin[0]);
+      guesses = [];
+      dictionarySet = buildDictionarySet();
+
+      buildBoard(targetWord.length);
+      guessInput.value = "";
+      guessInput.maxLength = targetWord.length;
+
+      messageEl.textContent = `Guess the ${targetWord.length}-letter Latin word! You have ${MAX_GUESSES} tries.`;
+      messageEl.style.color = "var(--muted)";
+
+      setUIState("playing");
+      guessInput.focus();
+    }
+
+    /* =========================
+    SUBMIT A GUESS
+    ========================== */
+
+    function submitGuess() {
+      const guess = normalizeLatin(guessInput.value);
+
+      if (guess.length !== targetWord.length) {
+        messageEl.textContent = `Enter a ${targetWord.length}-letter word.`;
+        messageEl.style.color = "var(--redpop)";
+        return;
+      }
+
+      if (!dictionarySet.has(guess)) {
+        messageEl.textContent = "Not a recognised Latin word - check your spelling and try again.";
+        messageEl.style.color = "var(--redpop)";
+        return;
+      }
+
+      const guessLetters = splitChars(guess);
+      const targetLetters = splitChars(targetWord);
+      const result = scoreGuess(guessLetters, targetLetters);
+
+      renderGuessRow(guesses.length, guessLetters, result);
+      guesses.push(guess);
+      guessInput.value = "";
+
+      if (guess === targetWord) {
+        const wordScore = (MAX_GUESSES - guesses.length + 1) * 10;
+        score += wordScore;
+        scoreDisplay.textContent = `Points: ${score}`;
+
+        messageEl.style.color = "var(--greenpop)";
+        messageEl.innerHTML = `
+          <strong>Optime!</strong> Solved in ${guesses.length} ${guesses.length === 1 ? "guess" : "guesses"} - +${wordScore} points<br>
+          Meaning: ${currentWord.english.join(", ")}
+        `;
+
+        updateWordCompletion(currentWord, true);
+        setUIState("finished");
+      } else if (guesses.length >= MAX_GUESSES) {
+        messageEl.style.color = "var(--redpop)";
+        messageEl.innerHTML = `
+          <strong>Out of guesses!</strong><br>
+          The word was: <strong>${targetWord}</strong><br>
+          Meaning: ${currentWord.english.join(", ")}
+        `;
+
+        updateWordCompletion(currentWord, false);
+        setUIState("finished");
+      } else {
+        const remaining = MAX_GUESSES - guesses.length;
+        messageEl.textContent = `${remaining} ${remaining === 1 ? "guess" : "guesses"} remaining.`;
+        messageEl.style.color = "var(--muted)";
+        guessInput.focus();
+      }
+    }
+
+    /* =========================
+    GIVE UP
+    ========================== */
+
+    function giveUp() {
+      messageEl.style.color = "var(--redpop)";
+      messageEl.innerHTML = `
+        <strong>Gave up.</strong><br>
+        The word was: <strong>${targetWord}</strong><br>
+        Meaning: ${currentWord.english.join(", ")}
+      `;
+
+      updateWordCompletion(currentWord, false);
+      setUIState("finished");
+    }
+
+    /* =========================
+    EVENTS
+    ========================== */
+
+    drawBtn.addEventListener("click", startRound);
+    submitBtn.addEventListener("click", submitGuess);
+    giveUpBtn.addEventListener("click", giveUp);
+
+    guessInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitGuess();
+      }
+    });
+
+    setUIState("idle");
+  </script>
+</body>
+</html>

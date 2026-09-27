@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Chewy is now loaded sitewide (as a selectable theme font) by
+       interact.js's ensureCustomFontsLoaded(), so this page's own
+       redundant direct import was removed. -->
+
+  <meta charset="UTF-8">
+ 
+  <title>Vocab Tester</title>
+  <link rel="stylesheet" href="../theme.css">
+  <style>
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    transition: background 0.3s ease;
+  }
+
+  .title { margin-bottom: 14px; }
+  .title2 { margin-bottom: 12px; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: min(1000px, 100%);
+    justify-content: center;
+  }
+
+  .side, .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .side { width: calc(50% - 10px); }
+  .bottom { width: 100%; }
+
+  .checkBoxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .checkBoxes label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .otherCheckBoxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+  }
+
+  .otherCheckBoxes label {
+    flex: 1 1 220px;
+    align-items: center;
+    padding: 8px 12px;
+  }
+
+  .allSelector {
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-right: 10px;
+  }
+  .selectByBook{
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top:10px;
+  }
+
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .collapse-arrow {
+    display: inline-block;
+  }
+  .collapsible-hidden {
+    display: none !important;
+  }
+
+  button {
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: calc(10px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(10px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(10px * var(--radius-mult-br, var(--radius-mult, 1))) calc(10px * var(--radius-mult-bl, var(--radius-mult, 1)));
+    font-weight: 600;
+    font-family: inherit;
+  }
+
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+
+  #startBtn {
+    margin: 30px 0;
+    padding: 16px 40px;
+  }
+
+  .tester {
+    width: min(1000px, 100%);
+    text-align: center;
+    margin-top: 20px;
+  }
+  .result {
+    width: min(1000px, 100%);
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  #question {
+    margin: 20px 0;
+  }
+
+  #answerInput {
+    width: 80%;
+    padding: 14px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .fullLengthInput {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .fullLengthInput:disabled {
+    opacity: 0.85;
+  }
+
+  .fullLengthFeedback {
+    margin-top: 4px;
+    min-height: 1.2em;
+  }
+
+  #feedback {
+    margin-top: 15px;
+    min-height: 1.5em;
+  }
+
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+  }
+
+  .ad {
+    padding: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: calc(20% - 10px);
+  }
+
+  .hidden { display: none; }
+  /* =========================
+    TYPE + SUBTYPE GROUPING
+    ========================= */
+
+    #typeCheckboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    }
+
+    .typeGroup {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    }
+
+    .typeHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 6px;
+    }
+
+    .subtypeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-left: 20px;
+    margin-top: 4px;
+    }
+
+    .subtypeLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    }
+
+    .typeHeader input,
+    .subtypeLabel input {
+    cursor: pointer;
+    }
+
+    #typeCheckboxes.checkBoxes {
+    display: flex;
+    flex-direction: column;
+    }
+
+    /* Each domain "cell" is a whole field group (heading + several
+       indented subdomain labels), not a single short word like the
+       plain .checkBoxes grid (120px columns) was designed for - that
+       squeezed every field box into unreadably narrow columns. Give
+       domains much wider columns and stop grid row-stretching so
+       shorter field boxes don't get pulled tall to match a longer
+       neighbour in the same row. */
+    #domainCheckboxes.checkBoxes {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    align-items: start;
+    }
+</style>
+<script src="../interact.js"></script>
+</head>
+
+<body data-page-type="vocab">
+    <img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+  <div style="margin-top: 10vh;" class = "title">Latin Vocabulary Tester</div>
+  <div style="color:var(--muted); margin: 0px 0px 10px 0px"><span id="username-greet"></span>Compose a word pool by selecting the stages and wordtypes you want; then, start testing you vocab~</div>
+  <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  <section class="controls">
+
+    <div class= "side side1">
+        <div class = "title2 collapsible-header" id="stagesHeader">Stages</div>
+        <div id="stagesBody">
+        <div class="checkBoxes" id="stageCheckboxes">
+        </div>
+        <button type="button" id="toggleStagesBtn" class="allSelector">
+            Deselect All
+        </button>
+
+        <div id="bookQuickSelectBlock">
+        <div style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:14px; margin-bottom:6px;">
+            Quick select by book
+        </div>
+        <div class = "book buttons" id="bookButtonsContainer" style="display:flex; flex-wrap:wrap; gap:8px;">
+        </div>
+        <div style="font-size:12px; color:var(--muted);margin-top:4px;">Click a book to select/deselect all its stages.</div>
+
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:14px; font-size:13px;">
+            <label for="upToBookSelect" style="color:var(--muted);">Select stages up to:</label>
+            <select id="upToBookSelect" style="padding:6px 8px; border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1))); border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                <option value="">Choose a book…</option>
+            </select>
+        </div>
+        </div>
+
+        <div id="stageRangeInputs" style="display:none; align-items:center; gap:8px; font-size:14px; margin-top:10px;">
+            <label style="color:var(--muted);">Min <input type="number" id="stageRangeMin" min="1" style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);"></label>
+            <label style="color:var(--muted);">Max <input type="number" id="stageRangeMax" min="1" style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);"></label>
+        </div>
+        </div>
+    </div>
+
+    <div class= "side side2">
+        <div class = "title2 collapsible-header" id="typesHeader">Word Types</div>
+        <div id="typesBody">
+        <div class="checkBoxes" id="typeCheckboxes">
+        </div>
+        <button type="button" id="toggleTypesBtn" class="allSelector">
+            Deselect All
+        </button>
+        </div>
+    </div>
+
+    <div class= "side side3">
+        <div class = "title2 collapsible-header" id="domainsHeader">Domains</div>
+        <div id="domainsBody">
+        <div class="checkBoxes" id="domainCheckboxes">
+        </div>
+        <button type="button" id="toggleDomainsBtn" class="allSelector">
+            Deselect All
+        </button>
+        </div>
+    </div>
+
+    <div class="bottom">
+        <div class = "title2 collapsible-header" id="otherHeader">Other</div>
+        <div id="otherBody">
+        <div class="checkBoxes otherCheckBoxes">
+            <label id="directionLabel">
+                <input type="checkbox" id="directionToggle">
+                English → Latin
+            </label>
+
+            <label id="noRepeatLabel">
+                <input type="checkbox" id="noRepeatToggle">
+                Remove words once correct
+            </label>
+            <label>
+                <input type="checkbox" id="weakWordsToggle">
+                Only test words I need to improve on
+            </label>
+            <label id="timerLabel" style="display:flex; align-items:center; gap:8px;">
+                Timer per question:
+                <select id="timerSelect" style="padding:6px 8px; border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1))); border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                    <option value="0">Unlimited</option>
+                    <option value="5">5 seconds</option>
+                    <option value="10" selected>10 seconds</option>
+                    <option value="30">30 seconds</option>
+                </select>
+            </label>
+            <label>
+                <input type="checkbox" id="smartMarkingToggle">
+                Smart marking (allow minor misspellings)
+            </label>
+            <label title="If you miss a word, get one more try before the answer is revealed. Still counts as a miss for your score either way.">
+                <input type="checkbox" id="retryOnMistakeToggle" checked>
+                Allow a retry before revealing the answer
+            </label>
+            <label>
+                <input type="checkbox" id="formatToggle" checked>
+                Phone format
+            </label>
+            <label id="fullLengthLabel">
+                <input type="checkbox" id="fullLengthToggle">
+                Full-length test (all words in a table)
+            </label>
+            <label id="endlessModeLabel">
+                <input type="checkbox" id="endlessModeToggle" checked>
+                Endless mode (no length limit)
+            </label>
+            <label id="testLengthLabel">
+                Test length:
+                <input type="number" id="testLengthInput" min="1" value="20" style="width:64px; margin-left:6px; padding:6px 8px; border-radius: calc(8px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(8px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(8px * var(--radius-mult-br, var(--radius-mult, 1))) calc(8px * var(--radius-mult-bl, var(--radius-mult, 1))); border:1px solid var(--border); background:var(--bg); color:var(--text);" disabled>
+            </label>
+        </div>
+        </div>
+    </div>
+  </section>
+
+ <button id="startBtn">Start Test</button>
+
+  <section class="tester hidden bottom" id="onebyoneTester">
+
+    <div id="timer"></div>
+
+    <div id="question">Press 'Start Test' to start!</div>
+
+    <input type="text" id="answerInput" class="answerInput" autocomplete="off">
+    <button id="submitBtn">Submit</button>
+    <button id="stopTestBtn" type="button" style="background: var(--redpop); margin-left:10px;">Stop Test</button>
+
+    <div id="feedback"></div>
+    <div id="score"></div>
+    <div id="streak" style="color:var(--muted); font-size:14px; margin-top:4px;"></div>
+
+  </section>
+
+  <section class="tester hidden bottom" id="fullLengthTester">
+
+    <div id="fullLengthTimer" style="font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums; margin-bottom:10px;"></div>
+
+    <div style="overflow-x:auto;">
+    <table id="fullLengthTable" style="width:100%; border-collapse:collapse; text-align:left;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">LATIN</th>
+                <th style="text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">ENGLISH</th>
+            </tr>
+        </thead>
+        <tbody id="fullLengthRows"></tbody>
+    </table>
+    </div>
+
+    <button id="submitFullLengthBtn" style="margin-top:15px;">Submit Test</button>
+
+    <div id="fullLengthScore" style="margin-top:10px; font-weight:700;"></div>
+
+  </section>
+
+  <section class="bottom" style="width: min(1000px, 100%); box-sizing: border-box; margin-top:15px; margin-bottom:15px;">
+    <div class="collapsible-header" id="wordsIncorrectHeader"><strong>Words Incorrect</strong></div>
+    <div id="wordsIncorrectBody">
+        <div id="wordsIncorrectEmpty" style="color:var(--muted); font-size:14px; padding:8px 0;">No mistakes yet this test - keep it up!</div>
+        <table id="wordsIncorrectTable" style="width:100%; border-collapse:collapse; display:none;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">LATIN</th>
+                    <th style="text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">ENGLISH</th>
+                    <th style="text-align:center; padding:8px 12px; border-bottom:1px solid var(--border); color:var(--muted); font-size:12px;">TIMES INCORRECT</th>
+                </tr>
+            </thead>
+            <tbody id="wordsIncorrectRows"></tbody>
+        </table>
+    </div>
+  </section>
+
+<section class="result hidden" style="background: var(--card); border: 1px solid var(--border); border-radius: calc(16px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(16px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(16px * var(--radius-mult-br, var(--radius-mult, 1))) calc(16px * var(--radius-mult-bl, var(--radius-mult, 1))); padding: 20px; box-shadow: var(--shadow); box-sizing: border-box;margin-bottom:15px;">
+
+                <div class="collapsible-header" id="resultsHeader"><strong>Tests Completed</strong></div>
+                <div class="results" id="resultsBody" style="display: flex; flex-wrap: wrap; width: 100%; flex-direction: row;">
+
+                </div>
+
+                <button id="retryMistakesBtn" class="hidden" style="margin-top:10px;">🔁 Retry Mistakes (<span id="retryMistakesCount">0</span>)</button>
+
+                <style>.hidden{display:none;}</style>
+            </section>
+
+    <section class="adContainer bottom" style="width: min(1000px, 100%); box-sizing: border-box; margin-top:15px; margin-bottom:15px;">
+        <div class="ads">
+            <div class="ad" onclick="window.location.href='./vocabData.html'">📖 Browse the Dictionary</div>
+            <div class="ad" onclick="window.location.href='../testData.html'">📊 View Previous Tests</div>
+        </div>
+    </section>
+
+</body>
+<script src="./vocabDataLSA.js"></script>
+<script src="./vocabData.js"></script>
+<script src="../achievementData.js"></script>
+<script>
+    let vocab = [];
+let pool = [];
+let current = null;
+let score = 0;
+let total = 0;
+let timerInterval = null;
+let timeLeft = 0;
+let wordsIncorrectMap = {};
+let streak = 0;
+let bestStreak = 0;
+let attemptCount = 0;
+let missedThisQuestion = false;
+
+const bookRangesByCourse = {
+    clc: [
+        { label: "Book 1", lower: 1, upper: 12 },
+        { label: "Book 2", lower: 13, upper: 20 },
+        { label: "Book 3", lower: 21, upper: 28 },
+        { label: "Book 4", lower: 29, upper: 34 },
+        { label: "Book 5", lower: 35, upper: 40 }
+    ],
+    dr: [
+        { label: "Book 1", lower: 1, upper: 6 },
+        { label: "Book 2", lower: 7, upper: 12 },
+        { label: "Book 3", lower: 13, upper: 18 }
+    ]
+};
+
+/* LOAD VOCAB */
+// Capped to whatever chapter/stage the user picked on the dashboard (see
+// vocab/vocabData.js's filterVocabUpToChapter) - defaults to everything
+// until they've actually picked one.
+vocab = filterVocabUpToChapter(vocabData);
+loadVocab();
+
+buildCheckboxes();
+buildBookSelector();
+renderWordsIncorrect();
+
+console.log(vocab.length);
+console.log(vocab[0]);
+
+/* =========================
+   BUILD CHECKBOXES
+========================= */
+function buildCheckboxes() {
+
+    const stages =
+        [...new Set(vocab.map(v => v.stage))]
+        .sort((a,b)=>Number(a)-Number(b));
+
+    const types =
+        [...new Set(vocab.map(v => v.type))];
+
+    const domains =
+        [...new Set(vocab.flatMap(v => Array.isArray(v.domain) ? v.domain : []))]
+        .sort();
+
+    const stageDiv =
+        document.getElementById("stageCheckboxes");
+
+    const typeDiv =
+        document.getElementById("typeCheckboxes");
+
+    const domainDiv =
+        document.getElementById("domainCheckboxes");
+
+    /* =========================
+       STAGES
+    ========================== */
+
+    const activeCourseInfo = COURSES[getActiveCourse()];
+    const stagePanel = document.getElementById("stagesHeader").closest(".side");
+    const checkboxUI = document.getElementById("stageCheckboxes");
+    const bookQuickSelectBlock = document.getElementById("bookQuickSelectBlock");
+    const rangeUI = document.getElementById("stageRangeInputs");
+
+    if (activeCourseInfo.filterType === "range") {
+        // Too many units (e.g. DCC's 997 frequency ranks) for a checkbox
+        // list - use a min/max range instead.
+        stagePanel.style.display = "";
+        checkboxUI.style.display = "none";
+        bookQuickSelectBlock.style.display = "none";
+        rangeUI.style.display = "flex";
+
+        const max = getMaxChapterForCourse(getActiveCourse());
+        const range = getProgressRange(getActiveCourse());
+        const minInput = document.getElementById("stageRangeMin");
+        const maxInput = document.getElementById("stageRangeMax");
+        minInput.min = 1; minInput.max = max;
+        maxInput.min = 1; maxInput.max = max;
+        minInput.value = range.min;
+        maxInput.value = range.max;
+    } else if (activeCourseInfo.filterType === "checkbox") {
+        stagePanel.style.display = "";
+        checkboxUI.style.display = "";
+        bookQuickSelectBlock.style.display = "";
+        rangeUI.style.display = "none";
+
+        stages.forEach(stage => {
+            if (stage === undefined) return;
+
+            stageDiv.innerHTML += `
+            <label>
+                <input
+                    class="stageCheckboxes"
+                    type="checkbox"
+                    value="${stage}"
+                    checked
+                >
+                ${activeCourseInfo.unitLabel} ${stage}
+            </label>
+            `;
+        });
+    } else {
+        // Courses without a chapter/stage concept (A Level, GCSE-OCR,
+        // All Words) - hide the whole panel.
+        stagePanel.style.display = "none";
+    }
+
+    /* =========================
+       DOMAINS
+       Grouped by field (text before the domain's ":"), same structure as
+       Types/Subtypes below - a field checkbox toggles all its domains.
+    ========================== */
+
+    const domainsByField = {};
+    domains.forEach(domain => {
+        const field = getDomainField(domain);
+        if (!domainsByField[field]) domainsByField[field] = [];
+        domainsByField[field].push(domain);
+    });
+
+    Object.keys(domainsByField).sort().forEach(field => {
+
+        let domainHTML = `
+        <div class="typeGroup"
+             style="
+                margin-bottom:18px;
+                border:1px solid var(--border);
+                border-radius: calc(12px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(12px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(12px * var(--radius-mult-br, var(--radius-mult, 1))) calc(12px * var(--radius-mult-bl, var(--radius-mult, 1)));
+                padding:12px;
+                background:var(--bg);
+             ">
+
+            <label style="
+                display:flex;
+                align-items:center;
+                gap:8px;
+                font-weight:700;
+                margin-bottom:10px;
+            ">
+
+                <input
+                    class="domainFieldCheckboxes"
+                    type="checkbox"
+                    data-field="${field}"
+                    checked
+                >
+
+                ${field}
+
+            </label>
+
+            <div
+                class="subtypeContainer"
+                style="
+                    margin-left:22px;
+                    display:flex;
+                    flex-direction:column;
+                    gap:6px;
+                ">
+        `;
+
+        domainsByField[field].forEach(domain => {
+            const subLabel = domain.includes(":") ? domain.slice(domain.indexOf(":") + 1).trim() : domain;
+
+            domainHTML += `
+            <label style="
+                display:flex;
+                align-items:center;
+                gap:8px;
+                font-size:14px;
+            ">
+
+                <input
+                    class="domainCheckboxes"
+                    type="checkbox"
+                    value="${domain}"
+                    data-parent="${field}"
+                    checked
+                >
+
+                ${subLabel}
+
+            </label>
+            `;
+        });
+
+        domainHTML += `</div></div>`;
+
+        domainDiv.innerHTML += domainHTML;
+    });
+
+    /* =========================
+       TYPES + SUBTYPES
+    ========================== */
+
+    types.forEach(type => {
+
+        // all subtypes for this type
+        const typeSubtypes =
+            [...new Set(
+                vocab
+                .filter(v => v.type === type)
+                .map(v => v.subtype)
+            )];
+
+        const hasSubtypes =
+            typeSubtypes.some(s => s && s.trim() !== "");
+
+        /* -------------------------
+           TYPE HEADER
+        -------------------------- */
+
+        let typeHTML = `
+        <div class="typeGroup"
+             style="
+                margin-bottom:18px;
+                border:1px solid var(--border);
+                border-radius: calc(12px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(12px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(12px * var(--radius-mult-br, var(--radius-mult, 1))) calc(12px * var(--radius-mult-bl, var(--radius-mult, 1)));
+                padding:12px;
+                background:var(--bg);
+             ">
+
+            <label style="
+                display:flex;
+                align-items:center;
+                gap:8px;
+                font-weight:700;
+                margin-bottom:${hasSubtypes ? "10px" : "0"};
+            ">
+
+                <input
+                    class="typeCheckboxes"
+                    type="checkbox"
+                    value="${type}"
+                    data-type="${type}"
+                    checked
+                >
+
+                ${capitalise(type)}s
+
+            </label>
+        `;
+
+        /* -------------------------
+           SUBTYPES
+        -------------------------- */
+
+        if (hasSubtypes) {
+
+            typeHTML += `
+            <div
+                class="subtypeContainer"
+                style="
+                    margin-left:22px;
+                    display:flex;
+                    flex-direction:column;
+                    gap:6px;
+                ">
+            `;
+
+            typeSubtypes.forEach(subtype => {
+
+                // Skip blank subtype
+                if (!subtype || subtype.trim() === "") return;
+
+                typeHTML += `
+                <label style="
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+                    font-size:14px;
+                ">
+
+                    <input
+                        class="subtypeCheckboxes"
+                        type="checkbox"
+                        value="${subtype}"
+                        data-parent="${type}"
+                        checked
+                    >
+
+                    ${capitalise(subtype)}
+
+                </label>
+                `;
+            });
+
+            typeHTML += `</div>`;
+        }
+
+        typeHTML += `</div>`;
+
+        typeDiv.innerHTML += typeHTML;
+    });
+
+    /* =========================
+       PARENT → CHILD LINKING
+    ========================== */
+
+    document
+    .querySelectorAll(".typeCheckboxes")
+    .forEach(parentBox => {
+
+        parentBox.addEventListener("change", () => {
+
+            const type =
+                parentBox.dataset.type;
+
+            const children =
+                document.querySelectorAll(
+                    `.subtypeCheckboxes[data-parent="${type}"]`
+                );
+
+            children.forEach(child => {
+                child.checked = parentBox.checked;
+            });
+
+
+
+        });
+
+    });
+
+    document
+    .querySelectorAll(".domainFieldCheckboxes")
+    .forEach(parentBox => {
+
+        parentBox.addEventListener("change", () => {
+
+            const field = parentBox.dataset.field;
+
+            document
+            .querySelectorAll(`.domainCheckboxes[data-parent="${field}"]`)
+            .forEach(child => {
+                child.checked = parentBox.checked;
+            });
+
+        });
+
+    });
+
+    stageDiv.addEventListener("change", updateBookButtonStates);
+}
+
+
+/* =========================
+   START TEST
+========================= */
+document.getElementById("startBtn").onclick = () => {
+
+    const selectedStages =
+        [...document.querySelectorAll(".stageCheckboxes:checked")]
+        .map(cb => cb.value);
+
+    const selectedTypes =
+        [...document.querySelectorAll(".typeCheckboxes:checked")]
+        .map(cb => cb.value);
+
+    const selectedSubtypes =
+        [...document.querySelectorAll(".subtypeCheckboxes:checked")]
+        .map(cb => cb.value);
+
+    const selectedDomains =
+        [...document.querySelectorAll(".domainCheckboxes:checked")]
+        .map(cb => cb.value);
+
+    const activeFilterType = COURSES[getActiveCourse()].filterType;
+    const rangeMin = parseInt(document.getElementById("stageRangeMin").value, 10);
+    const rangeMax = parseInt(document.getElementById("stageRangeMax").value, 10);
+
+    const weakWordsOnly =
+        document.getElementById("weakWordsToggle").checked;
+
+    pool = vocab.filter(v => {
+
+        /* stage */
+        let stageMatch;
+        if (activeFilterType === "range") {
+            stageMatch = Number(v.stage) >= rangeMin && Number(v.stage) <= rangeMax;
+        } else if (activeFilterType === "checkbox") {
+            stageMatch = selectedStages.includes(v.stage);
+        } else {
+            stageMatch = true;
+        }
+
+        /* domain */
+        const domainMatch =
+            !Array.isArray(v.domain) || v.domain.some(d => selectedDomains.includes(d));
+
+        /* type */
+        const typeMatch =
+            selectedTypes.includes(v.type);
+
+        /* subtype */
+
+        let subtypeMatch = true;
+
+        // words WITH subtypes
+        if (v.subtype && v.subtype.trim() !== "") {
+
+            subtypeMatch =
+                selectedSubtypes.includes(v.subtype);
+        }
+
+        // words WITHOUT subtypes
+        else {
+
+            subtypeMatch =
+                selectedTypes.includes(v.type);
+        }
+
+        /* only words the user needs to improve on */
+        const weakMatch =
+            !weakWordsOnly ||
+            isWeakWord(vocabProgress["i" + v.index]);
+
+        return (
+            stageMatch &&
+            domainMatch &&
+            typeMatch &&
+            subtypeMatch &&
+            weakMatch
+        );
+    });
+
+    if (pool.length === 0) {
+
+        alert(
+            weakWordsOnly
+                ? "No words needing improvement in this selection - nice work!"
+                : "No words selected!"
+        );
+
+        return;
+    }
+
+    score = 0;
+    total = 0;
+    streak = 0;
+    bestStreak = 0;
+    updateStreakDisplay();
+
+    wordsIncorrectMap = {};
+    renderWordsIncorrect();
+
+    if (document.getElementById("fullLengthToggle").checked) {
+        startFullLengthTest();
+    } else {
+        document.getElementById("onebyoneTester").classList.remove("hidden");
+
+        nextQuestion();
+        document.getElementById("score").textContent = "";
+    }
+};
+
+/* =========================
+   NEXT QUESTION
+========================= */
+function nextQuestion() {
+
+    const endlessMode = document.getElementById("endlessModeToggle").checked;
+    const testLength = parseInt(document.getElementById("testLengthInput").value, 10);
+    const hasValidLength = Number.isFinite(testLength) && testLength > 0;
+    const reachedTestLength = !endlessMode && hasValidLength && total >= testLength;
+
+    if (pool.length === 0 || reachedTestLength) {
+        finishTest();
+        return;
+    }
+
+    current = pool[Math.floor(Math.random() * pool.length)];
+
+    total++;
+
+    const englishToLatin =
+        document.getElementById("directionToggle").checked;
+
+    let questionText = "";
+
+    if (englishToLatin) {
+
+        questionText = current.english.join(", ");
+
+    } else {
+
+        questionText = current.latin.join(", ");
+    }
+
+    /* SHOW TYPE + SUBTYPE */
+
+    const subtypeText = current.subtype
+        ? ` (${current.subtype})`
+        : "";
+
+    document.getElementById("question").innerHTML = `
+        <div style="font-size:14px;color:var(--muted);margin-bottom:8px;">
+            ${capitalise(current.type)}${subtypeText}
+        </div>
+        ${questionText}
+    `;
+
+    document.getElementById("answerInput").value = "";
+    document.getElementById("feedback").textContent = " - ";
+    document.getElementById("timer").textContent = "";
+
+    if (getTimerSeconds() > 0) {
+        startTimer();
+    }
+    cooldown = false;
+    attemptCount = 0;
+    missedThisQuestion = false;
+}
+
+/* =========================
+   FINISH TEST
+   (pool exhausted, test length reached, or the user hit Stop Test)
+========================= */
+function finishTest() {
+
+    stopTimer();
+    stopFullLengthTimer();
+    document.querySelectorAll(".tester").forEach(el => el.classList.add("hidden"));
+
+    if (total === 0) {
+        // Nothing was actually attempted - nothing to record.
+        return;
+    }
+
+    document.querySelector(".result").classList.remove("hidden");
+
+    const resultColor = (score/total) > 0.8 ? "var(--greenpop)" : "var(--redpop)";
+    document.getElementById("resultsBody").innerHTML+=`
+            <div style="width: calc(((100% - 40px) * 0.25) - 24px); border: 1px solid var(--border); background-color: ${resultColor}; color: #ffffff; border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); margin:5px; padding: 10px; box-sizing: border-box;">
+                <div id="score">${score}/${total} → ${Math.floor((score/total)*100)}%</div>
+                <div style="font-size:12px; opacity:0.85; margin-top:2px;">Best streak: ${bestStreak}</div>
+                <div id="quotes">${calcScore(score, total)}</div>
+            </div>`;
+        const result = {
+            date: new Date().toISOString(),
+
+            testType: "Vocab",
+            page: document.title,
+
+            score,
+            total,
+            percent: Math.round(score/total*100),
+            bestStreak,
+
+            quote: calcScore(score,total),
+
+            settings: {
+                stages: [...document.querySelectorAll(".stageCheckboxes:checked")].map(cb => cb.value),
+                types: [...document.querySelectorAll(".typeCheckboxes:checked")].map(cb => cb.value),
+                subtypes: [...document.querySelectorAll(".subtypeCheckboxes:checked")].map(cb => cb.value),
+                domains: [...document.querySelectorAll(".domainCheckboxes:checked")].map(cb => cb.value),
+                direction: document.getElementById("directionToggle").checked ? "English to Latin" : "Latin to English",
+                timerSeconds: getTimerSeconds(),
+                smartMarkingEnabled: document.getElementById("smartMarkingToggle").checked,
+                retryOnMistakeEnabled: document.getElementById("retryOnMistakeToggle").checked,
+                noRepeatEnabled: document.getElementById("noRepeatToggle").checked,
+                weakWordsEnabled: document.getElementById("weakWordsToggle").checked,
+                endlessMode: document.getElementById("endlessModeToggle").checked,
+                testLength: document.getElementById("endlessModeToggle").checked ? null : parseInt(document.getElementById("testLengthInput").value, 10),
+                fullLengthMode: document.getElementById("fullLengthToggle").checked
+            }
+        };
+        let history =JSON.parse(localStorage.getItem("latinHistory")) || [];
+            history.unshift(result);
+            localStorage.setItem("latinHistory",JSON.stringify(history));
+            console.log(localStorage.getItem('latinHistory'));
+
+    const retryBtn = document.getElementById("retryMistakesBtn");
+    const missedCount = Object.keys(wordsIncorrectMap).length;
+    if (missedCount > 0) {
+        document.getElementById("retryMistakesCount").textContent = missedCount;
+        retryBtn.classList.remove("hidden");
+    } else {
+        retryBtn.classList.add("hidden");
+    }
+
+    if (score / total >= 0.8) {
+        fireConfetti();
+    }
+}
+
+/* =========================
+   RETRY MISTAKES
+   (requeues only the words missed in the test that just finished)
+========================= */
+document.getElementById("retryMistakesBtn").onclick = () => {
+    const missedIndices = Object.keys(wordsIncorrectMap);
+    pool = vocab.filter(v => missedIndices.includes(String(v.index)));
+
+    if (pool.length === 0) {
+        alert("Those words are no longer available in the current selection.");
+        return;
+    }
+
+    document.getElementById("retryMistakesBtn").classList.add("hidden");
+    document.querySelector(".result").classList.add("hidden");
+
+    score = 0;
+    total = 0;
+    streak = 0;
+    bestStreak = 0;
+    updateStreakDisplay();
+
+    wordsIncorrectMap = {};
+    renderWordsIncorrect();
+
+    document.getElementById("onebyoneTester").classList.remove("hidden");
+    nextQuestion();
+    document.getElementById("score").textContent = "";
+};
+
+/* =========================
+   CONFETTI
+   (small celebratory burst on a strong result - no external library)
+========================= */
+function fireConfetti() {
+    const colors = ["#ff5e5e", "#ffb84d", "#ffe14d", "#7ee787", "#5ec8ff", "#c39bff"];
+    const container = document.createElement("div");
+    container.style.cssText = "position:fixed; inset:0; pointer-events:none; z-index:9999; overflow:hidden;";
+    document.body.appendChild(container);
+
+    for (let i = 0; i < 60; i++) {
+        const piece = document.createElement("div");
+        const left = Math.random() * 100;
+        const duration = 1.8 + Math.random() * 1.2;
+        const delay = Math.random() * 0.3;
+        const size = 6 + Math.random() * 6;
+        piece.style.cssText = `
+            position:absolute; top:-10px; left:${left}vw;
+            width:${size}px; height:${size * 0.4}px;
+            background:${colors[Math.floor(Math.random() * colors.length)]};
+            opacity:0.9; transform:rotate(${Math.random() * 360}deg);
+            animation: confetti-fall ${duration}s ease-in ${delay}s forwards;
+        `;
+        container.appendChild(piece);
+    }
+
+    if (!document.getElementById("confetti-keyframes")) {
+        const style = document.createElement("style");
+        style.id = "confetti-keyframes";
+        style.textContent = `
+            @keyframes confetti-fall {
+                to { top: 105vh; transform: rotate(720deg); opacity: 0.3; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    setTimeout(() => container.remove(), 3500);
+}
+
+/* =========================
+   SUBMIT ANSWER
+========================= */
+function updateStreakDisplay() {
+    document.getElementById("streak").textContent = streak > 0 ? `🔥 Streak: ${streak}` : "";
+}
+
+function matchesAnyAnswer(input, cleanedCorrectAnswers, smartMarking) {
+    if (cleanedCorrectAnswers.includes(input)) return true;
+    if (!smartMarking) return false;
+    return cleanedCorrectAnswers.some(answer => isCloseEnough(input, answer));
+}
+
+let cooldown = false;
+document.getElementById("submitBtn").onclick = () => {
+    if(cooldown === false){
+        const rawInput = document.getElementById("answerInput").value;
+        const input = cleanAnswer(rawInput);
+        const englishToLatin = document.getElementById("directionToggle").checked;
+        const smartMarking = document.getElementById("smartMarkingToggle").checked;
+        const retryEnabled = document.getElementById("retryOnMistakeToggle").checked;
+
+        const correctAnswers = (
+            englishToLatin
+                ? current.latin
+                : current.english
+        );
+
+        const cleanedCorrectAnswers = correctAnswers.map(answer => cleanAnswer(answer));
+        const isCorrect = matchesAnyAnswer(input, cleanedCorrectAnswers, smartMarking);
+
+        if(input != ""){
+            if (isCorrect && missedThisQuestion) {
+                // Got it right on a retry. It's already been recorded as a
+                // miss below (in the "words incorrect" table and the score
+                // tally) - the retry is a learning chance, not a second shot
+                // at the point, so score/streak deliberately don't move here.
+                updateWordCompletion(current, true);
+
+                if (document.getElementById("noRepeatToggle").checked){
+                    pool = pool.filter(w => w !== current);
+                }
+
+                document.getElementById("feedback").textContent =
+                    "✅ Correct on retry - but this one still counts as a miss for your score.";
+                document.getElementById("score").textContent = `Score: ${score} / ${total}`;
+                stopTimer();
+                cooldown = true;
+                setTimeout(nextQuestion, 900);
+            } else if (isCorrect) {
+                score++;
+                streak++;
+                bestStreak = Math.max(bestStreak, streak);
+                updateStreakDisplay();
+
+                document.getElementById("feedback").textContent =
+                    (smartMarking && !cleanedCorrectAnswers.includes(input))
+                        ? "✅ Correct! (close enough - watch that spelling/macron)"
+                        : "✅ Correct!";
+
+                // 🌟 MARK AS COMPLETED IN STORAGE
+                updateWordCompletion(current, true);
+
+                if (document.getElementById("noRepeatToggle").checked){
+                    pool = pool.filter(w => w !== current);
+                }
+                document.getElementById("score").textContent = `Score: ${score} / ${total}`;
+                stopTimer();
+                cooldown = true;
+                setTimeout(nextQuestion, 700);
+            } else {
+                // Wrong answer - record the miss exactly once per question
+                // (in both the persistent per-word progress and the
+                // session's "words incorrect" table), regardless of whether
+                // a retry is allowed, so the two can never disagree.
+                if (!missedThisQuestion) {
+                    missedThisQuestion = true;
+                    streak = 0;
+                    updateStreakDisplay();
+                    updateWordCompletion(current, false);
+                    recordIncorrectWord(current);
+                }
+
+                if (retryEnabled && attemptCount === 0) {
+                    // Give them one more try before revealing the answer.
+                    attemptCount = 1;
+                    document.getElementById("feedback").textContent = "❌ Not quite - try again!";
+                    document.getElementById("answerInput").value = "";
+                    document.getElementById("answerInput").focus();
+                } else {
+                    // No retries left (or retries are disabled) - reveal it.
+                    document.getElementById("feedback").textContent =
+                            `❌ Correct answer: ${correctAnswers.join(", ")}`;
+
+                    document.getElementById("submitBtn").addEventListener("click", function nextQ(){
+                            nextQuestion();
+                            document.getElementById("submitBtn").removeEventListener("click", nextQ);
+                        });
+
+                    document.getElementById("score").textContent = `Score: ${score} / ${total}`;
+                    stopTimer();
+                    cooldown = true;
+                }
+            }
+        }
+    }
+};
+
+/* =========================
+   STOP TEST
+========================= */
+document.getElementById("stopTestBtn").onclick = () => {
+    stopTimer();
+
+    // Don't count the question currently on screen if it was never answered.
+    if (!cooldown && total > 0) {
+        total--;
+    }
+
+    finishTest();
+};
+
+
+/* =========================
+   ENTER KEY SUBMIT
+========================= */
+document.getElementById("answerInput")
+.addEventListener("keydown", e => {
+
+    if (e.key === "Enter") {
+
+        e.preventDefault();
+
+        document.getElementById("submitBtn").click();
+    }
+});
+
+/* =========================
+   TIMER
+========================= */
+function getTimerSeconds() {
+    return parseInt(document.getElementById("timerSelect").value, 10) || 0;
+}
+
+function startTimer() {
+
+    stopTimer();
+
+    timeLeft = getTimerSeconds();
+
+    document.getElementById("timer").textContent =
+        `Time: ${timeLeft}`;
+
+    timerInterval = setInterval(() => {
+
+        timeLeft--;
+
+        document.getElementById("timer").textContent =
+            `Time: ${timeLeft}`;
+
+        if (timeLeft <= 0) {
+
+            stopTimer();
+
+            nextQuestion();
+        }
+
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+/* =========================
+   FULL-LENGTH TEST
+   All words in a single table (LATIN | ENGLISH input) instead of one at a
+   time. Endless mode and English->Latin direction don't apply here - the
+   settings toggles for those get force-disabled while this mode is active
+   (see updateFullLengthAvailability). Test length is capped at 100 words
+   and clamped to however many words are actually in the pool.
+========================= */
+let fullLengthWords = [];
+let fullLengthTimerInterval = null;
+
+function startFullLengthTest() {
+    const requestedLength = parseInt(document.getElementById("testLengthInput").value, 10);
+    const testLength = (Number.isFinite(requestedLength) && requestedLength > 0) ? requestedLength : 20;
+    const rowCount = Math.min(testLength, 100, pool.length);
+
+    fullLengthWords = [...pool]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, rowCount);
+
+    score = 0;
+    total = fullLengthWords.length;
+
+    const rows = document.getElementById("fullLengthRows");
+    rows.innerHTML = fullLengthWords.map(word => `
+        <tr>
+            <td style="padding:10px 12px; border-bottom:1px solid var(--border); font-weight:700;">
+                ${word.latin.join(", ")}
+            </td>
+            <td style="padding:10px 12px; border-bottom:1px solid var(--border);">
+                <input type="text" class="fullLengthInput" data-index="${word.index}" autocomplete="off">
+                <div class="fullLengthFeedback"></div>
+            </td>
+        </tr>
+    `).join("");
+
+    document.getElementById("fullLengthScore").textContent = "";
+    document.getElementById("submitFullLengthBtn").disabled = false;
+
+    document.getElementById("fullLengthTester").classList.remove("hidden");
+
+    if (getTimerSeconds() > 0) {
+        startFullLengthTimer(rowCount * 5);
+    } else {
+        document.getElementById("fullLengthTimer").textContent = "";
+    }
+
+    const firstInput = rows.querySelector(".fullLengthInput");
+    if (firstInput) firstInput.focus();
+}
+
+function submitFullLengthTest() {
+    stopFullLengthTimer();
+
+    score = 0;
+    const smartMarking = document.getElementById("smartMarkingToggle").checked;
+
+    document.querySelectorAll(".fullLengthInput").forEach(input => {
+        const wordObj = fullLengthWords.find(w => w.index === input.dataset.index);
+        if (!wordObj) return;
+
+        const cleanedInput = cleanAnswer(input.value);
+        const correctAnswers = wordObj.english;
+        const cleanedCorrectAnswers = correctAnswers.map(answer => cleanAnswer(answer));
+        // Respect the Smart Marking toggle here too - previously this mode
+        // always required an exact match even with Smart Marking enabled,
+        // unlike the one-by-one tester.
+        const isCorrect = cleanedInput !== "" && matchesAnyAnswer(cleanedInput, cleanedCorrectAnswers, smartMarking);
+
+        const feedback = input.parentElement.querySelector(".fullLengthFeedback");
+
+        if (isCorrect) {
+            score++;
+            feedback.textContent =
+                (smartMarking && !cleanedCorrectAnswers.includes(cleanedInput))
+                    ? "✅ Correct! (close enough - watch that spelling/macron)"
+                    : "✅ Correct!";
+            feedback.style.color = "var(--greenpop)";
+            updateWordCompletion(wordObj, true);
+        } else {
+            feedback.textContent = `❌ Correct answer: ${correctAnswers.join(", ")}`;
+            feedback.style.color = "var(--redpop)";
+            updateWordCompletion(wordObj, false);
+            recordIncorrectWord(wordObj);
+        }
+
+        input.disabled = true;
+    });
+
+    document.getElementById("submitFullLengthBtn").disabled = true;
+    document.getElementById("fullLengthScore").textContent = `Score: ${score} / ${total}`;
+
+    finishTest();
+}
+
+document.getElementById("submitFullLengthBtn").addEventListener("click", submitFullLengthTest);
+
+function startFullLengthTimer(totalSeconds) {
+    stopFullLengthTimer();
+
+    let secondsLeft = totalSeconds;
+
+    document.getElementById("fullLengthTimer").textContent = `Time: ${secondsLeft}`;
+
+    fullLengthTimerInterval = setInterval(() => {
+        secondsLeft--;
+
+        document.getElementById("fullLengthTimer").textContent = `Time: ${secondsLeft}`;
+
+        if (secondsLeft <= 0) {
+            stopFullLengthTimer();
+            submitFullLengthTest();
+        }
+    }, 1000);
+}
+
+function stopFullLengthTimer() {
+    clearInterval(fullLengthTimerInterval);
+}
+
+function updateFullLengthAvailability() {
+    const isFullLength = document.getElementById("fullLengthToggle").checked;
+
+    const endlessToggle = document.getElementById("endlessModeToggle");
+    const directionToggle = document.getElementById("directionToggle");
+    const noRepeatToggle = document.getElementById("noRepeatToggle");
+
+    endlessToggle.disabled = isFullLength;
+    directionToggle.disabled = isFullLength;
+    noRepeatToggle.disabled = isFullLength;
+
+    document.getElementById("endlessModeLabel").style.opacity = isFullLength ? "0.5" : "1";
+    document.getElementById("directionLabel").style.opacity = isFullLength ? "0.5" : "1";
+    document.getElementById("noRepeatLabel").style.opacity = isFullLength ? "0.5" : "1";
+
+    if (isFullLength) {
+        endlessToggle.checked = false;
+        directionToggle.checked = false;
+        noRepeatToggle.checked = false;
+    }
+
+    updateTestLengthAvailability();
+}
+
+document.getElementById("fullLengthToggle").addEventListener("change", updateFullLengthAvailability);
+
+
+/* =========================
+   PHONE FORMAT
+========================= */
+function applyPhoneFormat() {
+    const isPhoneFormat = document.getElementById("formatToggle").checked;
+
+    document.querySelectorAll(".side").forEach(el => {
+        el.style.width = isPhoneFormat ? "100%" : "calc(50% - 10px)";
+    });
+}
+
+document.getElementById("formatToggle").addEventListener("change", applyPhoneFormat);
+
+applyPhoneFormat();
+
+
+let allSelectedStage = true;
+let allSelectedType = true;
+let allStages = document.querySelectorAll(".stageCheckboxes")
+
+document.getElementById("toggleStagesBtn").onclick = function () {
+    
+
+    allStages.forEach(box => {
+        box.checked = !allSelectedStage;
+
+    });
+
+    allSelectedStage = !allSelectedStage;
+
+    this.textContent =
+        allSelectedStage ? "Deselect All" : "Select All";
+
+    updateBookButtonStates();
+};
+
+// Persists the DCC-style min/max range as the user edits it, so it's
+// remembered the same way the index.html dashboard selector is.
+function handleStageRangeChange(){
+    const course = getActiveCourse();
+    const max = getMaxChapterForCourse(course);
+    let min = parseInt(document.getElementById("stageRangeMin").value, 10) || 1;
+    let rawMax = parseInt(document.getElementById("stageRangeMax").value, 10) || max;
+    min = Math.min(Math.max(min, 1), max);
+    rawMax = Math.min(Math.max(rawMax, 1), max);
+    setProgressRange(course, Math.min(min, rawMax), Math.max(min, rawMax));
+}
+document.getElementById("stageRangeMin").addEventListener("change", handleStageRangeChange);
+document.getElementById("stageRangeMax").addEventListener("change", handleStageRangeChange);
+
+let allSelectedDomain = true;
+let allDomains = document.querySelectorAll(".domainCheckboxes");
+let allDomainFields = document.querySelectorAll(".domainFieldCheckboxes");
+
+document.getElementById("toggleDomainsBtn").onclick = function () {
+
+    allDomains.forEach(box => {
+        box.checked = !allSelectedDomain;
+    });
+    allDomainFields.forEach(box => {
+        box.checked = !allSelectedDomain;
+    });
+
+    allSelectedDomain = !allSelectedDomain;
+
+    this.textContent =
+        allSelectedDomain ? "Deselect All" : "Select All";
+};
+
+/* =========================
+   QUICK SELECT BY BOOK
+   Click a book button to toggle all its stages on/off.
+   Use the "up to" dropdown to select a cumulative range instead.
+   Book ranges differ per course (CLC has 5 books, De Romanis 3) - see
+   bookRangesByCourse declared near the top of this script.
+========================= */
+function getBookRanges() {
+    return bookRangesByCourse[getActiveCourse()] || [];
+}
+
+function buildBookSelector() {
+    const ranges = getBookRanges();
+
+    const container = document.getElementById("bookButtonsContainer");
+    container.innerHTML = ranges.map(r => `
+        <button type="button" class="selectByBook" data-lower="${r.lower}" data-upper="${r.upper}">
+            ${r.label}
+        </button>
+    `).join("");
+
+    container.querySelectorAll(".selectByBook").forEach(btn => {
+        btn.onclick = function () {
+            const lower = Number(btn.dataset.lower);
+            const upper = Number(btn.dataset.upper);
+
+            const boxesInRange =
+                [...document.querySelectorAll(".stageCheckboxes")]
+                .filter(box => Number(box.value) >= lower && Number(box.value) <= upper);
+
+            const allChecked =
+                boxesInRange.length > 0 &&
+                boxesInRange.every(box => box.checked);
+
+            boxesInRange.forEach(box => {
+                box.checked = !allChecked;
+            });
+
+            updateBookButtonStates();
+        };
+    });
+
+    const select = document.getElementById("upToBookSelect");
+    select.innerHTML = `<option value="">Choose a book…</option>` +
+        ranges.map(r => `<option value="${r.upper}">${r.label} (stages ${r.lower}–${r.upper})</option>`).join("");
+
+    updateBookButtonStates();
+}
+
+function updateBookButtonStates() {
+    document.querySelectorAll(".selectByBook").forEach(btn => {
+        const lower = Number(btn.dataset.lower);
+        const upper = Number(btn.dataset.upper);
+
+        const boxesInRange =
+            [...document.querySelectorAll(".stageCheckboxes")]
+            .filter(box => Number(box.value) >= lower && Number(box.value) <= upper);
+
+        const allChecked =
+            boxesInRange.length > 0 &&
+            boxesInRange.every(box => box.checked);
+
+        btn.classList.toggle("active", allChecked);
+    });
+}
+
+document.getElementById("upToBookSelect").addEventListener("change", function () {
+    const bound = Number(this.value);
+
+    if (!bound) return;
+
+    document.querySelectorAll(".stageCheckboxes").forEach(box => {
+        box.checked = Number(box.value) <= bound;
+    });
+
+    updateBookButtonStates();
+    this.value = "";
+});
+
+document.getElementById("toggleTypesBtn").onclick = function () {
+    const allTypes = [
+        ...document.querySelectorAll(".typeCheckboxes"),
+        ...document.querySelectorAll(".subtypeCheckboxes")
+    ];
+
+    allTypes.forEach(box => {
+        box.checked = !allSelectedType;
+    });
+
+    allSelectedType = !allSelectedType;
+
+    this.textContent =
+        allSelectedType ? "Deselect All" : "Select All";
+};
+
+/* =========================
+   HELPER
+========================= */
+function cleanAnswer(str) {
+    return str
+        .toLowerCase()
+        .trim()
+        .replace(/[<>?,.\/:";'{}\[\]!@#$%^&*()_+=\-0987654321| ]/g, "");
+}
+
+/* =========================
+   SMART MARKING (typo tolerance)
+   Standard Levenshtein edit distance between two cleaned strings. Kept
+   simple/iterative rather than reaching for a library - these are short
+   vocab words, not paragraphs, so an O(n*m) table is plenty fast.
+========================= */
+function levenshteinDistance(a, b) {
+    const rows = a.length + 1;
+    const cols = b.length + 1;
+    const d = Array.from({ length: rows }, (_, i) => [i, ...new Array(cols - 1).fill(0)]);
+    for (let j = 0; j < cols; j++) d[0][j] = j;
+
+    for (let i = 1; i < rows; i++) {
+        for (let j = 1; j < cols; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            d[i][j] = Math.min(
+                d[i - 1][j] + 1,
+                d[i][j - 1] + 1,
+                d[i - 1][j - 1] + cost
+            );
+        }
+    }
+    return d[rows - 1][cols - 1];
+}
+
+// Allows one small slip (a wrong/missing macron, a swapped or doubled
+// letter) on words long enough that a 1-character difference isn't just
+// a different word entirely - e.g. "et"/"in" still need to match exactly.
+function isCloseEnough(input, correct) {
+    if (input === correct) return true;
+    if (correct.length < 4) return false;
+    return levenshteinDistance(input, correct) <= 1;
+}
+function capitalise(str) {
+
+    if (!str) return "";
+
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// updateWordCompletion() is defined once, shared, in vocab/vocabData.js.
+
+/* =========================
+   WORDS INCORRECT (this test only)
+========================= */
+function recordIncorrectWord(wordObj) {
+    const key = wordObj.index;
+
+    if (!wordsIncorrectMap[key]) {
+        wordsIncorrectMap[key] = {
+            latin: wordObj.latin.join(", "),
+            english: wordObj.english.join(", "),
+            count: 0
+        };
+    }
+
+    wordsIncorrectMap[key].count++;
+    renderWordsIncorrect();
+}
+
+function renderWordsIncorrect() {
+    const rows = document.getElementById("wordsIncorrectRows");
+    const table = document.getElementById("wordsIncorrectTable");
+    const empty = document.getElementById("wordsIncorrectEmpty");
+
+    const entries = Object.values(wordsIncorrectMap)
+        .sort((a, b) => b.count - a.count);
+
+    if (entries.length === 0) {
+        rows.innerHTML = "";
+        table.style.display = "none";
+        empty.style.display = "";
+        return;
+    }
+
+    table.style.display = "";
+    empty.style.display = "none";
+
+    rows.innerHTML = entries.map(entry => `
+        <tr>
+            <td style="padding:8px 12px; border-bottom:1px solid var(--border);" class="latin-word">${entry.latin}</td>
+            <td style="padding:8px 12px; border-bottom:1px solid var(--border);">${entry.english}</td>
+            <td style="padding:8px 12px; border-bottom:1px solid var(--border); text-align:center; color:var(--redpop); font-weight:700;">${entry.count}</td>
+        </tr>
+    `).join("");
+}
+
+/* =========================
+   ENDLESS MODE / TEST LENGTH
+========================= */
+function updateTestLengthAvailability() {
+    const endless = document.getElementById("endlessModeToggle").checked;
+    document.getElementById("testLengthInput").disabled = endless;
+    document.getElementById("testLengthLabel").style.opacity = endless ? "0.5" : "1";
+}
+document.getElementById("endlessModeToggle").addEventListener("change", updateTestLengthAvailability);
+updateTestLengthAvailability();
+updateFullLengthAvailability();
+
+/* =========================
+   COLLAPSIBLE SECTIONS
+========================= */
+function makeCollapsible(headerId, bodyId, startCollapsed = false) {
+    const header = document.getElementById(headerId);
+    const body = document.getElementById(bodyId);
+
+    if (!header || !body) return;
+
+    const arrow = document.createElement("span");
+    arrow.className = "collapse-arrow";
+    header.prepend(arrow);
+
+    let collapsed = startCollapsed;
+
+    function apply() {
+        body.classList.toggle("collapsible-hidden", collapsed);
+        arrow.textContent = collapsed ? "▶" : "▼";
+    }
+
+    header.addEventListener("click", () => {
+        collapsed = !collapsed;
+        apply();
+    });
+
+    apply();
+}
+
+makeCollapsible("stagesHeader", "stagesBody");
+makeCollapsible("typesHeader", "typesBody");
+makeCollapsible("domainsHeader", "domainsBody");
+makeCollapsible("otherHeader", "otherBody");
+makeCollapsible("wordsIncorrectHeader", "wordsIncorrectBody");
+makeCollapsible("resultsHeader", "resultsBody");
+</script>
+
+</html>

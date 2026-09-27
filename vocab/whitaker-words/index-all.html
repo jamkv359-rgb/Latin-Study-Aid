@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Latin Vocab (All)</title>
+  <style>
+    :root {
+      --bg: #faf8f4;
+      --panel: #ffffff;
+      --text: #2a2622;
+      --muted: #756c62;
+      --line: #e4ddd2;
+      --head: #efe8dc;
+      --accent: #8a2c1d;
+      --latin-bg: #fbf5ec;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    header {
+      padding: 20px 24px 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+    h1 {
+      margin: 0 0 4px;
+      font: 600 24px/1.2 Georgia, "Times New Roman", serif;
+      color: var(--accent);
+    }
+    header p { margin: 0; color: var(--muted); }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: end;
+      padding: 14px 24px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      
+    }
+    .controls label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+    input[type=search], select {
+      font: inherit;
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+    }
+    input[type=search] { width: 260px; }
+    button {
+      font: inherit;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    button:disabled { opacity: .4; cursor: default; }
+    .spacer { flex: 1; }
+    #count { color: var(--muted); align-self: center; }
+
+    .table-wrap { overflow-x: auto; padding: 0 24px 16px; }
+    .pages { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 24px 0; }
+    .pages button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    #copy { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    #copy:hover { background: #6f2317; color: #fff; }
+    #copyMsg { color: #1f7a3a; font-weight: 600; }
+    .hint { color: var(--muted); font-size: 13px; }
+    table { border-collapse: collapse; margin-top: 12px; background: var(--panel); }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 5px 8px;
+      text-align: left;
+      vertical-align: top;
+      max-width: 260px;
+    }
+    th { background: var(--head); font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
+    td.latin { background: var(--latin-bg); font-family: Georgia, "Times New Roman", serif; font-size: 15px; white-space: nowrap; }
+    th.latin { background: #e8dcc7; }
+    td.type { white-space: nowrap; }
+    td.info { color: var(--muted); font-size: 13px; min-width: 140px; }
+    td.english { min-width: 90px; }
+    td.freq { text-align: center; font-weight: 600; cursor: help; }
+    .f-A { color: #1f7a3a; } .f-B { color: #4b8a2a; } .f-C { color: #8a7a1f; }
+    .f-D { color: #a0601f; } .f-E, .f-F, .f-I, .f-M, .f-N { color: #a33; }
+    tbody tr:hover td { background: #f3ede2; }
+
+    .pager { display: flex; gap: 10px; align-items: center; padding: 8px 24px 32px; }
+
+    #loader { padding: 40px 24px; }
+    #picker { margin-top: 12px; }
+    code { background: var(--head); padding: 1px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Latin Vocab</h1>
+    <p>Generated from Whitaker's WORDS dictionary (<code>output/DICTLINE.json</code>). All entries across 5 pages, for copying into Excel; <a href="index.html">paged view</a> · <a href="index-raw.html">all fields</a>.</p>
+  </header>
+
+  <div id="loader">
+    <p id="status">Loading dictionary…</p>
+    <div id="picker" hidden>
+      <input type="file" id="file" accept=".json,application/json">
+      <p>Or, from this folder, run <code>python -m http.server</code> and open <code>http://localhost:8000</code>.</p>
+    </div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="controls">
+      <label>Search
+        <input type="search" id="search" placeholder="e.g. amo, love, bell…" autocomplete="off">
+      </label>
+      <label>In
+        <select id="searchIn">
+          <option value="all">Latin & English</option>
+          <option value="latin">Latin only</option>
+          <option value="english">English only</option>
+        </select>
+      </label>
+      <label>Word type
+        <select id="type"><option value="">All</option></select>
+      </label>
+      <label>Frequency
+        <select id="freq">
+          <option value="">Any</option>
+          <option value="A">Very frequent only (A)</option>
+          <option value="B">Frequent or higher (A–B)</option>
+          <option value="C">Common or higher (A–C)</option>
+          <option value="D">Lesser or higher (A–D)</option>
+        </select>
+      </label>
+      <label>Sort
+        <select id="sort">
+          <option value="dict">Dictionary order</option>
+          <option value="latin">Latin A–Z</option>
+          <option value="freq">Most frequent first</option>
+        </select>
+      </label>
+      <span class="spacer"></span>
+      <span id="count"></span>
+      <button id="csv" title="Download the filtered rows as a CSV that opens in Excel">Download CSV</button>
+    </div>
+
+    <div class="pages">
+      <span id="pages" class="pages" style="padding:0"></span>
+      <button id="copy" title="Copy this page as tab-separated text for pasting into Excel">Copy page for Excel</button>
+      <label class="hint"><input type="checkbox" id="copyHeader"> include header row on pages 2–5</label>
+      <span id="copyMsg"></span>
+    </div>
+    <p class="hint" style="padding:4px 24px 0;margin:0">Paste page 1 into cell A1, then paste each following page into the first empty row below it.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead id="head"></thead>
+        <tbody id="body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="all.js"></script>
+</body>
+</html>
