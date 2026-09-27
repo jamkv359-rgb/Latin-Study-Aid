@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Music Library</title>
+<link rel="stylesheet" href="../theme.css">
+<style>
+  .side, .bottom {
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .container {
+    width: min(1000px, 100%);
+  }
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  h1 { margin: 0; }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .category-card {
+    padding: 24px;
+  }
+
+  .category-card h2 {
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-button:hover {
+    transform: translateX(5px);
+  }
+
+  .adContainer {
+    margin: 20px 0;
+    width: min(1000px, 100%);
+  }
+
+  .ads {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .ad {
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .xp-factor {width: calc(25% - 30px);}
+  .adz {width: 50%}
+</style>
+<script src="../interact.js">
+  /*This javascript file, interact.js, is universal across the entire website, attatched to all pages, so it's probably where the code for the music-playing, across pages, will be implemented. It has a window.onload function as well.*/
+</script>
+</head>
+<body data-page-type="base">
+   
+
+<div class="container" >
+  <div class="header">
+    <img class="banner" src="../banner2.png" alt="" style="width: 100%; position: fixed;  height: 10vh; object-fit: cover; top: 0; left: 0; z-index: 9999;" >
+    <h1 style="margin-top: 10vh;">Music Library</h1>
+    <p style="color:var(--muted);"><span id="username-greet"></span>Select music to vibe to while you study!</p>
+    <div class='interact' style= "background: var(--card); border: 1px solid var(--border); border-radius: calc(15px * var(--radius-mult-tl, var(--radius-mult, 1))) calc(15px * var(--radius-mult-tr, var(--radius-mult, 1))) calc(15px * var(--radius-mult-br, var(--radius-mult, 1))) calc(15px * var(--radius-mult-bl, var(--radius-mult, 1))); width: fit-content; padding: 5px 15px 5px 15px; margin-bottom: 24px;"></div>
+  </div>
+
+  <div id="musicLibrary" class="dashboard-grid"></div>
+  
+
+</div>
+
+
+<script src="../achievementData.js"></script>
+<script>
+    
+  
+
+  function update(){
+    
+  }
+  update();
+  
+/*
+
+Thanks! I'm now making a new feature where the user can listen to music while they study, changeable through two interfaces:
+- a window on the bottom of the viewport (controlling mostly standard stuff, ie 'next song'/'previous song', pause/play, repeat song, loop playlist), added by javascript to each page on load
+- a pre-made music 'homepage' page, where the user can see all the music, sorted by type. 
+The music should be able to be carried over across pages, with the music continuing from where it left off when the user clicks a link to another page. Can u pls compose the code for the website, including the js that builds each individual music track? this is what the musicData array looks like: 
+musicData=[
+{ index: "01000", type: "Lofi", name: "LoFi Beats", fileName: "lofi-1.mp3", author: "lofidreams", link: "https://pixabay.com/music/beats-lofi-background-music-336230/" },
+];   (array continues with object with same properties. First 2 digits of the index property are the index of the type, last 3 digits are index of the individual song in the group. Each music file is in the same folder as the music html homepage, called 'music'). The user should be able to click on the song in the homepage, and it starts playing. Thanks!
+
+
+*/
+</script>
+</body>
+</html>
